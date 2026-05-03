@@ -492,34 +492,34 @@ Each AC uses Given/When/Then with explicit MUST/SHOULD/COULD priority and a Veri
 
 ### Approach
 - **Emphasis**: balanced — heavy on **service-class unit tests** (parser, vendor inference are isolated, deterministic logic with high test value) and **system tests** (Action Mailbox round-trips and Capybara walkthroughs are the only way to verify the email-first user journey end-to-end).
-- **Test framework decision**: open per `systemPatterns.md` Open Decisions. Resolve in Phase 1 — default to Rails 8 stock Minitest unless the team adopts RSpec for richer matchers and rai sub-agent compatibility. Whichever wins, adopt project-wide and document the decision.
+- **Test framework**: **RSpec** (resolved 2026-05-03 in P1; see `systemPatterns.md` Open Decisions). FactoryBot for fixtures, shoulda-matchers for Rails matchers, Capybara for system specs.
 - **Target test count**: ~90-120 across all phases. Justified for a multi-component foundational feature: 9 service classes/models with non-trivial behavior, 4 controllers, 2 mailers (with 7+ actions across them), 1 mailbox, 3 jobs, plus end-to-end flows.
 
 ### File Organization
-- **New test files** (paths assume Minitest; substitute `spec/` if RSpec wins in Phase 1):
-  - `test/models/tenant_test.rb` — state machine, signed_id purposes, gm_email normalization, onboarding_token uniqueness
-  - `test/models/vendor_test.rb` — domain matching, canonical-vendor invariants
-  - `test/models/responsibility_test.rb` — primary + ordered fallbacks invariant
-  - `test/models/source_test.rb` — submission_method states
-  - `test/models/contact_test.rb` — internal/vendor/unknown classification persistence
-  - `test/models/question_test.rb` (or `test/lib/rogue/question_catalog_test.rb` if code-defined per creative)
-  - `test/services/onboarding_reply_parser_test.rb` — heaviest unit-test target; 5+ mail-client fixture variants × 4 intents
-  - `test/services/vendor_inference_service_test.rb` — internal/vendor/unknown branches + edge cases
-  - `test/controllers/admin/tenants_controller_test.rb` — basic-auth gating, seed happy path, resend
-  - `test/controllers/onboarding/confirmations_controller_test.rb` — happy / expired / already-used / resend
-  - `test/controllers/setup/walkthroughs_controller_test.rb` — happy / expired / 3-step navigation
-  - `test/controllers/dashboards_controller_test.rb` — happy / expired
-  - `test/mailers/onboarding_mailer_test.rb` — every mailer action, subjects, headers, bodies, plain-text alt
-  - `test/mailers/accountability_mailer_test.rb` — digest with mixed statuses + empty-state
-  - `test/mailboxes/onboarding_mailbox_test.rb` — routing, idempotency, GM-only gating
-  - `test/jobs/enqueue_first_question_job_test.rb`
-  - `test/jobs/enqueue_next_question_job_test.rb`
-  - `test/jobs/weekly_digest_job_test.rb` — recurring resilience, idempotency on `(tenant_id, week_starting)`
-  - `test/system/admin_seed_tenant_test.rb`
-  - `test/system/gm_confirm_and_first_question_test.rb`
-  - `test/system/gm_reply_assigns_responsibility_test.rb`
-  - `test/system/invitee_setup_walkthrough_test.rb`
-  - `test/system/weekly_digest_test.rb`
+- **New test files** (RSpec — `*_spec.rb` under `spec/`):
+  - `spec/models/tenant_spec.rb` — state machine, signed_id purposes, gm_email normalization, onboarding_token uniqueness
+  - `spec/models/vendor_spec.rb` — domain matching, canonical-vendor invariants
+  - `spec/models/responsibility_spec.rb` — primary + ordered fallbacks invariant
+  - `spec/models/source_spec.rb` — submission_method states
+  - `spec/models/contact_spec.rb` — internal/vendor/unknown classification persistence
+  - `spec/models/question_spec.rb` (or `spec/lib/rogue/question_catalog_spec.rb` if code-defined per creative)
+  - `spec/services/onboarding_reply_parser_spec.rb` — heaviest unit-test target; 5+ mail-client fixture variants × 4 intents
+  - `spec/services/vendor_inference_service_spec.rb` — internal/vendor/unknown branches + edge cases
+  - `spec/controllers/admin/tenants_controller_spec.rb` — basic-auth gating, seed happy path, resend
+  - `spec/controllers/onboarding/confirmations_controller_spec.rb` — happy / expired / already-used / resend
+  - `spec/controllers/setup/walkthroughs_controller_spec.rb` — happy / expired / 3-step navigation
+  - `spec/controllers/dashboards_controller_spec.rb` — happy / expired
+  - `spec/mailers/onboarding_mailer_spec.rb` — every mailer action, subjects, headers, bodies, plain-text alt
+  - `spec/mailers/accountability_mailer_spec.rb` — digest with mixed statuses + empty-state
+  - `spec/mailboxes/onboarding_mailbox_spec.rb` — routing, idempotency, GM-only gating
+  - `spec/jobs/enqueue_first_question_job_spec.rb`
+  - `spec/jobs/enqueue_next_question_job_spec.rb`
+  - `spec/jobs/weekly_digest_job_spec.rb` — recurring resilience, idempotency on `(tenant_id, week_starting)`
+  - `spec/system/admin_seed_tenant_spec.rb`
+  - `spec/system/gm_confirm_and_first_question_spec.rb`
+  - `spec/system/gm_reply_assigns_responsibility_spec.rb`
+  - `spec/system/invitee_setup_walkthrough_spec.rb`
+  - `spec/system/weekly_digest_spec.rb`
 - **Extend existing**: nothing — fresh app.
 
 ### What NOT to Test
@@ -539,22 +539,25 @@ Each AC uses Given/When/Then with explicit MUST/SHOULD/COULD priority and a Veri
 - **Phase 6** (digest + dashboard): ~10 tests — `AccountabilityMailer#weekly_digest` with mixed statuses + empty state, `WeeklyDigestJob` (idempotent on `(tenant_id, week_starting)`), `DashboardsController` happy/expired, system test for digest delivery.
 
 ### E2E Anchors (the "feature actually works" gates)
-- **`test/system/gm_email_first_onboarding_full_loop_test.rb`** — single test that walks: seed via `/admin/tenants/new` → assert confirmation email delivered → click confirm → assert first question email delivered → simulate inbound reply via `receive_inbound_email_from_mail` → assert in-thread ack and setup email delivered → click setup link → complete walkthrough → assert digest scheduled. This is the integration gate.
-- **`test/system/gm_skip_then_revisit_test.rb`** — covers AC-NAV-1 (skip → later assignment).
-- **`test/system/gm_unknown_vendor_clarification_test.rb`** — covers AC-ERROR-4 (vendor disambiguation round-trip).
+- **`spec/system/gm_email_first_onboarding_full_loop_spec.rb`** — single test that walks: seed via `/admin/tenants/new` → assert confirmation email delivered → click confirm → assert first question email delivered → simulate inbound reply via `receive_inbound_email_from_mail` → assert in-thread ack and setup email delivered → click setup link → complete walkthrough → assert digest scheduled. This is the integration gate.
+- **`spec/system/gm_skip_then_revisit_spec.rb`** — covers AC-NAV-1 (skip → later assignment).
+- **`spec/system/gm_unknown_vendor_clarification_spec.rb`** — covers AC-ERROR-4 (vendor disambiguation round-trip).
 
 ## Implementation Roadmap
 
 ### Phasing rationale
 The feature splits into 6 build phases that each end at a testable, demonstrable boundary. Phase 1 lays the data substrate; phases 2–3 deliver the GM-confirm → first-question slice; phase 4 is the heaviest (inbound parsing); phases 5–6 close the invitee and accountability loops.
 
-- [ ] **Phase 1 — Foundation**
-  - Install Action Mailbox: `bin/rails action_mailbox:install`, `action_mailbox:install:migrations`, `db:migrate`.
-  - Resolve test framework decision (Minitest stay vs. RSpec switch). Document in `systemPatterns.md` Open Decisions.
-  - Migrations + models: `Tenant`, `Vendor`, `Domain` enum, `Contact`, `Question` (model OR module per creative), `Responsibility`, `Source`, `Request`, `SubmissionPrompt`, `SkippedQuestion`, `OnboardingFlowEvent` (audit trail).
-  - `Current` (`ActiveSupport::CurrentAttributes`) module carrying `tenant`.
-  - Factories.
-  - **Acceptance**: `bin/rails db:migrate` clean, all model unit tests green, Action Mailbox conductor reachable in dev at `/rails/conductor/action_mailbox/inbound_emails`.
+- [x] **Phase 1 — Foundation** *(COMPLETE 2026-05-03)*
+  - Action Mailbox already installed from prior setup step.
+  - RSpec framework resolved: RSpec + FactoryBot + shoulda-matchers.
+  - 11 migrations: `tenants`, `vendors`, `contacts`, `tenant_questions`, `responsibilities`, `sources`, `requests`, `submission_prompts`, `skipped_questions`, `flow_events`, and Action Mailbox parser column extension.
+  - Models: `Tenant`, `Vendor`, `Contact`, `TenantQuestion`, `Responsibility`, `Source`, `Request`, `SubmissionPrompt`, `SkippedQuestion`, `FlowEvent`, `Current`.
+  - Question Catalog: `lib/rogue/question_catalog/marketing/v1.rb` (6 marketing questions, `materialize_for` idempotent method).
+  - Vendor seed CSV (20 entries) + `Rogue::Seeds::VendorsLoader`.
+  - 9 FactoryBot factory files.
+  - 7 RSpec spec files (models + lib). **89 examples, 0 failures.**
+  - Rubocop: 0 offenses.
 
 - [ ] **Phase 2 — Tenant seed + GM confirm** (closes AC-ENTRY-1, AC-ENTRY-2, AC-HAPPY-1, AC-HAPPY-2, AC-ERROR-1)
   - `Admin::BaseController` (HTTP basic auth concern, env-driven creds).
@@ -649,10 +652,10 @@ UI/UX Design is **not** flagged at this stage. The web surfaces (admin seed form
 
 ## Execution State
 
-**Build Status**: IDLE
+**Build Status**: PHASE_1_COMPLETE
 **Current Phase**: BUILD
-**Last Completed**: CREATIVE (2026-05-03)
-**Can Resume**: NO
+**Last Completed**: Phase 1 — Foundation (2026-05-03)
+**Can Resume**: YES — continue with Phase 2 (Tenant seed + GM confirm)
 
 ### Active Sub-Agents
 (none)
@@ -671,5 +674,8 @@ UI/UX Design is **not** flagged at this stage. The web surfaces (admin seed form
   - User Journey (J1-J5): controller + rake seed, 1h first-question delay, adaptive 12h/24h/48h pacing with weekday business-hour envelope, always-send stage-aware digest, self-serve resend with rate limit + anti-enumeration
   - Algorithm (L1-L2): `email_reply_trimmer` + Nokogiri + custom signature regex parser; `Threadable` mailer mixin; deterministic skip regex; 32-fixture mail-client corpus
 
+### Completed Steps (continued)
+- 2026-05-03 — Phase 1 Foundation complete: 11 migrations, 11 models (incl. Current), Question Catalog V1, vendor seed CSV + loader, 9 factories, 7 spec files, 89 examples green, 0 rubocop offenses.
+
 ### Next
-- `/rai-build TASK-001` — start Phase 1 (Foundation: Action Mailbox install + core data model migrations + factories + test framework decision).
+- `/rai-build TASK-001` — Phase 2 (Tenant seed + GM confirm): Admin::BaseController, Admin::TenantsController, Onboarding::ConfirmationsController, OnboardingMailer#confirmation_email, confirmation views.

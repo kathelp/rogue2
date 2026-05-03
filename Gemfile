@@ -59,6 +59,16 @@ group :development do
   gem "web-console"
 end
 
+group :development, :test do
+  # RSpec is the project's sole testing framework (per rai-build).
+  gem "rspec-rails", "~> 7.0"
+  gem "factory_bot_rails"
+  gem "shoulda-matchers", "~> 6.0"
+end
+
+# Email reply parsing (Discourse's reply trimmer — strips quoted ancestors + signatures)
+gem "email_reply_trimmer", "~> 0.1"
+
 group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"

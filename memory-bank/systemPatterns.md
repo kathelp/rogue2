@@ -83,7 +83,7 @@ These are the non-negotiables. Any plan or implementation that conflicts with on
 - Mailers carry no business logic — they format what's handed to them.
 
 ### Tests
-- **Test framework decision**: defer to FEAT-001 build phase. Default is Minitest (Rails 8 stock); switching to RSpec is justifiable if RAI sub-agents lean heavily on RSpec idioms. Whichever wins, document the choice here and stick to it.
+- **Test framework**: **RSpec** (resolved 2026-05-03 in FEAT-001 Phase 1). The rai-build command commits to RSpec as the sole framework, so we adopted it project-wide. Test files live under `spec/` mirroring `app/`; runner is `bundle exec rspec`; lint is `bundle exec rubocop`. FactoryBot for fixtures, `shoulda-matchers` for Rails-specific matchers.
 - **System tests for the email-first flow** are essential — Action Mailbox provides a `receive_inbound_email_from_*` helper for asserting end-to-end behavior. Use it.
 - **Test pyramid**: unit (model + service) tests are the bulk; controller tests for routing/auth; system tests for the full GM-email-onboarding round-trip and lead-ingestion round-trip.
 
@@ -98,7 +98,7 @@ These are the non-negotiables. Any plan or implementation that conflicts with on
 
 ## Open Decisions (capture here when made)
 
-- Test framework: Minitest vs RSpec — decide in FEAT-001 build phase 1.
+- ~~Test framework: Minitest vs RSpec~~ — **RESOLVED 2026-05-03 (FEAT-001 P1): RSpec.**
 - Inbound email provider (production): Postmark vs Mailgun vs SendGrid.
 - Outbound email provider: same as inbound, or split.
 - SMS provider: Twilio is default unless cost or compliance pushes elsewhere.

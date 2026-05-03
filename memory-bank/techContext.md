@@ -44,9 +44,10 @@
 - **Web Console**: development-only, exception page debugging.
 
 ### Testing
-- **Minitest** (Rails default) — `test/` directory present. Note: many RAI sub-agents and templates assume **RSpec** (see `${CLAUDE_PLUGIN_ROOT}/agents/build-test-*.md`). Decision deferred to first build phase: stay with Minitest (less ceremony, default tooling) or switch to RSpec (richer matchers, more idiomatic for the rai workflow). Capture decision in `systemPatterns.md` once made.
-- **Capybara + Selenium WebDriver** for system tests (already in Gemfile `:test` group).
-- **FactoryBot**: not yet added. Install when test factories become useful.
+- **RSpec** (project-wide, resolved 2026-05-03 in FEAT-001 P1). `rspec-rails ~> 7.0`. Spec tree under `spec/` mirroring `app/`. Runner: `bundle exec rspec`. Boilerplate config in `spec/rails_helper.rb` and `spec/spec_helper.rb`.
+- **FactoryBot** (`factory_bot_rails`) for fixtures. Auto-included via `FactoryBot::Syntax::Methods` so `create(:tenant)` works without the `FactoryBot.` prefix.
+- **shoulda-matchers** (`~> 6.0`) for Rails-specific matchers (`validate_presence_of`, `belong_to`, etc.).
+- **Capybara + Selenium WebDriver** for system specs.
 
 ## Development Commands
 
@@ -59,21 +60,19 @@ bin/rails db:create        # Create dev + test DBs
 bin/rails db:migrate
 bin/rails db:reset
 
-# Run tests
-bin/rails test             # Minitest unit/controller tests
-bin/rails test:system      # Capybara system tests
+# Run tests (RSpec)
+bundle exec rspec                       # all specs
+bundle exec rspec spec/models           # one directory
+bundle exec rspec spec/models/tenant_spec.rb:42  # one example by line
 
 # Background jobs (after Solid Queue migrations)
 bin/jobs                   # Solid Queue worker
 
-# Action Mailbox (after install)
-bin/rails action_mailbox:install
-bin/rails action_mailbox:install:migrations
-bin/rails db:migrate
+# Action Mailbox
 # Local inbound dev: visit /rails/conductor/action_mailbox/inbound_emails
 
 # Linting & security
-bin/rubocop
+bundle exec rubocop
 bin/brakeman --no-pager
 bundle audit check --update
 
