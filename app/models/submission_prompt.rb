@@ -5,6 +5,7 @@ class SubmissionPrompt < ApplicationRecord
   enum :status, {
     pending: "pending",
     sent: "sent",
+    fulfilled: "fulfilled",
     superseded: "superseded"
   }, prefix: :status
 

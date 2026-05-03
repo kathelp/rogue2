@@ -2,7 +2,7 @@
 
 ## Summary
 
-- **Total Features**: 2
+- **Total Features**: 3
 - **Released Versions**: 0
 - **Active Version**: none — `next` is the only version
 
@@ -14,6 +14,7 @@
 - **Description**: Backlog for features pending version assignment. Features are added here on creation and moved into a numbered version when scope and target date firm up.
 - **Features**:
   - FEAT-001: Tenant + GM Email-First Onboarding (complete, archived 2026-05-03) [Level 4]
+  - FEAT-002: Submission Prompt Sender (planned) [Level 3]
   - FEAT-Ops-Cutover: Production email ingress, outbound provider, raw-payload archive (planned) [Level 2]
 
 ## Features
@@ -29,6 +30,17 @@
 - **Linked Tasks**:
   - TASK-001: Tenant + GM Email-First Onboarding (planned)
 - **Branch**: feature/FEAT-001-tenant-gm-email-onboarding
+- **Created**: 2026-05-03
+
+### FEAT-002: Submission Prompt Sender
+
+- **Version**: next
+- **Status**: planned
+- **Priority**: high (closes the half-shipped TASK-001 loop; SubmissionPrompt rows already get scheduled but no one is sending them yet)
+- **Complexity**: Level 3
+- **Description**: Closes the loop on TASK-001's invitee setup walkthrough. Phase 5 of TASK-001 wrote `submission_prompts` rows scheduled at the start of the next reporting period; Phase 6 surfaced them on the digest as "Pending first submission." This feature ships the recurring sender that finds due prompts, the `SubmissionMailer#prompt_email` that delivers them with a magic-link, and the `Submissions::FormsController` + `Submission` model that captures the data the GM expects on the cadence the catalog defines. Submission status updates the digest's per-row state (`pending_first_submission` → `on_time` / `late` / `overdue`). Restricted to `submission_method: form` at MVP; CSV/API adapter generation is deferred to FEAT-003. Audit trail via `FlowEvent.record!` for `submission.prompt_sent`, `submission.captured`, `submission.prompt_overdue`.
+- **Linked Tasks**: (will be auto-provisioned by /rai-plan)
+- **Branch**: feature/FEAT-002-submission-prompt-sender
 - **Created**: 2026-05-03
 
 ### FEAT-Ops-Cutover: Production email ingress, outbound provider, raw-payload archive
