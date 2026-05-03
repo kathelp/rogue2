@@ -85,6 +85,14 @@ class Tenant < ApplicationRecord
     find_signed!(signed_id, purpose: :gm_confirm)
   end
 
+  def dashboard_signed_id(expires_in: 8.days)
+    signed_id(purpose: :dashboard_drilldown, expires_in: expires_in)
+  end
+
+  def self.find_by_dashboard_signed_id(signed_id)
+    find_signed(signed_id, purpose: :dashboard_drilldown)
+  end
+
   # --------------------------------------------------------------------------
   # Onboarding address helpers (A1 — plus-addressing)
   # --------------------------------------------------------------------------

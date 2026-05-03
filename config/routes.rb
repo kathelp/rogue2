@@ -27,4 +27,6 @@ Rails.application.routes.draw do
 
   get   "/setup/:signed_id" => "setup/walkthroughs#show",   as: :setup_walkthrough
   patch "/setup/:signed_id" => "setup/walkthroughs#update"
+
+  get "/dashboard/:signed_id" => "dashboards#show", as: :dashboard
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_03_180610) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_03_180611) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -214,6 +214,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_03_180610) do
     t.index ["state"], name: "index_vendors_on_state"
   end
 
+  create_table "weekly_digest_deliveries", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "delivered_at", null: false
+    t.bigint "tenant_id", null: false
+    t.datetime "updated_at", null: false
+    t.date "week_starting", null: false
+    t.index ["tenant_id", "week_starting"], name: "index_weekly_digest_deliveries_on_tenant_week", unique: true
+    t.index ["tenant_id"], name: "index_weekly_digest_deliveries_on_tenant_id"
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "contacts", "tenants"
@@ -234,4 +244,5 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_03_180610) do
   add_foreign_key "tenant_questions", "tenants"
   add_foreign_key "vendors", "tenants", column: "created_by_tenant_id"
   add_foreign_key "vendors", "vendors", column: "parent_vendor_id"
+  add_foreign_key "weekly_digest_deliveries", "tenants"
 end

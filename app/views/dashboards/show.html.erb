@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= @tenant.dealership_name %> — accountability dashboard</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+  </head>
+  <body style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; color: #222;">
+    <h1 style="font-size: 24px;"><%= @tenant.dealership_name %> — accountability dashboard</h1>
+    <p style="color: #555;">Hi <%= @tenant.gm_name %>. Read-only summary; we'll grow this view in upcoming releases.</p>
+
+    <% if @digest.empty? %>
+      <p>No active responsibilities yet. Once your team starts answering onboarding questions, they'll show up here.</p>
+    <% else %>
+      <table width="100%" cellpadding="8" cellspacing="0" border="0" style="border-collapse: collapse; font-size: 14px; margin-top: 16px;">
+        <thead>
+          <tr style="background: #f5f5f5; text-align: left;">
+            <th>Responsibility</th>
+            <th>Owner</th>
+            <th>Status</th>
+            <th>Next due</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @digest.rows.each do |row| %>
+            <tr style="border-top: 1px solid #eee;">
+              <td><%= row.responsibility.tenant_question.prompt.downcase.sub(/\?$/, "").capitalize %></td>
+              <td><%= row.primary_email %></td>
+              <td>
+                <%= case row.status
+                    when :pending_setup            then "Awaiting setup"
+                    when :pending_first_submission then "Pending first submission"
+                    when :on_time                  then "On time"
+                    when :late                     then "Late"
+                    when :overdue                  then "Overdue"
+                    else row.status.to_s
+                    end %>
+              </td>
+              <td>
+                <% if row.next_due_at %>
+                  <%= row.next_due_at.in_time_zone(@tenant.time_zone).strftime("%B %-d, %Y") %>
+                <% else %>
+                  —
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% end %>
+
+    <p style="color: #888; font-size: 12px; margin-top: 32px;">
+      This page is a snapshot. We'll send your next digest in seven days.
+    </p>
+  </body>
+</html>

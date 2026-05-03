@@ -38,3 +38,35 @@ Implementation status and phase completion tracking.
 - `OnboardingMailbox#handle_assignment` extended: after creating the Source and before marking the question answered, calls `RequestProvisioning` and (when `:assign`, not `:self_assign`) queues `invitee_setup_email`. This also addresses the Phase-4 gap where AC-HAPPY-3 spec language called for Request rows but Phase 4 only created the Source.
 
 **Build & Quality**: 279 examples, 0 failures (Phase 5 added 37). RuboCop 0 offenses.
+
+---
+
+## TASK-001 — Phase 6: Weekly digest + dashboard placeholder (2026-05-03)
+
+- `AccountabilityMailer#weekly_digest` — sent to `Tenant.gm_email`. Subject `"<Dealership> — weekly accountability digest"`. Body: per-responsibility table (responsibility, owner, status, next due) plus a single "Open dashboard" CTA. Empty-state copy ("No submissions yet — we'll keep this digest going every week so nothing slips") for tenants with no active responsibilities.
+- `Accountability::DigestAssembler` service — pure: returns a `Digest` value object with one `Row` per active Responsibility. Statuses: `:pending_setup` (Source unconfigured), `:pending_first_submission` (Source configured but no submissions), and the future-state values (`:on_time`, `:late`, `:overdue`) wired through but unused at MVP. `next_due_at` reads the earliest pending SubmissionPrompt for the Source.
+- `WeeklyDigestJob` (Solid Queue, declared in `config/recurring.yml` to run Mondays at 9am) — iterates eligible tenants (`status IN (confirmed, active) AND confirmed_at <= 7.days.ago`), inserts a `WeeklyDigestDelivery` row first (unique on `(tenant_id, week_starting)`) and only delivers the mailer on insert success. Records `digest.sent` FlowEvent. Idempotent across re-runs and across concurrent workers (the unique constraint is the synchronisation point — `RecordNotUnique` is rescued and treated as a no-op).
+- `WeeklyDigestDelivery` model + migration `20260503180611_create_weekly_digest_deliveries` — stores `tenant_id`, `week_starting` (date), `delivered_at`, with a unique index on `(tenant_id, week_starting)`.
+- `Tenant#dashboard_signed_id(expires_in: 8.days)` and `Tenant.find_by_dashboard_signed_id` — purpose-scoped helpers (`:dashboard_drilldown`). 8-day expiry so the next digest's link supersedes the prior one with one day of overlap.
+- `DashboardsController#show` at `/dashboard/:signed_id` — read-only placeholder. Renders the same `DigestAssembler` data as the email (per-row table). Bad/expired token → 404 with the expired view (no leakage of whether the tenant exists).
+
+**Build & Quality**: 307 examples, 0 failures (Phase 6 added 28). RuboCop 0 offenses.
+
+---
+
+## TASK-001 — BUILD_COMPLETE summary (2026-05-03)
+
+All 6 phases complete on `feature/FEAT-001-tenant-gm-email-onboarding`:
+
+- Phase 1: data model + question catalog + vendor seed (89 examples).
+- Phase 2: tenant seed + GM confirm (147 examples cumulative; +58).
+- Phase 3: first question email + adaptive scheduling (185 examples cumulative; +38).
+- Phase 4: inbound reply pipeline + parser + vendor inference + adaptive pacing + ack mailers (242 examples cumulative; +57).
+- Phase 5: invitee setup walkthrough + Request provisioning + SubmissionPrompt scheduler (279 examples cumulative; +37).
+- Phase 6: weekly digest + dashboard placeholder + recurring job (307 examples cumulative; +28).
+
+**Final**: 307 examples, 0 failures. RuboCop 0 offenses.
+
+Closed acceptance criteria: AC-ENTRY-1, AC-ENTRY-2, AC-ENTRY-3, AC-ENTRY-4; AC-HAPPY-1 through AC-HAPPY-8; AC-ERROR-1 through AC-ERROR-5; AC-ASYNC-1 through AC-ASYNC-3; AC-NAV-1, AC-NAV-2.
+
+**Next**: `/rai-reflect TASK-001` (mandatory for Level 4), then `/rai-archive TASK-001`.

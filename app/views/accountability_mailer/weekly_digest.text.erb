@@ -1,0 +1,30 @@
+<%= @tenant.dealership_name %> — this week's accountability digest
+
+Hi <%= @tenant.gm_name %>,
+
+<% if @digest.empty? %>
+No submissions yet — we'll keep this digest going every week so nothing slips. As soon as your team starts setting up data collection, this email will start to fill in.
+<% else %>
+Here's where each responsibility stands:
+
+<% @digest.rows.each do |row| %>
+- <%= row.responsibility.tenant_question.prompt.downcase.sub(/\?$/, "").capitalize %>
+  Owner:    <%= row.primary_email %>
+  Status:   <%= case row.status
+              when :pending_setup            then "Awaiting setup"
+              when :pending_first_submission then "Pending first submission"
+              when :on_time                  then "On time"
+              when :late                     then "Late"
+              when :overdue                  then "Overdue"
+              else row.status.to_s
+              end %>
+  Next due: <%= row.next_due_at ? row.next_due_at.in_time_zone(@tenant.time_zone).strftime("%b %-d, %Y") : "—" %>
+<% end %>
+<% end %>
+
+Open the dashboard:
+<%= @dashboard_url %>
+
+This link is valid for 8 days. The next digest will include a fresh link.
+
+— The Rogue team
