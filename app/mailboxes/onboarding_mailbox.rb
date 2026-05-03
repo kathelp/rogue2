@@ -128,7 +128,18 @@ class OnboardingMailbox < ApplicationMailbox
     )
 
     # Create or find the Source for this (tenant, domain, responsibility_key) tuple
-    find_or_create_source(question: question, vendor: inference.vendor)
+    source = find_or_create_source(question: question, vendor: inference.vendor)
+
+    # Provision Request rows from the catalog metric list (one Request per metric).
+    OnboardingFlow::RequestProvisioning.call(source: source, tenant_question: question)
+
+    # Send setup email to the assigned non-GM contact.
+    if parsed.intent == :assign
+      OnboardingMailer
+        .with(tenant: @tenant, contact: contact, responsibility: responsibility)
+        .invitee_setup_email
+        .deliver_later
+    end
 
     # Mark the question answered
     question.update!(status: :answered, answered_at: Time.current)

@@ -88,6 +88,28 @@ class OnboardingMailer < ApplicationMailer
   end
 
   # ---------------------------------------------------------------------------
+  # Sends an invited contact a magic link to complete the setup walkthrough.
+  #
+  # params[:tenant]         - Tenant
+  # params[:contact]        - Contact (the invitee)
+  # params[:responsibility] - Responsibility being set up
+  def invitee_setup_email
+    @tenant         = params[:tenant]
+    @contact        = params[:contact]
+    @responsibility = params[:responsibility]
+    @question       = @responsibility.tenant_question
+    @setup_url      = setup_walkthrough_url(
+      signed_id: @contact.invitee_setup_signed_id(expires_in: 7.days)
+    )
+
+    mail(
+      to:      @contact.email,
+      from:    onboarding_address(@tenant),
+      subject: "#{@tenant.dealership_name}: data collection assignment"
+    )
+  end
+
+  # ---------------------------------------------------------------------------
 
   def confirmation_email
     @tenant = params[:tenant]

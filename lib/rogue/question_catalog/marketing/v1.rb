@@ -65,6 +65,12 @@ module Rogue
           }
         ].freeze
 
+        # Returns the metrics array for a known question key, or [] if unknown.
+        def self.metrics_for(key:)
+          entry = QUESTIONS.find { |q| q[:key] == key }
+          entry ? entry[:metrics] : []
+        end
+
         # Materialize catalog questions as TenantQuestion rows for a Tenant.
         # Idempotent: skips already-materialized keys for this tenant + version.
         # Substitutes <%= dealership_name %> with the tenant's actual name.

@@ -256,6 +256,71 @@ RSpec.describe OnboardingMailer, type: :mailer do
   end
 
   # ---------------------------------------------------------------------------
+  describe "#invitee_setup_email" do
+    let(:tenant) do
+      create(:tenant,
+             dealership_name:  "Smith Toyota",
+             gm_email:         "jane@smithtoyota.com",
+             onboarding_token: "abc123test456789")
+    end
+    let(:contact) do
+      create(:contact,
+             tenant: tenant,
+             email:  "alex@smithtoyota.com",
+             classification: "internal_staff")
+    end
+    let(:question) do
+      create(:tenant_question,
+             tenant: tenant,
+             prompt: "Who controls your marketing strategy?")
+    end
+    let(:responsibility) do
+      create(:responsibility,
+             tenant:           tenant,
+             tenant_question:  question,
+             primary_contact:  contact,
+             gm_self_assigned: false)
+    end
+
+    let(:mail) do
+      described_class.with(
+        tenant:         tenant,
+        contact:        contact,
+        responsibility: responsibility
+      ).invitee_setup_email
+    end
+
+    it "sends to the invited contact's email" do
+      expect(mail.to).to eq([ "alex@smithtoyota.com" ])
+    end
+
+    it "has subject naming the dealership and the assignment" do
+      expect(mail.subject).to eq("Smith Toyota: data collection assignment")
+    end
+
+    it "comes from the per-tenant onboarding address" do
+      expect(mail.from.first).to include("onboarding+abc123test456789@inbound.rogue.example")
+    end
+
+    it "HTML body contains the 'Set up data collection' CTA" do
+      expect(mail.html_part.body.decoded).to include("Set up data collection")
+    end
+
+    it "HTML body contains a link to /setup/<signed_id>" do
+      expect(mail.html_part.body.decoded).to match(%r{/setup/[A-Za-z0-9._\-]+})
+    end
+
+    it "has a plain-text alternative containing the setup URL" do
+      expect(mail.text_part).not_to be_nil
+      expect(mail.text_part.body.decoded).to match(%r{/setup/[A-Za-z0-9._\-]+})
+    end
+
+    it "names the question prompt in the body" do
+      expect(mail.html_part.body.decoded).to include("Who controls your marketing strategy")
+    end
+  end
+
+  # ---------------------------------------------------------------------------
   describe "#vendor_clarification" do
     let(:tenant) do
       create(:tenant,

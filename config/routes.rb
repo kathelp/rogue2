@@ -24,4 +24,7 @@ Rails.application.routes.draw do
     resources :confirmations, only: [ :show ], param: :signed_id
     post "confirmations/resend", to: "confirmations#resend", as: :resend_confirmation
   end
+
+  get   "/setup/:signed_id" => "setup/walkthroughs#show",   as: :setup_walkthrough
+  patch "/setup/:signed_id" => "setup/walkthroughs#update"
 end

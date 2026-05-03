@@ -60,4 +60,16 @@ RSpec.describe Rogue::QuestionCatalog::Marketing::V1 do
       expect(tenant.tenant_questions.pluck(:domain).uniq).to eq([ "marketing" ])
     end
   end
+
+  describe ".metrics_for" do
+    it "returns the metrics array for a known question key" do
+      metrics = described_class.metrics_for(key: "marketing_strategy")
+      expect(metrics).to be_an(Array)
+      expect(metrics.first).to include(:key, :cadence)
+    end
+
+    it "returns an empty array for an unknown key" do
+      expect(described_class.metrics_for(key: "definitely_not_a_real_key")).to eq([])
+    end
+  end
 end

@@ -42,6 +42,17 @@ class Contact < ApplicationRecord
   scope :for_tenant, ->(tenant) { where(tenant: tenant) }
 
   # --------------------------------------------------------------------------
+  # Signed ID helpers (per purpose)
+  # --------------------------------------------------------------------------
+  def invitee_setup_signed_id(expires_in: 7.days)
+    signed_id(purpose: :invitee_setup, expires_in: expires_in)
+  end
+
+  def self.find_by_invitee_setup_signed_id(signed_id)
+    find_signed(signed_id, purpose: :invitee_setup)
+  end
+
+  # --------------------------------------------------------------------------
   # Class methods
   # --------------------------------------------------------------------------
   # Idempotent find-or-create on (tenant, email_normalized). Safe to call

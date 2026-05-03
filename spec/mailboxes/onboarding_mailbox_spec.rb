@@ -80,6 +80,14 @@ RSpec.describe OnboardingMailbox, type: :mailbox do
       # In-thread ack queued
       ack_mail = ActionMailer::Base.deliveries.find { |m| m.to.include?("jane@smithtoyota.com") && m.subject&.include?("marketing strategy") }
       expect(ack_mail).not_to be_nil
+
+      # Phase 5: invitee setup email queued to the assigned contact
+      setup_mail = ActionMailer::Base.deliveries.find { |m| m.to.include?("alex@smithtoyota.com") }
+      expect(setup_mail).not_to be_nil
+      expect(setup_mail.subject).to include("data collection assignment")
+
+      # Phase 5: Request rows created for the catalog metrics
+      expect(Request.where(source: source).count).to be >= 1
     end
   end
 
@@ -116,7 +124,7 @@ RSpec.describe OnboardingMailbox, type: :mailbox do
       expect(responsibility).not_to be_nil
       expect(responsibility.gm_self_assigned).to be true
 
-      # No setup email sent (no invitee_setup_email action exists yet in Phase 4)
+      # No setup email sent — GM is the contact, no need to onboard them again.
       setup_mail = ActionMailer::Base.deliveries.find { |m| m.subject&.include?("data collection") }
       expect(setup_mail).to be_nil
     end

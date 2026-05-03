@@ -584,7 +584,7 @@ The feature splits into 6 build phases that each end at a testable, demonstrable
   - `Responsibility` / `Source` / `Request` creation logic. `SkippedQuestion` write path + revisit handling.
   - **Acceptance**: system tests pass across the 8 listed ACs, including a multi-mail-client parser fixture set covering Gmail, Outlook desktop, Outlook web, Apple Mail, and a mobile client.
 
-- [ ] **Phase 5 — Invitee setup walkthrough** (closes AC-ENTRY-4, AC-HAPPY-7, AC-ERROR-5, AC-ASYNC-1, AC-ASYNC-2)
+- [x] **Phase 5 — Invitee setup walkthrough** *(COMPLETE 2026-05-03)* (closes AC-ENTRY-4, AC-HAPPY-7, AC-ERROR-5, AC-ASYNC-1, AC-ASYNC-2)
   - `OnboardingMailer#invitee_setup_email` (subject, CTA, plain-text alt).
   - `Setup::WalkthroughsController` (3-step: summary → method picker → confirmation). Token via `Contact#signed_id(purpose: :invitee_setup, expires_in: 7.days)`. Resumable: same token returns to current step.
   - `SubmissionPrompt` schedule writer (the actual prompt sender lands in FEAT-002+; the schedule rows land here so the future scheduler has data).
@@ -652,10 +652,10 @@ UI/UX Design is **not** flagged at this stage. The web surfaces (admin seed form
 
 ## Execution State
 
-**Build Status**: PHASE_4_COMPLETE
+**Build Status**: PHASE_5_COMPLETE
 **Current Phase**: BUILD
-**Last Completed**: Phase 4 — Inbound reply pipeline (2026-05-03, resumed after crash)
-**Can Resume**: YES — continue with Phase 5 (Invitee setup walkthrough)
+**Last Completed**: Phase 5 — Invitee setup walkthrough (2026-05-03)
+**Can Resume**: YES — continue with Phase 6 (Weekly digest + dashboard placeholder)
 
 ### Active Sub-Agents
 (none)
@@ -679,6 +679,7 @@ UI/UX Design is **not** flagged at this stage. The web surfaces (admin seed form
 - 2026-05-03 — Phase 2 Tenant seed + GM confirm complete: Admin::BaseController, Admin::TenantsController, Onboarding::ConfirmationsController, Tenant::Seeder service, OnboardingMailer#confirmation_email, all views, rake task, 5 spec files (58 new examples). Total: 147 examples, 0 failures, 0 rubocop offenses.
 - 2026-05-03 — Phase 3 First question email complete: Threadable concern, OnboardingMailer#question_email, question_email views (html+text), OnboardingFlow::Scheduling service, OnboardingFlow::EnqueueFirstQuestionJob, OnboardingFlow::EnqueueNextQuestionJob, Tenant#confirm! wired to materialize_for, controller TODO unwired. 5 spec files (38 new examples). Total: 185 examples, 0 failures, 0 rubocop offenses.
 - 2026-05-03 — Phase 4 Inbound reply pipeline complete (resumed after crash): ApplicationMailbox onboarding+ routing (with onboarding@ fallback), OnboardingMailbox dispatcher (tenant resolution via plus-token + In-Reply-To fallback, GM-only sender gating, Message-ID idempotency via Action Mailbox), OnboardingReplyParser (CcOrdering / BodyExtractor / SkipDetector / ThreadResolver modules; email_reply_trimmer + Nokogiri quote stripping; deterministic skip regex; raw_excerpt 4 KB cap), VendorInferenceService (internal_staff/vendor_user/unknown), OnboardingFlow::AdaptivePacing (12h/24h/48h/silence per J3), OnboardingMailer#in_thread_ack / #gm_only_thread_notice / #vendor_clarification with html+text views, OnboardingMailerHelper#humanize_next_question_at, FlowEvent records for reply.parsed, responsibility.created, question.skipped, question.revisited, reply.unparseable, reply.rejected_non_gm_sender, vendor.clarification_requested, vendor.bootstrap_from_clarification. Touch-up: cleared 2 pre-existing rubocop offenses in config/routes.rb. 4 new spec files (mailbox + 3 service specs) + onboarding_mailer_spec extended. **Total: 242 examples, 0 failures, 0 rubocop offenses.**
+- 2026-05-03 — Phase 5 Invitee setup walkthrough complete: OnboardingMailer#invitee_setup_email + html/text views, Setup::WalkthroughsController (3-step show/update at /setup/:signed_id, resumable, expired-page on bad/old token), Setup::Completion service, OnboardingFlow::RequestProvisioning (creates Request rows from catalog metrics), OnboardingFlow::SubmissionPromptScheduler (next-period start in tenant TZ for weekly/monthly/quarterly/semi_annual/annual cadences), Contact#invitee_setup_signed_id helpers, Rogue::QuestionCatalog::Marketing::V1.metrics_for, OnboardingMailbox wired to send invitee_setup_email and provision Requests on assignment. 6 new/extended spec files (mailer extended; setup walkthrough request specs; 3 new service specs; catalog spec extended; mailbox spec extended). **Total: 279 examples, 0 failures, 0 rubocop offenses.**
 
 ### Next
-- `/rai-build TASK-001` — Phase 5 (Invitee setup walkthrough): OnboardingMailer#invitee_setup_email, Setup::WalkthroughsController (3-step), SubmissionPrompt schedule writer.
+- `/rai-build TASK-001` — Phase 6 (Weekly digest + dashboard placeholder): AccountabilityMailer#weekly_digest, WeeklyDigestJob (recurring), DashboardsController.
