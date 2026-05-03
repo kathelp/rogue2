@@ -1,0 +1,20 @@
+<%= @tenant.dealership_name %> onboarding — question <%= @question.position %>
+
+<%= @question.prompt %>
+
+You can answer by replying to this email and CC'ing the responsible party.
+Three things to know:
+
+1. The first person you CC is the primary accountable party. Anyone CC'd
+   after is a fallback. Order matters.
+
+2. If this is you, reply with no CC.
+
+3. If you don't have anyone for this yet, reply with "skip" — we'll come
+   back to it later.
+
+---
+
+How this thread works: replies go to <%= @tenant.onboarding_address %>.
+You can revisit any prior question by replying to that original email thread
+at any time.

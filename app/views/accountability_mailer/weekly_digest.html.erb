@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <body style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; color: #222;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+      <tr>
+        <td align="center">
+          <table width="640" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+              <td style="padding: 32px 20px 8px;">
+                <h1 style="font-size: 22px; margin: 0;"><%= @tenant.dealership_name %> — this week's accountability digest</h1>
+                <p style="color: #555; font-size: 13px; margin: 4px 0 0;">Hi <%= @tenant.gm_name %>,</p>
+              </td>
+            </tr>
+
+            <% if @digest.empty? %>
+              <tr>
+                <td style="padding: 16px 20px;">
+                  <p>No submissions yet — we'll keep this digest going every week so nothing slips. As soon as your team starts setting up data collection, this email will start to fill in.</p>
+                </td>
+              </tr>
+            <% else %>
+              <tr>
+                <td style="padding: 16px 20px 0;">
+                  <p>Here's where each responsibility stands:</p>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 0 20px;">
+                  <table width="100%" cellpadding="8" cellspacing="0" border="0" style="border-collapse: collapse; font-size: 14px;">
+                    <thead>
+                      <tr style="background: #f5f5f5; text-align: left;">
+                        <th>Responsibility</th>
+                        <th>Owner</th>
+                        <th>Status</th>
+                        <th>Next due</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% @digest.rows.each do |row| %>
+                        <tr style="border-top: 1px solid #eee;">
+                          <td><%= row.responsibility.tenant_question.prompt.downcase.sub(/\?$/, "").capitalize %></td>
+                          <td><%= row.primary_email %></td>
+                          <td>
+                            <%= case row.status
+                                when :pending_setup            then "Awaiting setup"
+                                when :pending_first_submission then "Pending first submission"
+                                when :on_time                  then "On time"
+                                when :late                     then "Late"
+                                when :overdue                  then "Overdue"
+                                else row.status.to_s
+                                end %>
+                          </td>
+                          <td>
+                            <% if row.next_due_at %>
+                              <%= row.next_due_at.in_time_zone(@tenant.time_zone).strftime("%b %-d") %>
+                            <% else %>
+                              —
+                            <% end %>
+                          </td>
+                        </tr>
+                      <% end %>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            <% end %>
+
+            <tr>
+              <td align="center" style="padding: 24px 20px;">
+                <table cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td style="background-color: #000; border-radius: 4px;">
+                      <a href="<%= @dashboard_url %>"
+                         style="display: inline-block; padding: 12px 24px; color: #fff; font-weight: bold; text-decoration: none; font-size: 15px;">
+                        Open dashboard
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding: 0 20px 32px;">
+                <p style="color: #888; font-size: 12px;">
+                  This link is valid for 8 days. The next digest will include a fresh link.
+                </p>
+                <p style="color: #888; font-size: 12px;">— The Rogue team</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

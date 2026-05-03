@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>You're set up — <%= @responsibility&.tenant&.dealership_name %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+  </head>
+  <body style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 640px; margin: 40px auto; padding: 0 20px; color: #222;">
+    <h1 style="font-size: 24px;">You're set up.</h1>
+
+    <% next_prompt = SubmissionPrompt
+                       .joins(:request)
+                       .where(tenant: @responsibility&.tenant, requests: { source_id: @source&.id }, status: :pending)
+                       .order(:scheduled_for)
+                       .first %>
+
+    <% if next_prompt && @responsibility %>
+      <p>
+        We'll prompt you to submit your first
+        <strong><%= @responsibility.tenant_question.prompt.downcase.sub(/\?$/, "") %></strong>
+        report on <strong><%= next_prompt.scheduled_for.in_time_zone(@responsibility.tenant.time_zone).strftime("%B %-d, %Y") %></strong>.
+      </p>
+    <% else %>
+      <p>You're set up. We'll be in touch when it's time for your first submission.</p>
+    <% end %>
+
+    <p>You can close this tab.</p>
+  </body>
+</html>

@@ -50,4 +50,14 @@ Rails.application.configure do
 
   # Raise error when a before_action's only/except options reference missing actions.
   config.action_controller.raise_on_missing_callback_actions = true
+
+  # Active Record Encryption — deterministic test keys (never used outside test environment).
+  # In production / staging these come from Rails credentials (active_record_encryption section).
+  config.active_record.encryption.primary_key = "test-active-record-encryption-primary-key-32b"
+  config.active_record.encryption.deterministic_key = "test-active-record-encryption-deterministic-k"
+  config.active_record.encryption.key_derivation_salt = "test-active-record-encryption-key-derivation-"
+
+  # Admin basic auth credentials for test environment.
+  ENV["ROGUE_ADMIN_USERNAME"] ||= "admin"
+  ENV["ROGUE_ADMIN_PASSWORD"] ||= "admin-test-password"
 end

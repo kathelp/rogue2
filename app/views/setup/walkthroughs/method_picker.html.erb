@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Set up — pick how you'll submit</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+  </head>
+  <body style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 640px; margin: 40px auto; padding: 0 20px; color: #222;">
+    <h1 style="font-size: 24px;">Step 2 of 3 — How will you submit?</h1>
+    <% if flash[:alert] %>
+      <p style="background: #fee; border: 1px solid #fcc; padding: 12px; border-radius: 4px; color: #800;">
+        <%= flash[:alert] %>
+      </p>
+    <% end %>
+
+    <%= form_with url: setup_walkthrough_path(signed_id: params[:signed_id]), method: :patch, local: true, scope: :source do |f| %>
+      <fieldset style="border: 0; padding: 0; margin: 0;">
+        <legend style="font-size: 14px; color: #555; margin-bottom: 12px;">Pick the option that fits how you work:</legend>
+
+        <label style="display: block; padding: 12px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 8px;">
+          <%= f.radio_button :submission_method, "form", required: true %>
+          <strong>Web form</strong> — fill out a short form each cycle. Best for monthly summary numbers.
+        </label>
+
+        <label style="display: block; padding: 12px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 8px;">
+          <%= f.radio_button :submission_method, "csv" %>
+          <strong>CSV upload</strong> — drop a spreadsheet. We'll set up the column mapping on our side. <em>(Adapter generation rolls out in our next release; we'll email you when it's ready.)</em>
+        </label>
+
+        <label style="display: block; padding: 12px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 8px;">
+          <%= f.radio_button :submission_method, "api_post" %>
+          <strong>API POST</strong> — your system or vendor pushes data to us. <em>(Adapter generation rolls out in our next release.)</em>
+        </label>
+      </fieldset>
+
+      <p style="margin-top: 24px;">
+        <%= f.submit "Finish setup",
+                     style: "padding: 12px 24px; background: #000; color: #fff; border: 0; border-radius: 4px; cursor: pointer; font-size: 16px;" %>
+      </p>
+    <% end %>
+  </body>
+</html>

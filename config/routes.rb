@@ -11,4 +11,22 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "posts#index"
+
+  namespace :admin do
+    resources :tenants, only: %i[new create show] do
+      member do
+        post :resend_confirmation
+      end
+    end
+  end
+
+  namespace :onboarding do
+    resources :confirmations, only: [ :show ], param: :signed_id
+    post "confirmations/resend", to: "confirmations#resend", as: :resend_confirmation
+  end
+
+  get   "/setup/:signed_id" => "setup/walkthroughs#show",   as: :setup_walkthrough
+  patch "/setup/:signed_id" => "setup/walkthroughs#update"
+
+  get "/dashboard/:signed_id" => "dashboards#show", as: :dashboard
 end

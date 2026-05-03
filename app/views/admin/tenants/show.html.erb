@@ -1,0 +1,43 @@
+<% content_for :title, "#{@tenant.dealership_name} — Rogue Admin" %>
+
+<% if notice %>
+  <p style="color: green;"><%= notice %></p>
+<% end %>
+
+<% if alert %>
+  <p style="color: red;"><%= alert %></p>
+<% end %>
+
+<h1><%= @tenant.dealership_name %></h1>
+
+<dl>
+  <dt>Dealership name</dt>
+  <dd><%= @tenant.dealership_name %></dd>
+
+  <dt>GM name</dt>
+  <dd><%= @tenant.gm_name %></dd>
+
+  <dt>GM email</dt>
+  <dd><%= @tenant.gm_email %></dd>
+
+  <dt>Status</dt>
+  <dd><%= @tenant.status %></dd>
+
+  <dt>Confirmation sent at</dt>
+  <dd><%= @tenant.confirmation_sent_at&.strftime("%Y-%m-%d %H:%M:%S %Z") || "—" %></dd>
+
+  <dt>Confirmed at</dt>
+  <dd><%= @tenant.confirmed_at&.strftime("%Y-%m-%d %H:%M:%S %Z") || "—" %></dd>
+
+  <dt>Onboarding token</dt>
+  <dd><code><%= @tenant.onboarding_token %></code></dd>
+</dl>
+
+<% unless @tenant.status_confirmed? || @tenant.status_active? %>
+  <%= button_to "Resend confirmation email",
+        resend_confirmation_admin_tenant_path(@tenant),
+        method: :post,
+        data: { confirm: "Re-send the confirmation email to #{@tenant.gm_email}?" } %>
+<% end %>
+
+<p><%= link_to "Seed another tenant", new_admin_tenant_path %></p>

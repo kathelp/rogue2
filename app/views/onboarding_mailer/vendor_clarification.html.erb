@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <p>Hi <%= @tenant.gm_name %>,</p>
+    <p>We received your reply and noticed that <strong><%= @ambiguous_email %></strong> is from a domain we don't recognize: <strong><%= @ambiguous_domain %></strong>.</p>
+    <p>To continue, please let us know whether this person is:</p>
+    <ul>
+      <li><strong>Internal staff</strong> at your dealership — reply with: <code>internal</code></li>
+      <li><strong>A vendor</strong> you work with — reply with: <code>vendor: Vendor Name</code> (e.g. <code>vendor: VinSolutions</code>)</li>
+    </ul>
+    <p>Once you clarify, we'll complete the assignment and send setup instructions.</p>
+    <p style="color: #888; font-size: 12px; margin-top: 24px;">— The Rogue team</p>
+  </body>
+</html>

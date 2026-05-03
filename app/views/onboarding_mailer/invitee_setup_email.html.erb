@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+      <tr>
+        <td align="center">
+          <table width="600" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+              <td style="padding: 40px 20px 20px;">
+                <h1 style="font-size: 22px; font-weight: bold; margin: 0 0 20px;">You've been added to <%= @tenant.dealership_name %>'s data setup</h1>
+
+                <p>Hi,</p>
+
+                <p>
+                  <strong><%= @tenant.gm_name %></strong> at
+                  <strong><%= @tenant.dealership_name %></strong>
+                  named you as the person to handle this:
+                </p>
+
+                <p style="border-left: 3px solid #ccc; padding: 8px 14px; margin: 12px 0;">
+                  <em><%= @question.prompt %></em>
+                </p>
+
+                <p>To finish setup (about a minute), click below:</p>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding: 10px 20px 20px;">
+                <table cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td style="background-color: #000; border-radius: 4px;">
+                      <a href="<%= @setup_url %>"
+                         style="display: inline-block; padding: 14px 28px; color: #fff; font-weight: bold; text-decoration: none; font-size: 16px;">
+                        Set up data collection
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 0 20px 20px;">
+                <p>You'll pick how you want to send the data (web form, CSV, or API), and we'll let you know when your first submission is due.</p>
+
+                <p>— The Rogue team</p>
+
+                <p style="color: #666; font-size: 12px; margin-top: 30px;">
+                  Or copy and paste this URL into your browser:<br>
+                  <%= @setup_url %>
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
