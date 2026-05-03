@@ -14,3 +14,13 @@ Chronological record of pattern extraction and consolidation events from task re
 
 ### systemPatterns.md Updates
 - None this round (all four learnings are coding-practice patterns, not novel architecture; codebase already lives the patterns).
+
+---
+
+## 2026-05-03 — Consolidation (during TASK-001 archive)
+
+- Files before: 4, Files after: 4
+- Merged: 0 (no >50% overlap between idempotency / time-zones / service-shape / audit-trail)
+- Expired: 0 (all bullets created today; 90-day rule does not fire)
+- Promoted: 0 (all `evidence_count: 1`; promotion threshold is 3)
+- Pruned: 0 (all files have 1 bullet; well under 15-bullet limit)

@@ -28,4 +28,4 @@
 
 | Date | Rules Before | Rules After | Merged | Expired | Promoted |
 |------|------------:|------------:|-------:|--------:|---------:|
-| (none yet) | | | | | |
+| 2026-05-03 | 4 | 4 | 0 | 0 | 0 |

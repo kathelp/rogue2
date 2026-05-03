@@ -84,3 +84,15 @@ Closed acceptance criteria: AC-ENTRY-1, AC-ENTRY-2, AC-ENTRY-3, AC-ENTRY-4; AC-H
   - `audit-trail.md` — `FlowEvent.record!` inside the same transaction as the domain mutation; no separate audit service
 - **Status**: REFLECTION_COMPLETE
 - **Next**: `/rai-archive TASK-001` (mandatory for Level 4) — PR `feature/FEAT-001-tenant-gm-email-onboarding` → `main`.
+
+---
+
+## Task Archive: TASK-001
+
+**Task**: Tenant + GM Email-First Onboarding
+**Status**: ✅ ARCHIVED
+**Date**: 2026-05-03
+**Archive**: `memory-bank/archive/archive-TASK-001.md`
+**Carry-forward**: FEAT-Ops-Cutover (production email ingress + outbound provider + S3 raw-payload archive — pending QA / prod environment)
+
+---

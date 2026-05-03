@@ -1,11 +1,13 @@
 # TASK-001: Tenant + GM Email-First Onboarding
 
 **Complexity**: Level 4
-**Status**: REFLECTION_COMPLETE
+**Status**: COMPLETE
+**Completed**: 2026-05-03
 **Roadmap**: FEAT-001
-**Branch**: feature/FEAT-001-tenant-gm-email-onboarding
+**Branch**: feature/FEAT-001-tenant-gm-email-onboarding (merged + deleted at archive)
 **Worktree**: N/A
 **Reflection**: memory-bank/reflection/reflection-TASK-001.md
+**Archived**: memory-bank/archive/archive-TASK-001.md
 **Docs Opt-In**: no
 **Docs Opt-In Reason**: No Docusaurus tree at `docs/` and feature is operational/internal-platform-foundation; revisit when first end-user-facing capability ships.
 **Marketing Opt-In**: no
@@ -645,18 +647,18 @@ UI/UX Design is **not** flagged at this stage. The web surfaces (admin seed form
 
 | Item | Phase | Owner | Target | Resolution |
 |------|-------|-------|--------|------------|
-| Production inbound email ingress provider + DNS (Postmark / Mailgun / SendGrid choice; production receive of an actual ADF-XML or onboarding reply) | 4 | user | operational cutover | PENDING |
-| Production outbound email provider selection + warmup (real GM inbox delivery, threading verified in real Gmail/Outlook accounts) | 2,3,4,5,6 | user | operational cutover | PENDING |
-| Indefinite raw-payload archive in S3-class storage (Active Storage local disk in dev meets schema seam; production storage class + retention policy) | 4 | user | operational cutover | PENDING |
+| Production inbound email ingress provider + DNS (Postmark / Mailgun / SendGrid choice; production receive of an actual ADF-XML or onboarding reply) | 4 | user | operational cutover | CARRIED_FORWARD: see FEAT-Ops-Cutover (item 1) — pending QA/prod environment |
+| Production outbound email provider selection + warmup (real GM inbox delivery, threading verified in real Gmail/Outlook accounts) | 2,3,4,5,6 | user | operational cutover | CARRIED_FORWARD: see FEAT-Ops-Cutover (item 2) — pending QA/prod environment |
+| Indefinite raw-payload archive in S3-class storage (Active Storage local disk in dev meets schema seam; production storage class + retention policy) | 4 | user | operational cutover | CARRIED_FORWARD: see FEAT-Ops-Cutover (item 3) — pending QA/prod environment |
 
 ---
 
 ## Execution State
 
 **Build Status**: IDLE
-**Current Phase**: REFLECT → ARCHIVE
-**Last Completed**: Reflection (2026-05-03) — `memory-bank/reflection/reflection-TASK-001.md`
-**Can Resume**: NO — reflection complete; next is `/rai-archive TASK-001`
+**Current Phase**: COMPLETE
+**Last Completed**: Archive (2026-05-03) — `memory-bank/archive/archive-TASK-001.md`
+**Can Resume**: NO — task closed.
 
 ### Active Sub-Agents
 (none)
