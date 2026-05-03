@@ -573,7 +573,7 @@ The feature splits into 6 build phases that each end at a testable, demonstrable
   - `OnboardingFlow::EnqueueFirstQuestionJob` (chained off the confirm action).
   - **Acceptance**: question email arrives after confirm with the correct headers, body convention block, and a Message-ID that the inbound side can resolve back to the question.
 
-- [ ] **Phase 4 — Inbound reply pipeline** (closes AC-HAPPY-3, AC-HAPPY-4, AC-HAPPY-5, AC-HAPPY-6, AC-ERROR-2, AC-ERROR-3, AC-ERROR-4, AC-NAV-1)
+- [x] **Phase 4 — Inbound reply pipeline** *(COMPLETE 2026-05-03)* (closes AC-HAPPY-3, AC-HAPPY-4, AC-HAPPY-5, AC-HAPPY-6, AC-ERROR-2, AC-ERROR-3, AC-ERROR-4, AC-NAV-1)
   - `application_mailbox.rb` rule: `routing /^onboarding\+/i => :onboarding`.
   - `OnboardingMailbox#process` thin dispatcher (mail-client agnostic; defers to parser).
   - `OnboardingReplyParser` service (CC ordering, no-CC self-assign, `skip` detection with quote/signature guards). **Algorithm details land in creative.**
@@ -652,10 +652,10 @@ UI/UX Design is **not** flagged at this stage. The web surfaces (admin seed form
 
 ## Execution State
 
-**Build Status**: PHASE_3_COMPLETE
+**Build Status**: PHASE_4_COMPLETE
 **Current Phase**: BUILD
-**Last Completed**: Phase 3 — First question email (2026-05-03)
-**Can Resume**: YES — continue with Phase 4 (Inbound reply pipeline)
+**Last Completed**: Phase 4 — Inbound reply pipeline (2026-05-03, resumed after crash)
+**Can Resume**: YES — continue with Phase 5 (Invitee setup walkthrough)
 
 ### Active Sub-Agents
 (none)
@@ -678,6 +678,7 @@ UI/UX Design is **not** flagged at this stage. The web surfaces (admin seed form
 - 2026-05-03 — Phase 1 Foundation complete: 11 migrations, 11 models (incl. Current), Question Catalog V1, vendor seed CSV + loader, 9 factories, 7 spec files, 89 examples green, 0 rubocop offenses.
 - 2026-05-03 — Phase 2 Tenant seed + GM confirm complete: Admin::BaseController, Admin::TenantsController, Onboarding::ConfirmationsController, Tenant::Seeder service, OnboardingMailer#confirmation_email, all views, rake task, 5 spec files (58 new examples). Total: 147 examples, 0 failures, 0 rubocop offenses.
 - 2026-05-03 — Phase 3 First question email complete: Threadable concern, OnboardingMailer#question_email, question_email views (html+text), OnboardingFlow::Scheduling service, OnboardingFlow::EnqueueFirstQuestionJob, OnboardingFlow::EnqueueNextQuestionJob, Tenant#confirm! wired to materialize_for, controller TODO unwired. 5 spec files (38 new examples). Total: 185 examples, 0 failures, 0 rubocop offenses.
+- 2026-05-03 — Phase 4 Inbound reply pipeline complete (resumed after crash): ApplicationMailbox onboarding+ routing (with onboarding@ fallback), OnboardingMailbox dispatcher (tenant resolution via plus-token + In-Reply-To fallback, GM-only sender gating, Message-ID idempotency via Action Mailbox), OnboardingReplyParser (CcOrdering / BodyExtractor / SkipDetector / ThreadResolver modules; email_reply_trimmer + Nokogiri quote stripping; deterministic skip regex; raw_excerpt 4 KB cap), VendorInferenceService (internal_staff/vendor_user/unknown), OnboardingFlow::AdaptivePacing (12h/24h/48h/silence per J3), OnboardingMailer#in_thread_ack / #gm_only_thread_notice / #vendor_clarification with html+text views, OnboardingMailerHelper#humanize_next_question_at, FlowEvent records for reply.parsed, responsibility.created, question.skipped, question.revisited, reply.unparseable, reply.rejected_non_gm_sender, vendor.clarification_requested, vendor.bootstrap_from_clarification. Touch-up: cleared 2 pre-existing rubocop offenses in config/routes.rb. 4 new spec files (mailbox + 3 service specs) + onboarding_mailer_spec extended. **Total: 242 examples, 0 failures, 0 rubocop offenses.**
 
 ### Next
-- `/rai-build TASK-001` — Phase 4 (Inbound reply pipeline): OnboardingMailbox, OnboardingReplyParser, VendorInferenceService, in_thread_ack mailer.
+- `/rai-build TASK-001` — Phase 5 (Invitee setup walkthrough): OnboardingMailer#invitee_setup_email, Setup::WalkthroughsController (3-step), SubmissionPrompt schedule writer.

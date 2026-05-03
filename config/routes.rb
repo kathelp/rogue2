@@ -21,7 +21,7 @@ Rails.application.routes.draw do
   end
 
   namespace :onboarding do
-    resources :confirmations, only: [:show], param: :signed_id
+    resources :confirmations, only: [ :show ], param: :signed_id
     post "confirmations/resend", to: "confirmations#resend", as: :resend_confirmation
   end
 end

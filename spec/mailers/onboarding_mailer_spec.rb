@@ -139,4 +139,173 @@ RSpec.describe OnboardingMailer, type: :mailer do
       end
     end
   end
+
+  # ---------------------------------------------------------------------------
+  describe "#in_thread_ack" do
+    let(:tenant) do
+      create(:tenant,
+             dealership_name:  "Smith Toyota",
+             gm_email:         "jane@smithtoyota.com",
+             onboarding_token: "abc123test456789")
+    end
+    let(:question) do
+      create(:tenant_question,
+             tenant: tenant,
+             prompt: "Who controls your marketing strategy?")
+    end
+    let(:inbound_message_id) { "gm-reply-12345@mail.gmail.com" }
+    let(:inbound_email) do
+      raw = Mail.new do
+        from    "jane@smithtoyota.com"
+        to      "onboarding+abc123test456789@inbound.rogue.example"
+        subject "Re: [Smith Toyota Onboarding] Who controls your marketing strategy?"
+        body    "That's Alex."
+      end.to_s
+      ActionMailbox::InboundEmail.create_and_extract_message_id!(raw)
+    end
+
+    let(:mail) do
+      described_class.with(
+        tenant:           tenant,
+        intent:           "assign",
+        primary_email:    "alex@smithtoyota.com",
+        fallback_emails:  [],
+        warnings:         [],
+        question:         question,
+        inbound_email:    inbound_email,
+        next_question_at: 24.hours.from_now
+      ).in_thread_ack
+    end
+
+    it "sends to the GM email" do
+      expect(mail.to).to eq([ "jane@smithtoyota.com" ])
+    end
+
+    it "has a canonical Re: subject" do
+      expect(mail.subject).to start_with("Re: [Smith Toyota Onboarding]")
+    end
+
+    it "sets In-Reply-To to the inbound message_id" do
+      msg_id = inbound_email.message_id
+      expect(mail.header["In-Reply-To"].to_s).to include(msg_id)
+    end
+
+    it "sets References to include the inbound message_id" do
+      msg_id = inbound_email.message_id
+      expect(mail.header["References"].to_s).to include(msg_id)
+    end
+
+    it "includes the primary email in the body" do
+      expect(mail.html_part.body.decoded).to include("alex@smithtoyota.com")
+    end
+
+    it "has a plain-text alternative" do
+      expect(mail.text_part).not_to be_nil
+      expect(mail.text_part.body.decoded).to include("alex@smithtoyota.com")
+    end
+
+    context "with next_question_at set" do
+      it "mentions the next question timing in the body" do
+        expect(mail.html_part.body.decoded).to include("Next question coming")
+      end
+    end
+  end
+
+  # ---------------------------------------------------------------------------
+  describe "#gm_only_thread_notice" do
+    let(:tenant) do
+      create(:tenant,
+             dealership_name:  "Smith Toyota",
+             gm_email:         "jane@smithtoyota.com",
+             onboarding_token: "abc123test456789")
+    end
+    let(:inbound_email) do
+      raw = Mail.new do
+        from    "interloper@other.com"
+        to      "onboarding+abc123test456789@inbound.rogue.example"
+        subject "Re: [Smith Toyota Onboarding] Who controls your marketing strategy?"
+        body    "I want to help"
+      end.to_s
+      ActionMailbox::InboundEmail.create_and_extract_message_id!(raw)
+    end
+
+    let(:mail) do
+      described_class.with(
+        tenant:        tenant,
+        inbound_email: inbound_email
+      ).gm_only_thread_notice
+    end
+
+    it "sends to the actual (non-GM) sender" do
+      expect(mail.to).to eq([ "interloper@other.com" ])
+    end
+
+    it "has a subject mentioning GM only" do
+      expect(mail.subject).to include("GM only")
+    end
+
+    it "sets In-Reply-To to the inbound message_id" do
+      msg_id = inbound_email.message_id
+      expect(mail.header["In-Reply-To"].to_s).to include(msg_id)
+    end
+
+    it "has both HTML and text parts" do
+      expect(mail.html_part).not_to be_nil
+      expect(mail.text_part).not_to be_nil
+    end
+  end
+
+  # ---------------------------------------------------------------------------
+  describe "#vendor_clarification" do
+    let(:tenant) do
+      create(:tenant,
+             dealership_name:  "Smith Toyota",
+             gm_name:          "Jane Smith",
+             gm_email:         "jane@smithtoyota.com",
+             onboarding_token: "abc123test456789")
+    end
+    let(:inbound_email) do
+      raw = Mail.new do
+        from    "jane@smithtoyota.com"
+        to      "onboarding+abc123test456789@inbound.rogue.example"
+        subject "Re: [Smith Toyota Onboarding] Who controls your marketing strategy?"
+        body    "That's Alex."
+      end.to_s
+      ActionMailbox::InboundEmail.create_and_extract_message_id!(raw)
+    end
+
+    let(:mail) do
+      described_class.with(
+        tenant:           tenant,
+        inbound_email:    inbound_email,
+        ambiguous_email:  "alex@unknownvendor.com",
+        ambiguous_domain: "unknownvendor.com"
+      ).vendor_clarification
+    end
+
+    it "sends to the GM email" do
+      expect(mail.to).to eq([ "jane@smithtoyota.com" ])
+    end
+
+    it "subject names the ambiguous domain" do
+      expect(mail.subject).to include("unknownvendor.com")
+    end
+
+    it "sets In-Reply-To to the inbound message_id" do
+      msg_id = inbound_email.message_id
+      expect(mail.header["In-Reply-To"].to_s).to include(msg_id)
+    end
+
+    it "HTML body contains the two clarification options" do
+      body = mail.html_part.body.decoded
+      expect(body).to include("internal")
+      expect(body).to include("vendor:")
+    end
+
+    it "text body contains the two clarification options" do
+      body = mail.text_part.body.decoded
+      expect(body).to include("internal")
+      expect(body).to include("vendor:")
+    end
+  end
 end

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <% if @parsed.intent == :skip %>
+      <p>Got it — we're deferring that one for now.</p>
+      <% if @parsed.warnings.include?(:skip_with_ccs_present) %>
+        <p><em>We noticed you also had someone CC'd. Since we saw "skip" we've deferred the question. If you meant to assign someone instead, just reply with their email address in CC and no "skip" in the body.</em></p>
+      <% end %>
+      <p>You can come back to this responsibility anytime by replying to this thread with the right person on CC.</p>
+    <% elsif @parsed.intent == :self_assign %>
+      <p>Got it — you're taking this one yourself (<%= @tenant.gm_email_normalized %>). We'll send you setup instructions shortly.</p>
+    <% elsif @parsed.intent == :assign %>
+      <% primary = @parsed.primary_email %>
+      <% fallbacks = @parsed.fallback_emails %>
+      <p>Got it — <strong><%= primary %></strong> is on the hook for <%= @parsed.question&.prompt&.downcase&.sub(/\?$/, "") || "this responsibility" %>.</p>
+      <% if fallbacks.any? %>
+        <p>Fallbacks (in order): <%= fallbacks.join(", ") %>.</p>
+      <% end %>
+      <p>They'll receive setup instructions shortly.</p>
+      <% if @parsed.warnings.include?(:has_attachments) %>
+        <p><em>We noticed an attachment in your reply. At this stage we don't process attachments, but it's saved with the message. If there was something specific we should read, paste it inline next time.</em></p>
+      <% end %>
+      <% if @parsed.warnings.include?(:cc_order_uncertain) %>
+        <p><em>Note: we listed the contacts above in the order they appeared on the CC line. If that's not the right order, just reply correcting the assignment and we'll update it.</em></p>
+      <% end %>
+    <% elsif @parsed.intent == :clarification_response %>
+      <p>Thanks for clarifying. We're processing your response and will follow up shortly.</p>
+    <% else %>
+      <p>We couldn't parse your reply. To assign someone, reply with them in CC. To take this on yourself, reply with no CC and say "me". To defer, reply with "skip".</p>
+    <% end %>
+
+    <% if @next_question_at %>
+      <p>Next question coming <%= humanize_next_question_at(@next_question_at) %>.</p>
+    <% end %>
+
+    <p style="color: #888; font-size: 12px; margin-top: 24px;">— The Rogue team</p>
+  </body>
+</html>

@@ -1,0 +1,36 @@
+<% if @parsed.intent == :skip %>
+Got it — we're deferring that one for now.
+<% if @parsed.warnings.include?(:skip_with_ccs_present) %>
+
+We noticed you also had someone CC'd. Since we saw "skip" we've deferred the question.
+If you meant to assign someone instead, just reply with their email in CC and no "skip" in the body.
+<% end %>
+
+You can come back to this responsibility anytime by replying to this thread with the right person on CC.
+<% elsif @parsed.intent == :self_assign %>
+Got it — you're taking this one yourself (<%= @tenant.gm_email_normalized %>). We'll send you setup instructions shortly.
+<% elsif @parsed.intent == :assign %>
+Got it — <%= @parsed.primary_email %> is on the hook for <%= @parsed.question&.prompt&.downcase&.sub(/\?$/, "") || "this responsibility" %>.
+<% if @parsed.fallback_emails.any? %>
+Fallbacks (in order): <%= @parsed.fallback_emails.join(", ") %>.
+<% end %>
+They'll receive setup instructions shortly.
+<% if @parsed.warnings.include?(:has_attachments) %>
+
+We noticed an attachment in your reply. At this stage we don't process attachments, but it's saved. If there was something we should read, paste it inline next time.
+<% end %>
+<% if @parsed.warnings.include?(:cc_order_uncertain) %>
+
+Note: we listed the contacts in the order they appeared on the CC line. If that's not right, reply correcting the assignment.
+<% end %>
+<% elsif @parsed.intent == :clarification_response %>
+Thanks for clarifying. We're processing your response and will follow up shortly.
+<% else %>
+We couldn't parse your reply. To assign someone, reply with them in CC. To take this on yourself, reply with no CC and say "me". To defer, reply with "skip".
+<% end %>
+<% if @next_question_at %>
+
+Next question coming <%= humanize_next_question_at(@next_question_at) %>.
+<% end %>
+
+— The Rogue team
