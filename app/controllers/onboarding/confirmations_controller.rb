@@ -18,10 +18,7 @@ class Onboarding::ConfirmationsController < ApplicationController
         tenant: @tenant,
         subject: @tenant
       )
-      # TODO(Phase 3): enqueue first question job here.
-      # OnboardingFlow::EnqueueFirstQuestionJob
-      #   .set(wait: @tenant.first_question_delay_minutes.minutes)
-      #   .perform_later(tenant_id: @tenant.id)
+      OnboardingFlow::EnqueueFirstQuestionJob.perform_later(tenant_id: @tenant.id)
       render :show
     else
       render :invalid, status: :unprocessable_entity

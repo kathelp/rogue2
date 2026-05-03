@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+      <tr>
+        <td align="center">
+          <table width="600" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+              <td style="padding: 40px 20px 20px;">
+                <p style="color: #666; font-size: 13px; margin: 0 0 16px;">
+                  <%= @tenant.dealership_name %> onboarding — question <%= @question.position %>
+                </p>
+                <h1 style="font-size: 22px; font-weight: bold; margin: 0 0 24px; line-height: 1.3;">
+                  <%= @question.prompt %>
+                </h1>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 0 20px 24px;">
+                <p style="margin: 0 0 12px;">
+                  You can answer by replying to this email and CC&#39;ing the responsible party.
+                  Three things to know:
+                </p>
+                <ol style="margin: 0 0 12px; padding-left: 20px; line-height: 1.7;">
+                  <li>
+                    The first person you CC is the primary accountable party. Anyone CC&#39;d
+                    after is a fallback. Order matters.
+                  </li>
+                  <li>
+                    If this is you, reply with no CC.
+                  </li>
+                  <li>
+                    If you don&#39;t have anyone for this yet, reply with &#34;skip&#34; &mdash;
+                    we&#39;ll come back to it later.
+                  </li>
+                </ol>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 0 20px 32px; border-top: 1px solid #eee;">
+                <p style="color: #888; font-size: 12px; margin: 20px 0 0; line-height: 1.6;">
+                  <strong>How this thread works:</strong>
+                  Replies go to
+                  <a href="mailto:<%= @tenant.onboarding_address %>"
+                     style="color: #888;">
+                    <%= @tenant.onboarding_address %>
+                  </a>.
+                  You can revisit any prior question by replying to that original email thread
+                  at any time.
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

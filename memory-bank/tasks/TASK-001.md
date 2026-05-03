@@ -567,7 +567,7 @@ The feature splits into 6 build phases that each end at a testable, demonstrable
   - View: `app/views/onboarding/confirmations/show.html.erb` (one-line confirmation page).
   - **Acceptance**: system test from seed → email arrives → confirm click → DB state correct. Resend round-trip works.
 
-- [ ] **Phase 3 — First question email** (closes AC-ENTRY-3)
+- [x] **Phase 3 — First question email** *(COMPLETE 2026-05-03)* (closes AC-ENTRY-3)
   - Question Catalog seed for the marketing domain (whatever data model creative selects).
   - `OnboardingMailer#question_email` with `From:` and `Reply-To:` set to the per-tenant onboarding address; body explicitly states the four reply conventions; subject pattern `[<Dealership> Onboarding] <question text>`.
   - `OnboardingFlow::EnqueueFirstQuestionJob` (chained off the confirm action).
@@ -652,10 +652,10 @@ UI/UX Design is **not** flagged at this stage. The web surfaces (admin seed form
 
 ## Execution State
 
-**Build Status**: PHASE_2_COMPLETE
+**Build Status**: PHASE_3_COMPLETE
 **Current Phase**: BUILD
-**Last Completed**: Phase 2 — Tenant seed + GM confirm (2026-05-03)
-**Can Resume**: YES — continue with Phase 3 (First question email)
+**Last Completed**: Phase 3 — First question email (2026-05-03)
+**Can Resume**: YES — continue with Phase 4 (Inbound reply pipeline)
 
 ### Active Sub-Agents
 (none)
@@ -677,6 +677,7 @@ UI/UX Design is **not** flagged at this stage. The web surfaces (admin seed form
 ### Completed Steps (continued)
 - 2026-05-03 — Phase 1 Foundation complete: 11 migrations, 11 models (incl. Current), Question Catalog V1, vendor seed CSV + loader, 9 factories, 7 spec files, 89 examples green, 0 rubocop offenses.
 - 2026-05-03 — Phase 2 Tenant seed + GM confirm complete: Admin::BaseController, Admin::TenantsController, Onboarding::ConfirmationsController, Tenant::Seeder service, OnboardingMailer#confirmation_email, all views, rake task, 5 spec files (58 new examples). Total: 147 examples, 0 failures, 0 rubocop offenses.
+- 2026-05-03 — Phase 3 First question email complete: Threadable concern, OnboardingMailer#question_email, question_email views (html+text), OnboardingFlow::Scheduling service, OnboardingFlow::EnqueueFirstQuestionJob, OnboardingFlow::EnqueueNextQuestionJob, Tenant#confirm! wired to materialize_for, controller TODO unwired. 5 spec files (38 new examples). Total: 185 examples, 0 failures, 0 rubocop offenses.
 
 ### Next
-- `/rai-build TASK-001` — Phase 3 (First question email): OnboardingMailer#question_email, OnboardingFlow::EnqueueFirstQuestionJob.
+- `/rai-build TASK-001` — Phase 4 (Inbound reply pipeline): OnboardingMailbox, OnboardingReplyParser, VendorInferenceService, in_thread_ack mailer.

@@ -1,6 +1,8 @@
 require "rails_helper"
 
 RSpec.describe "Onboarding::Confirmations", type: :request do
+  include ActiveJob::TestHelper
+
   describe "GET /onboarding/confirmations/:signed_id" do
     context "with a valid signed_id for a pending_confirm tenant" do
       let(:tenant) { create(:tenant) }
@@ -30,6 +32,13 @@ RSpec.describe "Onboarding::Confirmations", type: :request do
         get onboarding_confirmation_path(signed_id: signed_id)
         expect(response).to have_http_status(:ok)
         expect(response.body).to include("You're confirmed.")
+      end
+
+      it "enqueues EnqueueFirstQuestionJob" do
+        expect {
+          get onboarding_confirmation_path(signed_id: signed_id)
+        }.to have_enqueued_job(OnboardingFlow::EnqueueFirstQuestionJob)
+          .with(tenant_id: tenant.id)
       end
     end
 

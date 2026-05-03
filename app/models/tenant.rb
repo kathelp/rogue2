@@ -61,6 +61,13 @@ class Tenant < ApplicationRecord
     return false if status_confirmed? || status_active?
 
     update!(status: :confirmed, confirmed_at: Time.current)
+
+    # Materialize the question catalog exactly once, idempotently.
+    # TenantQuestion rows are created on first confirm; re-confirming
+    # (e.g., via console) is safe because materialize_for uses find_or_create_by!.
+    Rogue::QuestionCatalog::Marketing::V1.materialize_for(tenant: self)
+
+    true
   end
 
   # --------------------------------------------------------------------------
