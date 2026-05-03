@@ -29,4 +29,7 @@ Rails.application.routes.draw do
   patch "/setup/:signed_id" => "setup/walkthroughs#update"
 
   get "/dashboard/:signed_id" => "dashboards#show", as: :dashboard
+
+  get  "/submissions/:signed_id" => "submissions/forms#show",   as: :submission_form
+  post "/submissions/:signed_id" => "submissions/forms#create"
 end

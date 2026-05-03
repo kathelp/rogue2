@@ -1,0 +1,11 @@
+Hi,
+
+<%= @tenant.dealership_name %> needs your <%= @request.metric_key.to_s.tr("_", " ") %> for <%= @prompt.scheduled_for.in_time_zone(@tenant.time_zone).strftime("%B %Y") %>.
+
+It takes about a minute. Submit here:
+
+  <%= @form_url %>
+
+If you don't have the number handy, hold onto this email — the link is good for 14 days.
+
+— The Rogue team
