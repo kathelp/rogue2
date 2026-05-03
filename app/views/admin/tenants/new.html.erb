@@ -1,0 +1,28 @@
+<% content_for :title, "Seed New Tenant — Rogue Admin" %>
+
+<h1>Seed New Tenant</h1>
+
+<% if flash[:alert] %>
+  <p style="color: red;"><%= flash[:alert] %></p>
+<% end %>
+
+<%= form_with model: @tenant, url: admin_tenants_path, method: :post do |f| %>
+  <div>
+    <%= f.label :dealership_name, "Dealership name" %>
+    <%= f.text_field :dealership_name, required: true, autofocus: true %>
+  </div>
+
+  <div>
+    <%= f.label :gm_name, "GM name" %>
+    <%= f.text_field :gm_name, required: true %>
+  </div>
+
+  <div>
+    <%= f.label :gm_email, "GM email" %>
+    <%= f.email_field :gm_email, required: true %>
+  </div>
+
+  <div>
+    <%= f.submit "Seed tenant" %>
+  </div>
+<% end %>

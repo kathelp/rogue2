@@ -1,0 +1,16 @@
+<% content_for :title, "Confirmation link expired — Rogue" %>
+
+<h1>This confirmation link is no longer valid.</h1>
+<p>Confirmation links expire 72 hours after they're sent.</p>
+
+<p>If you'd like a fresh one, enter your email below and we'll send you a new link.</p>
+
+<%= form_with url: onboarding_resend_confirmation_path, method: :post do |f| %>
+  <div>
+    <%= f.label :email, "Your email address" %>
+    <%= f.email_field :email, required: true %>
+  </div>
+  <div>
+    <%= f.submit "Send me a new link" %>
+  </div>
+<% end %>

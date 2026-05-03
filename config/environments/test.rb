@@ -56,4 +56,8 @@ Rails.application.configure do
   config.active_record.encryption.primary_key = "test-active-record-encryption-primary-key-32b"
   config.active_record.encryption.deterministic_key = "test-active-record-encryption-deterministic-k"
   config.active_record.encryption.key_derivation_salt = "test-active-record-encryption-key-derivation-"
+
+  # Admin basic auth credentials for test environment.
+  ENV["ROGUE_ADMIN_USERNAME"] ||= "admin"
+  ENV["ROGUE_ADMIN_PASSWORD"] ||= "admin-test-password"
 end

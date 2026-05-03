@@ -559,7 +559,7 @@ The feature splits into 6 build phases that each end at a testable, demonstrable
   - 7 RSpec spec files (models + lib). **89 examples, 0 failures.**
   - Rubocop: 0 offenses.
 
-- [ ] **Phase 2 — Tenant seed + GM confirm** (closes AC-ENTRY-1, AC-ENTRY-2, AC-HAPPY-1, AC-HAPPY-2, AC-ERROR-1)
+- [x] **Phase 2 — Tenant seed + GM confirm** *(COMPLETE 2026-05-03)* (closes AC-ENTRY-1, AC-ENTRY-2, AC-HAPPY-1, AC-HAPPY-2, AC-ERROR-1)
   - `Admin::BaseController` (HTTP basic auth concern, env-driven creds).
   - `Admin::TenantsController` (`new`, `create`, `show` showing seed audit info; `resend_confirmation` action).
   - `OnboardingMailer#confirmation_email` (subject, exact body copy with single CTA, plain-text alternative).
@@ -652,10 +652,10 @@ UI/UX Design is **not** flagged at this stage. The web surfaces (admin seed form
 
 ## Execution State
 
-**Build Status**: PHASE_1_COMPLETE
+**Build Status**: PHASE_2_COMPLETE
 **Current Phase**: BUILD
-**Last Completed**: Phase 1 — Foundation (2026-05-03)
-**Can Resume**: YES — continue with Phase 2 (Tenant seed + GM confirm)
+**Last Completed**: Phase 2 — Tenant seed + GM confirm (2026-05-03)
+**Can Resume**: YES — continue with Phase 3 (First question email)
 
 ### Active Sub-Agents
 (none)
@@ -676,6 +676,7 @@ UI/UX Design is **not** flagged at this stage. The web surfaces (admin seed form
 
 ### Completed Steps (continued)
 - 2026-05-03 — Phase 1 Foundation complete: 11 migrations, 11 models (incl. Current), Question Catalog V1, vendor seed CSV + loader, 9 factories, 7 spec files, 89 examples green, 0 rubocop offenses.
+- 2026-05-03 — Phase 2 Tenant seed + GM confirm complete: Admin::BaseController, Admin::TenantsController, Onboarding::ConfirmationsController, Tenant::Seeder service, OnboardingMailer#confirmation_email, all views, rake task, 5 spec files (58 new examples). Total: 147 examples, 0 failures, 0 rubocop offenses.
 
 ### Next
-- `/rai-build TASK-001` — Phase 2 (Tenant seed + GM confirm): Admin::BaseController, Admin::TenantsController, Onboarding::ConfirmationsController, OnboardingMailer#confirmation_email, confirmation views.
+- `/rai-build TASK-001` — Phase 3 (First question email): OnboardingMailer#question_email, OnboardingFlow::EnqueueFirstQuestionJob.

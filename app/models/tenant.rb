@@ -70,6 +70,10 @@ class Tenant < ApplicationRecord
     signed_id(purpose: :gm_confirm, expires_in: expires_in)
   end
 
+  def self.find_by_gm_confirm_signed_id(signed_id)
+    find_signed(signed_id, purpose: :gm_confirm)
+  end
+
   def self.find_by_gm_confirm_signed_id!(signed_id)
     find_signed!(signed_id, purpose: :gm_confirm)
   end

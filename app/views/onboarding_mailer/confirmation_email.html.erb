@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+      <tr>
+        <td align="center">
+          <table width="600" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+              <td style="padding: 40px 20px 20px;">
+                <h1 style="font-size: 24px; font-weight: bold; margin: 0 0 20px;">Welcome to Rogue</h1>
+
+                <p>Hi <%= @tenant.gm_name %>,</p>
+
+                <p>We've set up your dealership (<%= @tenant.dealership_name %>) and we're ready to start.</p>
+
+                <p>To begin, click the link below:</p>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding: 10px 20px 20px;">
+                <table cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td style="background-color: #000; border-radius: 4px;">
+                      <a href="<%= @confirm_url %>"
+                         style="display: inline-block; padding: 14px 28px; color: #fff; font-weight: bold; text-decoration: none; font-size: 16px;">
+                        Confirm and start onboarding
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 0 20px 20px;">
+                <p>This is the only click we'll ask of you on the web. Everything else happens in this inbox.</p>
+
+                <p>After you confirm, we'll send you one short question at a time over the next several days — things like "who controls your marketing strategy?" — and you can answer by replying and CC'ing the right person.</p>
+
+                <p>— The Rogue team</p>
+
+                <p style="color: #666; font-size: 12px; margin-top: 30px;">
+                  Or copy and paste this URL into your browser:<br>
+                  <%= @confirm_url %>
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
