@@ -70,3 +70,17 @@ All 6 phases complete on `feature/FEAT-001-tenant-gm-email-onboarding`:
 Closed acceptance criteria: AC-ENTRY-1, AC-ENTRY-2, AC-ENTRY-3, AC-ENTRY-4; AC-HAPPY-1 through AC-HAPPY-8; AC-ERROR-1 through AC-ERROR-5; AC-ASYNC-1 through AC-ASYNC-3; AC-NAV-1, AC-NAV-2.
 
 **Next**: `/rai-reflect TASK-001` (mandatory for Level 4), then `/rai-archive TASK-001`.
+
+---
+
+## TASK-001 — Reflection (2026-05-03)
+
+- **Document**: `memory-bank/reflection/reflection-TASK-001.md`
+- **Dimensions evaluated**: Task implementation quality (architecture, technical successes/challenges, process) + Claude Code ecosystem (commands, workflow, context, tools, sub-agents, memory bank, scalability)
+- **Patterns extracted to `agent-rules/_learned/`** (4 new files; consolidate-first cap is 10):
+  - `idempotency.md` — recurring jobs and inbound handlers establish idempotency via marker rows before side effects
+  - `time-zones.md` — derive zone from tenant/TimeWithZone, never `Time.zone`, in tenant-scoped code
+  - `service-shape.md` — pure services return typed Struct value objects with `keyword_init`
+  - `audit-trail.md` — `FlowEvent.record!` inside the same transaction as the domain mutation; no separate audit service
+- **Status**: REFLECTION_COMPLETE
+- **Next**: `/rai-archive TASK-001` (mandatory for Level 4) — PR `feature/FEAT-001-tenant-gm-email-onboarding` → `main`.

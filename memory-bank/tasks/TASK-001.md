@@ -1,10 +1,11 @@
 # TASK-001: Tenant + GM Email-First Onboarding
 
 **Complexity**: Level 4
-**Status**: CREATIVE_COMPLETE
+**Status**: REFLECTION_COMPLETE
 **Roadmap**: FEAT-001
 **Branch**: feature/FEAT-001-tenant-gm-email-onboarding
 **Worktree**: N/A
+**Reflection**: memory-bank/reflection/reflection-TASK-001.md
 **Docs Opt-In**: no
 **Docs Opt-In Reason**: No Docusaurus tree at `docs/` and feature is operational/internal-platform-foundation; revisit when first end-user-facing capability ships.
 **Marketing Opt-In**: no
@@ -652,10 +653,10 @@ UI/UX Design is **not** flagged at this stage. The web surfaces (admin seed form
 
 ## Execution State
 
-**Build Status**: BUILD_COMPLETE
-**Current Phase**: BUILD
-**Last Completed**: Phase 6 — Weekly digest + dashboard placeholder (2026-05-03)
-**Can Resume**: NO — all 6 phases complete; next is `/rai-reflect`
+**Build Status**: IDLE
+**Current Phase**: REFLECT → ARCHIVE
+**Last Completed**: Reflection (2026-05-03) — `memory-bank/reflection/reflection-TASK-001.md`
+**Can Resume**: NO — reflection complete; next is `/rai-archive TASK-001`
 
 ### Active Sub-Agents
 (none)
@@ -681,6 +682,7 @@ UI/UX Design is **not** flagged at this stage. The web surfaces (admin seed form
 - 2026-05-03 — Phase 4 Inbound reply pipeline complete (resumed after crash): ApplicationMailbox onboarding+ routing (with onboarding@ fallback), OnboardingMailbox dispatcher (tenant resolution via plus-token + In-Reply-To fallback, GM-only sender gating, Message-ID idempotency via Action Mailbox), OnboardingReplyParser (CcOrdering / BodyExtractor / SkipDetector / ThreadResolver modules; email_reply_trimmer + Nokogiri quote stripping; deterministic skip regex; raw_excerpt 4 KB cap), VendorInferenceService (internal_staff/vendor_user/unknown), OnboardingFlow::AdaptivePacing (12h/24h/48h/silence per J3), OnboardingMailer#in_thread_ack / #gm_only_thread_notice / #vendor_clarification with html+text views, OnboardingMailerHelper#humanize_next_question_at, FlowEvent records for reply.parsed, responsibility.created, question.skipped, question.revisited, reply.unparseable, reply.rejected_non_gm_sender, vendor.clarification_requested, vendor.bootstrap_from_clarification. Touch-up: cleared 2 pre-existing rubocop offenses in config/routes.rb. 4 new spec files (mailbox + 3 service specs) + onboarding_mailer_spec extended. **Total: 242 examples, 0 failures, 0 rubocop offenses.**
 - 2026-05-03 — Phase 5 Invitee setup walkthrough complete: OnboardingMailer#invitee_setup_email + html/text views, Setup::WalkthroughsController (3-step show/update at /setup/:signed_id, resumable, expired-page on bad/old token), Setup::Completion service, OnboardingFlow::RequestProvisioning (creates Request rows from catalog metrics), OnboardingFlow::SubmissionPromptScheduler (next-period start in tenant TZ for weekly/monthly/quarterly/semi_annual/annual cadences), Contact#invitee_setup_signed_id helpers, Rogue::QuestionCatalog::Marketing::V1.metrics_for, OnboardingMailbox wired to send invitee_setup_email and provision Requests on assignment. 6 new/extended spec files (mailer extended; setup walkthrough request specs; 3 new service specs; catalog spec extended; mailbox spec extended). **Total: 279 examples, 0 failures, 0 rubocop offenses.**
 - 2026-05-03 — Phase 6 Weekly digest + dashboard placeholder complete: AccountabilityMailer#weekly_digest with html+text views (per-row responsibility status table + Open Dashboard CTA + empty-state copy), WeeklyDigestJob (eligibility filter on `confirmed_at <= 7.days.ago`, idempotency via WeeklyDigestDelivery unique on `(tenant_id, week_starting)`, FlowEvent emit on send), Accountability::DigestAssembler service (Row + Digest value objects; pending_setup vs pending_first_submission status), DashboardsController#show at /dashboard/:signed_id (read-only summary; expired view on bad/old token), Tenant#dashboard_signed_id helpers (8-day expiry), config/recurring.yml schedules WeeklyDigestJob Mondays 9am, migration 20260503180611 creates weekly_digest_deliveries table. 5 new spec files (mailer + job + dashboard request + assembler service + delivery model). **Total: 307 examples, 0 failures, 0 rubocop offenses.**
+- 2026-05-03 — Reflection complete: `memory-bank/reflection/reflection-TASK-001.md`. Two-dimensional Level 4 evaluation (task quality + ecosystem). 4 patterns extracted into `agent-rules/_learned/`: idempotency, time-zones, service-shape, audit-trail. Status REFLECTION_COMPLETE.
 
 ### Next
-- `/rai-reflect TASK-001` — Level 4 mandates reflection. Capture learnings, then `/rai-archive TASK-001` to PR feature/FEAT-001 → main.
+- `/rai-archive TASK-001` — mandatory for Level 4. Will commit reflection + memory-bank updates and PR `feature/FEAT-001-tenant-gm-email-onboarding` → `main`.

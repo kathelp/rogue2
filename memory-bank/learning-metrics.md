@@ -13,13 +13,16 @@
 
 | Task ID | Date | Learnings Extracted | Rules Amended | Rules Created |
 |---------|------|--------------------:|-------------:|-------------:|
-| (none yet) | | | | |
+| TASK-001 | 2026-05-03 | 4 | 0 | 4 |
 
 ## Rule Effectiveness
 
 | File | Topics | Evidence Count | Priority | Last Updated |
 |------|--------|---------------:|:--------:|:------------:|
-| (none yet) | | | | |
+| idempotency.md | idempotency, recurring-jobs, inbound-handlers | 1 | low | 2026-05-03 |
+| time-zones.md | time-zones, scheduling | 1 | low | 2026-05-03 |
+| service-shape.md | service-classes, testing, value-objects | 1 | low | 2026-05-03 |
+| audit-trail.md | audit-logging, observability, domain-events | 1 | low | 2026-05-03 |
 
 ## Consolidation History
 
