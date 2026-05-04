@@ -1,10 +1,13 @@
 # TASK-002: Submission Prompt Sender
 
 **Complexity**: Level 3 (inherited from FEAT-002)
-**Status**: PLANNING_COMPLETE
+**Status**: COMPLETE
+**Completed**: 2026-05-03
 **Roadmap**: FEAT-002
-**Branch**: feature/FEAT-002-submission-prompt-sender
+**Branch**: feature/FEAT-002-submission-prompt-sender (merged + deleted at archive)
 **Worktree**: N/A
+**Reflection**: memory-bank/reflection/reflection-TASK-002.md
+**Archived**: memory-bank/archive/archive-TASK-002.md
 **Docs Opt-In**: no
 **Docs Opt-In Reason**: No Docusaurus tree at `docs/`; feature is internal-platform infrastructure (recurring sender + form). Revisit when first end-user-facing capability ships beyond the email path.
 **Marketing Opt-In**: no
@@ -292,7 +295,7 @@ Three phases, each closing at a green test boundary:
 - Phase 2 ships the recurring sender + the mailer (no UI yet).
 - Phase 3 closes the loop with the form + capture + digest flip.
 
-- [ ] **Phase 1 — Foundation** (closes the model layer)
+- [x] **Phase 1 — Foundation** *(COMPLETE 2026-05-03)* (closes the model layer)
   - Migration `create_submissions` (tenant_id, request_id, submission_prompt_id, submitted_by_contact_id, value, notes, period_starting, submitted_at).
   - Migration `add_fulfilled_status_to_submission_prompts` (extend the `status` enum's allowed values; add `fulfilled_at` column).
   - `Submission` ActiveRecord model with `belongs_to`s, validations, `for_period` scope.
@@ -300,7 +303,7 @@ Three phases, each closing at a green test boundary:
   - `spec/models/submission_spec.rb`.
   - **Acceptance**: model spec green; migration up/down clean; factory builds a valid record.
 
-- [ ] **Phase 2 — Sender job + prompt mailer** (closes AC-ENTRY-1, AC-HAPPY-1, AC-HAPPY-3, AC-HAPPY-5)
+- [x] **Phase 2 — Sender job + prompt mailer** *(COMPLETE 2026-05-03)* (closes AC-ENTRY-1, AC-HAPPY-1, AC-HAPPY-3, AC-HAPPY-5)
   - `SubmissionPromptSenderJob` (Solid Queue, recurring). Filter: `status: :pending AND scheduled_for <= Time.current`. For each: status transition `:pending → :sent` first (synchronisation point), then enqueue mailer based on `Source.submission_method`. Emit `FlowEvent.record!`.
   - `SubmissionMailer` (extends `ApplicationMailer`, includes `Threadable`):
     - `prompt_email` — form-method recipients. Subject names dealership + metric + period. Body has the magic-link CTA.
@@ -310,7 +313,7 @@ Three phases, each closing at a green test boundary:
   - `config/recurring.yml`: schedule `SubmissionPromptSenderJob` hourly at minute 7.
   - **Acceptance**: job spec covers 5 branches; mailer specs assert subject/headers/body for both actions; FlowEvent counts verified.
 
-- [ ] **Phase 3 — Submission form + capture + digest flip** (closes AC-ENTRY-2, AC-HAPPY-2, AC-HAPPY-4, AC-ERROR-1, AC-ERROR-2, AC-ASYNC-1)
+- [x] **Phase 3 — Submission form + capture + digest flip** *(COMPLETE 2026-05-03)* (closes AC-ENTRY-2, AC-HAPPY-2, AC-HAPPY-4, AC-ERROR-1, AC-ERROR-2, AC-ASYNC-1)
   - Routes: `get "/submissions/:signed_id" => "submissions/forms#show", as: :submission_form` and `post "/submissions/:signed_id" => "submissions/forms#create"`.
   - `Submissions::FormsController` (`show` + `create`). Show branches: valid + pending → form, valid + fulfilled → already-submitted, expired/invalid → 404 with expired view. Create: invalid input → 422 re-render; valid input → call `Submission::Capture`, redirect to a thank-you action.
   - `Submission::Capture` service — `Result` value-object pattern (matches `Setup::Completion` from TASK-001). Wraps in transaction: `Submission.create!`, `prompt.update!(status: :fulfilled, fulfilled_at: Time.current)`, `FlowEvent.record!(event_type: "submission.captured", subject: submission)`.
@@ -344,13 +347,15 @@ Per Level 3 + the "MEDIUM confidence on the generic-form choice" assessment, **n
 ## Execution State
 
 **Build Status**: IDLE
-**Current Phase**: BUILD (ready)
-**Last Completed**: Planning (2026-05-03)
-**Can Resume**: NO — start with `/rai-build TASK-002` for Phase 1.
+**Current Phase**: COMPLETE
+**Last Completed**: Archive (2026-05-03) — `memory-bank/archive/archive-TASK-002.md`
+**Can Resume**: NO — task closed.
 
 ### Completed Steps
 - 2026-05-03 — `/rai-roadmap feature create FEAT-002` — feature added to roadmap.md (Level 3, high priority)
 - 2026-05-03 — `/rai-plan TASK-002` — task auto-provisioned from FEAT-002, Specification + Test Strategy + Implementation Roadmap drafted, no creative phases flagged
-
-### Next
-- `/rai-build TASK-002` — Phase 1 (Foundation): migrations + Submission model + factory + model spec.
+- 2026-05-03 — Phase 1 Foundation complete: 2 migrations, Submission model + factory, 7 specs. Total 314 examples, 0 failures.
+- 2026-05-03 — Phase 2 Sender + Mailer complete: SubmissionPromptSenderJob (atomic UPDATE-WHERE idempotency), SubmissionMailer (prompt_email + adapter_pending_email + html/text views), magic-link helpers on SubmissionPrompt, recurring schedule. 19 specs. Total 333.
+- 2026-05-03 — Phase 3 Form + Capture + Digest flip complete: Submissions::FormsController, Submissions::Capture service (renamed from Submission:: to avoid Zeitwerk collision), DigestAssembler `:on_time` branch. 20 specs. Total 353. RuboCop 0 offenses.
+- 2026-05-03 — Reflection complete: `memory-bank/reflection/reflection-TASK-002.md`. 3 patterns extracted (idempotency amended +1, time-zones amended +1, namespacing created).
+- 2026-05-03 — Archive complete: `memory-bank/archive/archive-TASK-002.md`.
