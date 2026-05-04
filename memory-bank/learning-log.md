@@ -24,3 +24,15 @@ Chronological record of pattern extraction and consolidation events from task re
 - Expired: 0 (all bullets created today; 90-day rule does not fire)
 - Promoted: 0 (all `evidence_count: 1`; promotion threshold is 3)
 - Pruned: 0 (all files have 1 bullet; well under 15-bullet limit)
+
+---
+
+## 2026-05-03 — TASK-002 Reflection
+
+### Extracted Patterns
+- **idempotency** → amended `agent-rules/_learned/idempotency.md` (evidence count: 1 → 2). New bullet: row-status UPDATE-WHERE pattern when the marker IS the domain row.
+- **time-zones** → amended `agent-rules/_learned/time-zones.md` (evidence count: 1 → 2). Period derivation in tenant TZ reinforced (Submissions::Capture, DigestAssembler).
+- **namespacing** → created `agent-rules/_learned/namespacing.md` (evidence count: 1). Use plural service namespace when noun matches a model class.
+
+### systemPatterns.md Updates
+- None this round — same coding-practice patterns; codebase already lives them.

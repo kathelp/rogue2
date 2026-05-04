@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Submit — <%= @prompt.tenant.dealership_name %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+  </head>
+  <body style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 640px; margin: 40px auto; padding: 0 20px; color: #222;">
+    <% if params[:submitted] %>
+      <h1 style="font-size: 24px;">Got it.</h1>
+      <p>
+        We received your <%= @prompt.request.metric_key.to_s.tr("_", " ") %>
+        for <%= @prompt.scheduled_for.in_time_zone(@prompt.tenant.time_zone).strftime("%B %Y") %>.
+      </p>
+      <p>You can close this tab. We'll send the next prompt when it's due.</p>
+    <% else %>
+      <h1 style="font-size: 24px;">
+        <%= @prompt.tenant.dealership_name %> —
+        <%= @prompt.request.metric_key.to_s.tr("_", " ") %>
+        for <%= @prompt.scheduled_for.in_time_zone(@prompt.tenant.time_zone).strftime("%B %Y") %>
+      </h1>
+      <p style="color: #555;">Enter the value and any notes, then submit.</p>
+
+      <% if flash[:alert] %>
+        <p style="background: #fee; border: 1px solid #fcc; padding: 12px; border-radius: 4px; color: #800;">
+          <%= flash[:alert] %>
+        </p>
+      <% end %>
+
+      <%= form_with url: submission_form_path(signed_id: params[:signed_id]), method: :post, local: true, scope: :submission do |f| %>
+        <div style="margin: 16px 0;">
+          <%= f.label :value, @prompt.request.metric_key.to_s.tr("_", " ").capitalize, style: "display: block; font-weight: bold; margin-bottom: 6px;" %>
+          <%= f.number_field :value,
+                             value: @value_attempt,
+                             step: "any",
+                             min: 0,
+                             required: true,
+                             style: "width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px;" %>
+        </div>
+        <div style="margin: 16px 0;">
+          <%= f.label :notes, "Notes (optional)", style: "display: block; font-weight: bold; margin-bottom: 6px;" %>
+          <%= f.text_area :notes, value: @notes_attempt, rows: 4,
+                          style: "width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;" %>
+        </div>
+        <p>
+          <%= f.submit "Submit",
+                       style: "padding: 12px 24px; background: #000; color: #fff; border: 0; border-radius: 4px; cursor: pointer; font-size: 16px;" %>
+        </p>
+      <% end %>
+    <% end %>
+  </body>
+</html>

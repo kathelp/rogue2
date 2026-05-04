@@ -50,6 +50,27 @@ RSpec.describe Accountability::DigestAssembler do
       expect(digest.rows.first.status).to eq(:pending_first_submission)
     end
 
+    it "marks on_time when at least one Submission exists for the current period" do
+      q = create(:tenant_question, tenant: tenant, key: "marketing_strategy",
+                 prompt: "Who controls your marketing strategy?")
+      c = create(:contact, tenant: tenant, email: "alex@smithtoyota.com")
+      create(:responsibility, tenant: tenant, tenant_question: q, primary_contact: c)
+      source = create(:source, :configured, tenant: tenant, domain: "marketing",
+                      responsibility_key: "marketing_strategy", configured_by_contact: c)
+      request_record = create(:request, tenant: tenant, source: source,
+                              metric_key: "strategy_summary", cadence: "monthly")
+      period_start = Time.current.in_time_zone(tenant.time_zone).beginning_of_month.to_date
+      prompt = create(:submission_prompt, tenant: tenant, request: request_record,
+                      status: "fulfilled",
+                      scheduled_for: Time.current,
+                      fulfilled_at: Time.current)
+      create(:submission, tenant: tenant, request: request_record, submission_prompt: prompt,
+             submitted_by_contact: c, period_starting: period_start)
+
+      digest = described_class.call(tenant: tenant)
+      expect(digest.rows.first.status).to eq(:on_time)
+    end
+
     it "ignores superseded responsibilities" do
       q = create(:tenant_question, tenant: tenant, key: "marketing_strategy",
                  prompt: "Who controls your marketing strategy?")

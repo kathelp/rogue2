@@ -18,3 +18,8 @@ production:
     class: WeeklyDigestJob
     queue: default
     schedule: every Monday at 9am
+
+  submission_prompt_sender:
+    class: SubmissionPromptSenderJob
+    queue: default
+    schedule: every hour at minute 7

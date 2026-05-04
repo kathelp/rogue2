@@ -96,3 +96,23 @@ Closed acceptance criteria: AC-ENTRY-1, AC-ENTRY-2, AC-ENTRY-3, AC-ENTRY-4; AC-H
 **Carry-forward**: FEAT-Ops-Cutover (production email ingress + outbound provider + S3 raw-payload archive — pending QA / prod environment)
 
 ---
+
+## TASK-002 — Submission Prompt Sender (FEAT-002, Level 3, 2026-05-03)
+
+Phase summary:
+- Phase 1: 7 specs (Submission model + 2 migrations + factory). Total 314.
+- Phase 2: 19 specs (SubmissionPromptSenderJob + SubmissionMailer + magic-link helpers + recurring schedule). Total 333.
+- Phase 3: 20 specs (Submissions::FormsController + Submissions::Capture + DigestAssembler `:on_time` flip). Total 353.
+
+**Build & Quality**: 353 examples, 0 failures (FEAT-002 added 46 specs over the FEAT-001 baseline of 307). RuboCop 0 offenses.
+
+Reflection captured 3 patterns: idempotency (amended; `pending → sent` UPDATE-WHERE pattern), time-zones (amended; period-derivation reinforcement), namespacing (created; plural service module names to avoid Zeitwerk model collisions).
+
+## Task Archive: TASK-002
+
+**Task**: Submission Prompt Sender
+**Status**: ✅ ARCHIVED
+**Date**: 2026-05-03
+**Archive**: `memory-bank/archive/archive-TASK-002.md`
+
+---

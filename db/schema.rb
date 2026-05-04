@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_03_180611) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_03_180701) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -142,6 +142,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_03_180611) do
 
   create_table "submission_prompts", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.datetime "fulfilled_at"
     t.bigint "request_id", null: false
     t.datetime "scheduled_for", null: false
     t.datetime "sent_at"
@@ -152,6 +153,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_03_180611) do
     t.index ["scheduled_for"], name: "index_submission_prompts_on_scheduled_for"
     t.index ["status"], name: "index_submission_prompts_on_status"
     t.index ["tenant_id"], name: "index_submission_prompts_on_tenant_id"
+  end
+
+  create_table "submissions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "notes"
+    t.date "period_starting", null: false
+    t.bigint "request_id", null: false
+    t.bigint "submission_prompt_id", null: false
+    t.datetime "submitted_at", null: false
+    t.bigint "submitted_by_contact_id", null: false
+    t.bigint "tenant_id", null: false
+    t.datetime "updated_at", null: false
+    t.decimal "value", precision: 18, scale: 4, null: false
+    t.index ["request_id", "period_starting"], name: "index_submissions_on_request_period"
+    t.index ["request_id"], name: "index_submissions_on_request_id"
+    t.index ["submission_prompt_id"], name: "index_submissions_on_submission_prompt_id"
+    t.index ["submitted_by_contact_id"], name: "index_submissions_on_submitted_by_contact_id"
+    t.index ["tenant_id"], name: "index_submissions_on_tenant_id"
   end
 
   create_table "tenant_questions", force: :cascade do |t|
@@ -241,6 +260,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_03_180611) do
   add_foreign_key "sources", "vendors"
   add_foreign_key "submission_prompts", "requests"
   add_foreign_key "submission_prompts", "tenants"
+  add_foreign_key "submissions", "contacts", column: "submitted_by_contact_id"
+  add_foreign_key "submissions", "requests"
+  add_foreign_key "submissions", "submission_prompts"
+  add_foreign_key "submissions", "tenants"
   add_foreign_key "tenant_questions", "tenants"
   add_foreign_key "vendors", "tenants", column: "created_by_tenant_id"
   add_foreign_key "vendors", "vendors", column: "parent_vendor_id"

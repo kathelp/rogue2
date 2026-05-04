@@ -46,10 +46,23 @@ module Accountability
 
     def self.status_for(source)
       return :pending_setup if source.nil? || source.submission_method.blank?
+      return :on_time if any_current_period_submission?(source)
 
       :pending_first_submission
     end
     private_class_method :status_for
+
+    def self.any_current_period_submission?(source)
+      tz = ActiveSupport::TimeZone[source.tenant.time_zone] || ActiveSupport::TimeZone["UTC"]
+      current_period_start = Time.current.in_time_zone(tz).to_date.beginning_of_month
+
+      Submission
+        .joins(:request)
+        .where(tenant: source.tenant, requests: { source_id: source.id })
+        .where(period_starting: current_period_start)
+        .exists?
+    end
+    private_class_method :any_current_period_submission?
 
     def self.next_due_at_for(tenant, source)
       return nil if source.nil?
