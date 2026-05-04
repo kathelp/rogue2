@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+  <body style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; color: #222;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+      <tr>
+        <td align="center">
+          <table width="600" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+              <td style="padding: 40px 20px 20px;">
+                <% case @severity %>
+                <% when :due_soon %>
+                  <h1 style="font-size: 22px; margin: 0 0 12px;">A friendly heads up</h1>
+                  <p>
+                    <strong><%= @tenant.dealership_name %></strong>'s
+                    <%= @request.metric_key.to_s.tr("_", " ") %>
+                    for <%= @prompt.scheduled_for.in_time_zone(@tenant.time_zone).strftime("%B %Y") %>
+                    is due in a few days.
+                  </p>
+                <% when :overdue, :fallback_fanout %>
+                  <h1 style="font-size: 22px; margin: 0 0 12px;">This one is overdue</h1>
+                  <p>
+                    <strong><%= @tenant.dealership_name %></strong>'s
+                    <%= @request.metric_key.to_s.tr("_", " ") %>
+                    for <%= @prompt.scheduled_for.in_time_zone(@tenant.time_zone).strftime("%B %Y") %>
+                    hasn't come in. Please send it as soon as you can.
+                  </p>
+                <% when :gm_nudge %>
+                  <h1 style="font-size: 22px; margin: 0 0 12px;">Still no data — a heads up for the GM</h1>
+                  <p>Hi <%= @tenant.gm_name %>,</p>
+                  <p>
+                    We've been chasing
+                    <strong><%= @request.metric_key.to_s.tr("_", " ") %></strong>
+                    for <strong><%= @prompt.scheduled_for.in_time_zone(@tenant.time_zone).strftime("%B %Y") %></strong>
+                    and haven't gotten it yet.
+                  </p>
+                  <% chain = Array(@payload[:fallback_chain]).compact %>
+                  <% if chain.any? %>
+                    <p>People we've already pinged:</p>
+                    <ul>
+                      <li><%= @source.configured_by_contact&.email || "(original contact)" %> (primary)</li>
+                      <% chain.each do |email| %>
+                        <li><%= email %> (fallback)</li>
+                      <% end %>
+                    </ul>
+                  <% end %>
+                  <p>Want to take it on yourself, or pick someone new? You can reply to your weekly digest or hit the link below.</p>
+                <% end %>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding: 10px 20px 20px;">
+                <table cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td style="background-color: #000; border-radius: 4px;">
+                      <a href="<%= @form_url %>"
+                         style="display: inline-block; padding: 14px 28px; color: #fff; font-weight: bold; text-decoration: none; font-size: 16px;">
+                        <%= @severity == :gm_nudge ? "Open submission link" : "Submit your data" %>
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 0 20px 20px;">
+                <p>— The Rogue team</p>
+                <p style="color: #666; font-size: 12px; margin-top: 30px;">
+                  Or copy and paste this URL into your browser:<br>
+                  <%= @form_url %>
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
