@@ -1,10 +1,13 @@
 # TASK-003: Escalation Cascade
 
 **Complexity**: Level 3 (inherited from FEAT-004)
-**Status**: PLANNING_COMPLETE
+**Status**: COMPLETE
+**Completed**: 2026-05-03
 **Roadmap**: FEAT-004
-**Branch**: feature/FEAT-004-escalation-cascade
+**Branch**: feature/FEAT-004-escalation-cascade (merged + deleted at archive)
 **Worktree**: N/A
+**Reflection**: memory-bank/reflection/reflection-TASK-003.md
+**Archived**: memory-bank/archive/archive-TASK-003.md
 **Docs Opt-In**: no
 **Docs Opt-In Reason**: No Docusaurus tree at `docs/`; feature is internal-platform infrastructure (recurring detector + escalation mailers).
 **Marketing Opt-In**: no
@@ -201,19 +204,19 @@ The `Accountability::DigestAssembler` is extended with two new statuses: `:late`
 
 ## Implementation Roadmap
 
-- [ ] **Phase 1 — Cascade service** (closes AC-DETECT-1)
+- [x] **Phase 1 — Cascade service** *(COMPLETE 2026-05-03)* (closes AC-DETECT-1)
   - `app/services/onboarding_flow/escalation_cascade.rb` with `OnboardingFlow::EscalationCascade.next_action_for(prompt:, now: Time.current)` returning `NextAction(severity:, recipient_email:, payload:)` Struct or nil.
   - Severity ladder + grace window constants exposed for spec.
   - **Acceptance**: pure-function spec covers all severity branches.
 
-- [ ] **Phase 2 — Detector + EscalationMailer** (closes AC-DETECT-2, AC-MAIL-1..3)
+- [x] **Phase 2 — Detector + EscalationMailer** *(COMPLETE 2026-05-03)* (closes AC-DETECT-2, AC-MAIL-1..3)
   - `app/jobs/escalation_detector_job.rb` — iterates `:sent` prompts, calls cascade, transactional `FlowEvent.record!` + `EscalationMailer.with(...).escalation_email.deliver_later`.
   - `app/mailers/escalation_mailer.rb` with one action `escalation_email(severity:)`. Selects subject + body partial.
   - Views: `escalation_email.html.erb` + `.text.erb` rendering severity-conditional body.
   - `config/recurring.yml`: schedule `EscalationDetectorJob` hourly at minute 23.
   - **Acceptance**: job spec covers FlowEvent idempotency + mailer enqueue per severity; mailer spec covers subject + body per severity.
 
-- [ ] **Phase 3 — Digest late/overdue + reflection + archive** (closes AC-DIGEST-1)
+- [x] **Phase 3 — Digest late/overdue + reflection + archive** *(COMPLETE 2026-05-03)* (closes AC-DIGEST-1)
   - Extend `Accountability::DigestAssembler#status_for`:
     - Find latest `escalation.*` FlowEvent for the source's current-period prompt.
     - No submission + no escalation yet but past period_end → `:late`.
@@ -230,6 +233,6 @@ The `Accountability::DigestAssembler` is extended with two new statuses: `:late`
 ## Execution State
 
 **Build Status**: IDLE
-**Current Phase**: BUILD (ready)
-**Last Completed**: Planning (2026-05-03)
-**Can Resume**: NO — start with `/rai-build TASK-003` for Phase 1.
+**Current Phase**: COMPLETE
+**Last Completed**: Archive (2026-05-03)
+**Can Resume**: NO — task closed.

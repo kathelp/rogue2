@@ -36,3 +36,14 @@ Chronological record of pattern extraction and consolidation events from task re
 
 ### systemPatterns.md Updates
 - None this round — same coding-practice patterns; codebase already lives them.
+
+---
+
+## 2026-05-03 — TASK-003 Reflection
+
+### Extracted Patterns
+- **idempotency** → amended `agent-rules/_learned/idempotency.md` (evidence count: 2 → 3) and **promoted** to `medium` priority (promotion threshold = 3 met). New bullet: FlowEvent log as state-machine source of truth for multi-step ladders.
+- **time-zones** → amended `agent-rules/_learned/time-zones.md` (evidence count: 2 → 3) and **promoted** to `medium` priority. New bullet: mix Date and Time math intentionally — calendar-day boundaries want Date arithmetic; hour-precise thresholds want Time arithmetic anchored on a specific event.
+
+### systemPatterns.md Updates
+- None this round (FlowEvent-as-state-machine reinforces an existing TASK-001 pattern; not novel).

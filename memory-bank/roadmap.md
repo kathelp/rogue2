@@ -15,7 +15,7 @@
 - **Features**:
   - FEAT-001: Tenant + GM Email-First Onboarding (complete, archived 2026-05-03) [Level 4]
   - FEAT-002: Submission Prompt Sender (complete, archived 2026-05-03) [Level 3]
-  - FEAT-004: Escalation Cascade (planned) [Level 3]
+  - FEAT-004: Escalation Cascade (complete, archived 2026-05-03) [Level 3]
   - FEAT-Ops-Cutover: Production email ingress, outbound provider, raw-payload archive (planned) [Level 2]
 
 ## Features
@@ -49,12 +49,14 @@
 ### FEAT-004: Escalation Cascade
 
 - **Version**: next
-- **Status**: planned
-- **Priority**: high (completes the accountability loop — late and overdue prompts surface to fallback contacts and the GM, instead of silently piling up)
+- **Status**: complete (archived 2026-05-03)
+- **Archive**: memory-bank/archive/archive-TASK-003.md
+- **Priority**: high (completed the accountability loop — late and overdue prompts now surface to fallback contacts and the GM)
 - **Complexity**: Level 3
 - **Description**: When a SubmissionPrompt reaches its `:sent` status but no Submission lands within the configured grace windows, the escalation cascade fires — graduated severity from "due-soon" reminder (3 days before period close) to "overdue" notice (3 days past) to "fallback fan-out" (notifies the responsibility's ordered `fallback_contact_emails`) to "GM nudge" (when no fallbacks left or all already notified). Severity is computed as a pure function of `(prompt.scheduled_for, period_end, current_time, fallbacks_already_notified)` so the recurring detector job is stateless. Each escalation event is recorded as a `FlowEvent` with severity in the payload — re-runs check the FlowEvent log for "have we already notified at this severity?" rather than maintaining a separate state column on the prompt. Builds the foundation for the productBrief's "graduated escalation" guarantee. Note: numbered FEAT-004 (not FEAT-003) to leave the FEAT-003 slot for AI-assisted adapter generation, the next major Level-4 feature on the productBrief OOS list.
-- **Linked Tasks**: (will be auto-provisioned by /rai-plan)
-- **Branch**: feature/FEAT-004-escalation-cascade
+- **Linked Tasks**:
+  - TASK-003: Escalation Cascade (complete)
+- **Branch**: feature/FEAT-004-escalation-cascade (merged 2026-05-03; deleted)
 - **Created**: 2026-05-03
 
 ### FEAT-Ops-Cutover: Production email ingress, outbound provider, raw-payload archive

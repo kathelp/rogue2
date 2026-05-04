@@ -116,3 +116,23 @@ Reflection captured 3 patterns: idempotency (amended; `pending → sent` UPDATE-
 **Archive**: `memory-bank/archive/archive-TASK-002.md`
 
 ---
+
+## TASK-003 — Escalation Cascade (FEAT-004, Level 3, 2026-05-03)
+
+Phase summary:
+- Phase 1: 9 specs (OnboardingFlow::EscalationCascade pure-function classifier). Total 362.
+- Phase 2: 15 specs (EscalationDetectorJob + EscalationMailer with severity-driven branching). Total 377.
+- Phase 3: 2 new specs (DigestAssembler `:late` / `:overdue` branches). Total 379.
+
+**Build & Quality**: 379 examples, 0 failures (FEAT-004 added 26 specs). RuboCop 0 offenses.
+
+Reflection captured 2 patterns: idempotency (amended; FlowEvent log as state-machine source of truth) and time-zones (amended; mix Date and Time math intentionally). Both **promoted** to `medium` priority — promotion threshold (3 evidence rows) reached.
+
+## Task Archive: TASK-003
+
+**Task**: Escalation Cascade
+**Status**: ✅ ARCHIVED
+**Date**: 2026-05-03
+**Archive**: `memory-bank/archive/archive-TASK-003.md`
+
+---

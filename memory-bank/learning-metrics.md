@@ -15,13 +15,14 @@
 |---------|------|--------------------:|-------------:|-------------:|
 | TASK-001 | 2026-05-03 | 4 | 0 | 4 |
 | TASK-002 | 2026-05-03 | 3 | 2 | 1 |
+| TASK-003 | 2026-05-03 | 2 | 2 | 0 |
 
 ## Rule Effectiveness
 
 | File | Topics | Evidence Count | Priority | Last Updated |
 |------|--------|---------------:|:--------:|:------------:|
-| idempotency.md | idempotency, recurring-jobs, inbound-handlers | 2 | low | 2026-05-03 |
-| time-zones.md | time-zones, scheduling | 2 | low | 2026-05-03 |
+| idempotency.md | idempotency, recurring-jobs, inbound-handlers | 3 | medium | 2026-05-03 |
+| time-zones.md | time-zones, scheduling | 3 | medium | 2026-05-03 |
 | service-shape.md | service-classes, testing, value-objects | 1 | low | 2026-05-03 |
 | audit-trail.md | audit-logging, observability, domain-events | 1 | low | 2026-05-03 |
 | namespacing.md | namespacing, service-classes, zeitwerk | 1 | low | 2026-05-03 |
@@ -31,3 +32,4 @@
 | Date | Rules Before | Rules After | Merged | Expired | Promoted |
 |------|------------:|------------:|-------:|--------:|---------:|
 | 2026-05-03 | 4 | 4 | 0 | 0 | 0 |
+| 2026-05-03 | 5 | 5 | 0 | 0 | 2 |
