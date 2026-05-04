@@ -23,3 +23,8 @@ production:
     class: SubmissionPromptSenderJob
     queue: default
     schedule: every hour at minute 7
+
+  escalation_detector:
+    class: EscalationDetectorJob
+    queue: default
+    schedule: every hour at minute 23

@@ -71,6 +71,47 @@ RSpec.describe Accountability::DigestAssembler do
       expect(digest.rows.first.status).to eq(:on_time)
     end
 
+    it "marks late when prompt is sent, period passed, no submission, no escalation FlowEvents yet" do
+      q = create(:tenant_question, tenant: tenant, key: "marketing_strategy",
+                 prompt: "Who controls your marketing strategy?")
+      c = create(:contact, tenant: tenant, email: "alex@smithtoyota.com")
+      create(:responsibility, tenant: tenant, tenant_question: q, primary_contact: c)
+      source = create(:source, :configured, tenant: tenant, domain: "marketing",
+                      responsibility_key: "marketing_strategy", configured_by_contact: c)
+      request_record = create(:request, tenant: tenant, source: source,
+                              metric_key: "strategy_summary", cadence: "monthly")
+      # Prompt scheduled for last month, period has passed, no submission yet.
+      last_month_start = Time.current.in_time_zone(tenant.time_zone).beginning_of_month - 1.month
+      create(:submission_prompt, tenant: tenant, request: request_record,
+             status: "sent",
+             scheduled_for: last_month_start,
+             sent_at: last_month_start)
+
+      digest = described_class.call(tenant: tenant)
+      expect(digest.rows.first.status).to eq(:late)
+    end
+
+    it "marks overdue once a fallback_fanout or gm_nudge FlowEvent exists" do
+      q = create(:tenant_question, tenant: tenant, key: "marketing_strategy",
+                 prompt: "Who controls your marketing strategy?")
+      c = create(:contact, tenant: tenant, email: "alex@smithtoyota.com")
+      create(:responsibility, tenant: tenant, tenant_question: q, primary_contact: c)
+      source = create(:source, :configured, tenant: tenant, domain: "marketing",
+                      responsibility_key: "marketing_strategy", configured_by_contact: c)
+      request_record = create(:request, tenant: tenant, source: source,
+                              metric_key: "strategy_summary", cadence: "monthly")
+      last_month_start = Time.current.in_time_zone(tenant.time_zone).beginning_of_month - 1.month
+      prompt = create(:submission_prompt, tenant: tenant, request: request_record,
+                      status: "sent",
+                      scheduled_for: last_month_start,
+                      sent_at: last_month_start)
+      FlowEvent.record!(event_type: "escalation.fallback_fanout", tenant: tenant,
+                        subject: prompt, payload: {})
+
+      digest = described_class.call(tenant: tenant)
+      expect(digest.rows.first.status).to eq(:overdue)
+    end
+
     it "ignores superseded responsibilities" do
       q = create(:tenant_question, tenant: tenant, key: "marketing_strategy",
                  prompt: "Who controls your marketing strategy?")
