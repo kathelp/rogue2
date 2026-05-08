@@ -105,23 +105,6 @@ class Tenant < ApplicationRecord
     onboarding_address
   end
 
-  # --------------------------------------------------------------------------
-  # Adaptive pacing (J3)
-  # --------------------------------------------------------------------------
-  def next_question_cadence_gap
-    return nil if last_gm_reply_at.nil?
-
-    delta = Time.current - last_gm_reply_at
-    if delta <= 1.hour
-      12.hours
-    elsif delta <= 24.hours
-      24.hours
-    elsif delta <= 72.hours
-      48.hours
-    end
-    # Returns nil (silence ≥ 72h) — no question scheduled
-  end
-
   private
 
   def normalize_gm_email

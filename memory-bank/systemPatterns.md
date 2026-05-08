@@ -36,9 +36,25 @@ These are the non-negotiables. Any plan or implementation that conflicts with on
 - **Idempotency**: handle the same Message-ID twice → no-op. Action Mailbox provides this natively; we do not deduplicate at the application layer.
 
 ### Outbound Email
-- **Action Mailer** for all outbound. One mailer per workflow surface (OnboardingMailer, AccountabilityMailer, EscalationMailer, SubmissionPromptMailer).
+- **Action Mailer** for all outbound. One mailer per workflow surface (OnboardingMailer, AccountabilityMailer, EscalationMailer, SubmissionMailer).
 - **Sent via Solid Queue** — never inline in a request handler. `deliver_later` is the default; `deliver_now` is reserved for tests.
 - **Threading on outbound**: when sending a reply that should be threaded into an existing conversation, set `In-Reply-To` and `References` based on the InboundEmail being replied to. The thread carries provenance.
+- **`Threadable` mailer concern** (`app/mailers/concerns/threadable.rb`) is the shared implementation. It provides `onboarding_address(tenant)` (per-tenant `From:`/`Reply-To:` resolution against `Tenant.onboarding_token`), `canonical_subject(tenant, topic, reply: false)` (subject prefix `[<Dealership> Onboarding] <topic>`), and `thread_with(parent_message_id)` (sets `In-Reply-To` + `References`). Currently included by `OnboardingMailer`, `SubmissionMailer`, and `EscalationMailer` — 9 mailer actions across the three.
+
+### Per-Severity Mailer Templates
+- When a single mailer action emits visibly different copy across severities/states, render via `<%= render partial: @severity.to_s %>` (or equivalent state slug) rather than an inline `case` block. Each severity gets its own pair of `_<severity>.html.erb` + `_<severity>.text.erb` partials. Example: `EscalationMailer#escalation_email` renders `_due_soon` / `_overdue` / `_fallback_fanout` / `_gm_nudge`. Diffs of copy changes review one partial; a growing `case` is harder to scan.
+- **Mailers don't auto-load helpers** — Action Controller does, Action Mailer doesn't. Declare `helper :name` (or `helper SomeHelper`) at the top of a mailer when its views need helpers from `app/helpers/`. (Worth a custom `lib/tasks` lint if helper-less mailers grow.)
+
+### Idempotency Strategies
+Every external entry point that meets traffic the system doesn't fully control needs an explicit idempotency strategy. We use three patterns, picked by the lifecycle of the work unit:
+- **Marker-table pattern** — when no natural marker exists on a domain row, insert a dedicated row first (with a unique constraint), then perform the side effect. `RecordNotUnique` is the no-op signal. Example: `WeeklyDigestDelivery` unique on `(tenant_id, week_starting)` for the weekly digest.
+- **Status-column UPDATE-WHERE pattern** — when the natural marker IS the domain row, use `where(id:, status: <expected>).update_all(status: <next>, ...)` as the synchronisation point. `affected_rows == 0` means another worker already took the work. Example: `SubmissionPromptSenderJob`'s `:pending → :sent` transition.
+- **Append-only event log pattern** — when the work unit is a multi-step state machine (escalation ladder, multi-stage approval), use the FlowEvent log as the source of truth. The detector reads "what's the highest-recorded step for this prompt?" and dispatches the next step, recording its own FlowEvent before the side effect. Example: `OnboardingFlow::EscalationCascade` reads `escalation.*` events; `EscalationDetectorJob` writes the next event before queueing the mailer.
+
+### Audit Trail (FlowEvent log)
+- Every domain mutation that crosses a system boundary (HTTP / inbound email / scheduled job / outbound mail) writes a `FlowEvent` row inside the same transaction. The audit log and the mutation are atomically committed-or-rolled-back together.
+- 13+ event types in current use across onboarding (`tenant.confirmed`, `question.sent`, `reply.parsed`, `responsibility.created`, `question.skipped`, `question.revisited`, `reply.unparseable`, `reply.rejected_non_gm_sender`, `vendor.clarification_requested`, `vendor.bootstrap_from_clarification`), submissions (`submission.prompt_sent`, `submission.captured`, `source.configured`), digest (`digest.sent`), and escalation (`escalation.due_soon`, `escalation.overdue`, `escalation.fallback_fanout`, `escalation.gm_nudge`).
+- Diagnostic queries are one filter: `FlowEvent.where(tenant: ..., event_type: ...)`. The pattern intentionally substitutes for a separate "audit service."
 
 ### Background Work
 - **Solid Queue** for all asynchronous work: paced question sending, weekly accountability digests, escalation cascades, AI adapter generation, recurring submission prompts.

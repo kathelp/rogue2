@@ -16,7 +16,12 @@ class Source < ApplicationRecord
   belongs_to :configured_by_contact, class_name: "Contact", optional: true
 
   has_many :requests, dependent: :destroy
-  has_many :responsibilities, dependent: :nullify
+  # Note: Source ↔ Responsibility join is implicit via
+  # (tenant_id, responsibility_key) ↔ (tenant_id, tenant_question.key) —
+  # there is no source_id FK on responsibilities. Code that needs the
+  # join uses an explicit lookup (e.g. Setup::Completion does this).
+  # The phantom `has_many :responsibilities` declaration was removed
+  # in TASK-005 cleanup (TASK-001 reflection action item).
 
   # --------------------------------------------------------------------------
   # Validations
