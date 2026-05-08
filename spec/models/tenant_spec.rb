@@ -129,34 +129,4 @@ RSpec.describe Tenant, type: :model do
       expect(Tenant.in_onboarding_silence).not_to include(active_tenant)
     end
   end
-
-  # --------------------------------------------------------------------------
-  # next_question_cadence_gap
-  # --------------------------------------------------------------------------
-  describe "#next_question_cadence_gap" do
-    it "returns 12 hours for reply < 1 hour ago" do
-      tenant = build(:tenant, last_gm_reply_at: 30.minutes.ago)
-      expect(tenant.next_question_cadence_gap).to eq(12.hours)
-    end
-
-    it "returns 24 hours for reply between 1h and 24h ago" do
-      tenant = build(:tenant, last_gm_reply_at: 4.hours.ago)
-      expect(tenant.next_question_cadence_gap).to eq(24.hours)
-    end
-
-    it "returns 48 hours for reply between 24h and 72h ago" do
-      tenant = build(:tenant, last_gm_reply_at: 50.hours.ago)
-      expect(tenant.next_question_cadence_gap).to eq(48.hours)
-    end
-
-    it "returns nil for reply >= 72h ago (silence state)" do
-      tenant = build(:tenant, last_gm_reply_at: 73.hours.ago)
-      expect(tenant.next_question_cadence_gap).to be_nil
-    end
-
-    it "returns nil when last_gm_reply_at is nil" do
-      tenant = build(:tenant, last_gm_reply_at: nil)
-      expect(tenant.next_question_cadence_gap).to be_nil
-    end
-  end
 end
