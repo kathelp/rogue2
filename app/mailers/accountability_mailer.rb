@@ -1,6 +1,8 @@
 class AccountabilityMailer < ApplicationMailer
   default from: "Rogue <hello@inbound.rogue.example>"
 
+  helper AccountabilityHelper
+
   # Weekly accountability digest (AC-HAPPY-8 / AC-ASYNC-3 / AC-NAV-2).
   #
   # params[:tenant] - Tenant

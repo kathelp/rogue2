@@ -1,0 +1,7 @@
+<h1 style="font-size: 22px; margin: 0 0 12px;">This one is overdue</h1>
+<p>
+  <strong><%= @tenant.dealership_name %></strong>'s
+  <%= @request.metric_key.to_s.tr("_", " ") %>
+  for <%= @prompt.scheduled_for.in_time_zone(@tenant.time_zone).strftime("%B %Y") %>
+  hasn't come in. Please send it as soon as you can — the longer it sits the more we have to chase.
+</p>

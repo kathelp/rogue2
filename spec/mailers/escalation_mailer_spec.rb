@@ -100,5 +100,33 @@ RSpec.describe EscalationMailer, type: :mailer do
         expect(mail.html_part.body.decoded).to include("taylor@smithtoyota.com")
       end
     end
+
+    # FEAT-005 — per-severity body partials with distinctive headlines
+    describe "per-severity headline differentiation" do
+      def render_for(severity, recipient = "alex@smithtoyota.com", payload = {})
+        described_class.with(prompt: prompt, severity: severity, recipient: recipient, payload: payload).escalation_email
+      end
+
+      it "due_soon body uses friendly heads-up phrasing" do
+        body = render_for(:due_soon).html_part.body.decoded
+        expect(body).to match(/heads up|due in|few days/i)
+      end
+
+      it "overdue body uses firmer phrasing" do
+        body = render_for(:overdue).html_part.body.decoded
+        expect(body).to match(/overdue|hasn't come in/i)
+      end
+
+      it "fallback_fanout body names the fallback recipient and points to the primary contact" do
+        body = render_for(:fallback_fanout, "taylor@smithtoyota.com", { fallback_index: 0 }).html_part.body.decoded
+        expect(body).to match(/overdue|stepping in|fallback/i)
+      end
+
+      it "gm_nudge body uses executive escalation tone" do
+        body = render_for(:gm_nudge, "jane@smithtoyota.com",
+                          { fallback_chain: [ "taylor@smithtoyota.com" ] }).html_part.body.decoded
+        expect(body).to match(/still no|haven't gotten/i)
+      end
+    end
   end
 end

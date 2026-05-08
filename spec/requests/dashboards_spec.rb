@@ -27,6 +27,19 @@ RSpec.describe "Dashboards", type: :request do
         get dashboard_path(signed_id: signed_id)
         expect(response.body).to include("alex@smithtoyota.com")
       end
+
+      # FEAT-005 — status badges
+      it "renders the per-row status as an inline-colored badge span" do
+        question = create(:tenant_question, tenant: tenant,
+                          key: "marketing_strategy",
+                          prompt: "Who controls your marketing strategy?")
+        contact = create(:contact, tenant: tenant, email: "alex@smithtoyota.com")
+        create(:responsibility, tenant: tenant,
+               tenant_question: question, primary_contact: contact)
+
+        get dashboard_path(signed_id: signed_id)
+        expect(response.body).to match(/<span[^>]*background:\s*#[0-9a-f]+/i)
+      end
     end
 
     context "with an invalid signed_id" do

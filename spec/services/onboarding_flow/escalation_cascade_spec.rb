@@ -151,5 +151,33 @@ RSpec.describe OnboardingFlow::EscalationCascade do
         expect(result.recipient_email).to eq("jane@smithtoyota.com")
       end
     end
+
+    # FEAT-005 — per-tenant grace window overrides
+    context "with per-tenant grace overrides" do
+      it "respects tenant.escalation_due_soon_grace_days when set" do
+        tenant.update!(escalation_due_soon_grace_days: 7)
+        # 7 days before period_end (May 31) = May 24. With default 3 it would be May 28.
+        # On May 24, the override should fire; default would not.
+        result = described_class.next_action_for(prompt: prompt, now: Time.zone.parse("2026-05-24 10:00:00"))
+        expect(result&.severity).to eq(:due_soon)
+      end
+
+      it "uses module default when tenant override is nil" do
+        # Confirm default still applies (no override). On May 26 (5 days before period_end), default 3 should NOT yet fire.
+        tenant.update!(escalation_due_soon_grace_days: nil)
+        result = described_class.next_action_for(prompt: prompt, now: Time.zone.parse("2026-05-26 10:00:00"))
+        expect(result).to be_nil
+      end
+
+      it "respects tenant.escalation_overdue_grace_days when set" do
+        # Set tenant grace to 1 day, with prior due_soon FlowEvent.
+        tenant.update!(escalation_overdue_grace_days: 1)
+        FlowEvent.record!(event_type: "escalation.due_soon", tenant: tenant, subject: prompt,
+                          payload: {}, occurred_at: Time.zone.parse("2026-05-29 10:00:00"))
+        # June 1 = period_end + 1 day
+        result = described_class.next_action_for(prompt: prompt, now: Time.zone.parse("2026-06-01 10:00:00"))
+        expect(result&.severity).to eq(:overdue)
+      end
+    end
   end
 end

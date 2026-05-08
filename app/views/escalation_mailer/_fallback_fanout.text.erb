@@ -1,0 +1,3 @@
+Stepping in as a fallback — you're listed as a fallback for <%= @tenant.dealership_name %>'s <%= @request.metric_key.to_s.tr("_", " ") %> for <%= @prompt.scheduled_for.in_time_zone(@tenant.time_zone).strftime("%B %Y") %>.
+
+The primary contact (<%= @source.configured_by_contact&.email || "primary contact" %>) hasn't been able to send the data, so it's overdue. Could you send it instead?

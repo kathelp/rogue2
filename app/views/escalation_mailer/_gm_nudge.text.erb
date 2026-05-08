@@ -1,0 +1,10 @@
+Hi <%= @tenant.gm_name %>,
+
+Still no data — escalating to you. We've been chasing <%= @request.metric_key.to_s.tr("_", " ") %> for <%= @prompt.scheduled_for.in_time_zone(@tenant.time_zone).strftime("%B %Y") %> and haven't gotten it yet.
+
+<% chain = Array(@payload[:fallback_chain]).compact %><% if chain.any? %>People we've already pinged:
+  - <%= @source.configured_by_contact&.email || "(original contact)" %> (primary)
+<% chain.each do |email| %>  - <%= email %> (fallback)
+<% end %>
+<% end %>
+Want to take it on yourself, or pick someone new? Reply to your weekly digest or open this link.

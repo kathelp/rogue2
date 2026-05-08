@@ -40,16 +40,7 @@
                         <tr style="border-top: 1px solid #eee;">
                           <td><%= row.responsibility.tenant_question.prompt.downcase.sub(/\?$/, "").capitalize %></td>
                           <td><%= row.primary_email %></td>
-                          <td>
-                            <%= case row.status
-                                when :pending_setup            then "Awaiting setup"
-                                when :pending_first_submission then "Pending first submission"
-                                when :on_time                  then "On time"
-                                when :late                     then "Late"
-                                when :overdue                  then "Overdue"
-                                else row.status.to_s
-                                end %>
-                          </td>
+                          <td><%= status_badge(row.status) %></td>
                           <td>
                             <% if row.next_due_at %>
                               <%= row.next_due_at.in_time_zone(@tenant.time_zone).strftime("%b %-d") %>
