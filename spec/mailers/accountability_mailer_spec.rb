@@ -73,6 +73,12 @@ RSpec.describe AccountabilityMailer, type: :mailer do
       it "the dashboard CTA URL also appears in the text body" do
         expect(mail.text_part.body.decoded).to match(%r{/dashboard/[A-Za-z0-9._\-]+})
       end
+
+      # FEAT-005 — badge color
+      it "renders the per-row status as an inline-colored badge span" do
+        body = mail.html_part.body.decoded
+        expect(body).to match(/<span[^>]*background:\s*#[0-9a-f]+[^>]*>(Pending first submission|Awaiting setup)/i)
+      end
     end
 
     context "with no configured responsibilities (empty state)" do

@@ -136,3 +136,21 @@ Reflection captured 2 patterns: idempotency (amended; FlowEvent log as state-mac
 **Archive**: `memory-bank/archive/archive-TASK-003.md`
 
 ---
+
+## TASK-004 — Escalation Refinements (FEAT-005, Level 2, 2026-05-08)
+
+Single-phase build. Three additive refinements to FEAT-004:
+- Per-tenant grace window overrides (4 new optional `tenants` columns; cascade reads tenant first, falls back to module defaults).
+- Per-severity body partials (one shared template + 4 partials × 2 formats; replaced inline `case @severity` block).
+- Status badges (`AccountabilityHelper#status_badge` returns inline-styled spans; wired into digest email + dashboard).
+
+**Build & Quality**: 394 examples, 0 failures (FEAT-005 added 15 specs). RuboCop 0 offenses.
+
+## Task Archive: TASK-004
+
+**Task**: Escalation Refinements
+**Status**: ✅ ARCHIVED
+**Date**: 2026-05-08
+**Archive**: `memory-bank/archive/archive-TASK-004.md`
+
+---

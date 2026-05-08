@@ -47,8 +47,13 @@ module OnboardingFlow
       fallback_events = events.select { |e| e.event_type == "escalation.fallback_fanout" }
                               .sort_by(&:occurred_at)
 
-      due_soon_open_date = period_end_date - DUE_SOON_GRACE_DAYS
-      overdue_open_date  = period_end_date + OVERDUE_GRACE_DAYS
+      due_soon_grace = tenant.escalation_due_soon_grace_days || DUE_SOON_GRACE_DAYS
+      overdue_grace  = tenant.escalation_overdue_grace_days  || OVERDUE_GRACE_DAYS
+      fallback_grace = tenant.escalation_fallback_grace_days || FALLBACK_GRACE_DAYS
+      gm_grace       = tenant.escalation_gm_grace_days       || GM_GRACE_DAYS
+
+      due_soon_open_date = period_end_date - due_soon_grace
+      overdue_open_date  = period_end_date + overdue_grace
 
       # Step 1: due_soon (calendar-day threshold)
       if due_soon_event.nil?
@@ -78,7 +83,7 @@ module OnboardingFlow
       previous_event = fallback_events.last || overdue_event
 
       if next_fallback_index < fallbacks.length
-        threshold = previous_event.occurred_at + FALLBACK_GRACE_DAYS.days
+        threshold = previous_event.occurred_at + fallback_grace.days
         return nil if now < threshold
 
         return NextAction.new(
@@ -92,7 +97,7 @@ module OnboardingFlow
       end
 
       # Step 4: gm_nudge (after fallbacks exhausted, or directly after overdue when fallbacks empty)
-      threshold = previous_event.occurred_at + GM_GRACE_DAYS.days
+      threshold = previous_event.occurred_at + gm_grace.days
       return nil if now < threshold
 
       NextAction.new(

@@ -1,20 +1,4 @@
-<% case @severity %>
-<% when :due_soon %>
-A friendly heads up — <%= @tenant.dealership_name %>'s <%= @request.metric_key.to_s.tr("_", " ") %> for <%= @prompt.scheduled_for.in_time_zone(@tenant.time_zone).strftime("%B %Y") %> is due in a few days.
-<% when :overdue, :fallback_fanout %>
-This one is overdue — <%= @tenant.dealership_name %>'s <%= @request.metric_key.to_s.tr("_", " ") %> for <%= @prompt.scheduled_for.in_time_zone(@tenant.time_zone).strftime("%B %Y") %> hasn't come in. Please send it as soon as you can.
-<% when :gm_nudge %>
-Hi <%= @tenant.gm_name %>,
-
-We've been chasing <%= @request.metric_key.to_s.tr("_", " ") %> for <%= @prompt.scheduled_for.in_time_zone(@tenant.time_zone).strftime("%B %Y") %> and haven't gotten it yet.
-
-<% chain = Array(@payload[:fallback_chain]).compact %><% if chain.any? %>People we've already pinged:
-  - <%= @source.configured_by_contact&.email || "(original contact)" %> (primary)
-<% chain.each do |email| %>  - <%= email %> (fallback)
-<% end %>
-<% end %>
-Want to take it on yourself, or pick someone new? Reply to your weekly digest or open this link.
-<% end %>
+<%= render partial: @severity.to_s, formats: [ :text ] %>
 
 Submit / open here:
 

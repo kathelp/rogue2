@@ -2,7 +2,7 @@
 
 ## Summary
 
-- **Total Features**: 4
+- **Total Features**: 5
 - **Released Versions**: 0
 - **Active Version**: none — `next` is the only version
 
@@ -16,6 +16,7 @@
   - FEAT-001: Tenant + GM Email-First Onboarding (complete, archived 2026-05-03) [Level 4]
   - FEAT-002: Submission Prompt Sender (complete, archived 2026-05-03) [Level 3]
   - FEAT-004: Escalation Cascade (complete, archived 2026-05-03) [Level 3]
+  - FEAT-005: Escalation Refinements (complete, archived 2026-05-08) [Level 2]
   - FEAT-Ops-Cutover: Production email ingress, outbound provider, raw-payload archive (planned) [Level 2]
 
 ## Features
@@ -58,6 +59,22 @@
   - TASK-003: Escalation Cascade (complete)
 - **Branch**: feature/FEAT-004-escalation-cascade (merged 2026-05-03; deleted)
 - **Created**: 2026-05-03
+
+### FEAT-005: Escalation Refinements
+
+- **Version**: next
+- **Status**: complete (archived 2026-05-08)
+- **Archive**: memory-bank/archive/archive-TASK-004.md
+- **Priority**: medium (UX polish on FEAT-004; not load-bearing for any other feature)
+- **Complexity**: Level 2
+- **Description**: Three additive refinements to the FEAT-004 escalation cascade:
+  1. **Per-tenant grace window overrides.** Move `DUE_SOON_GRACE_DAYS` / `OVERDUE_GRACE_DAYS` / `FALLBACK_GRACE_DAYS` / `GM_GRACE_DAYS` from module constants to four optional `tenants` columns. The cascade reads tenant first, falls back to module defaults. Lets enterprise tenants tune the cadence to their reporting culture.
+  2. **Per-severity body copy.** Replace the single `escalation_email.html.erb` `case @severity` block with four severity-specific partials. Tone progression: friendly nudge (due_soon) → firmer (overdue) → urgent + names-the-fallback (fallback_fanout) → executive escalation that names the contact chain (gm_nudge).
+  3. **Status badges in the digest.** Color/iconify the per-row status column in `AccountabilityMailer#weekly_digest` and `DashboardsController#show`: green for on_time, gray for pending_setup / pending_first_submission, amber for late, red for overdue.
+- **Linked Tasks**:
+  - TASK-004: Escalation Refinements (complete)
+- **Branch**: feature/FEAT-005-escalation-refinements (merged 2026-05-08; deleted)
+- **Created**: 2026-05-08
 
 ### FEAT-Ops-Cutover: Production email ingress, outbound provider, raw-payload archive
 

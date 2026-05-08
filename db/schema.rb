@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_03_180701) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_08_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -198,6 +198,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_03_180701) do
     t.datetime "confirmed_at"
     t.datetime "created_at", null: false
     t.string "dealership_name", null: false
+    t.integer "escalation_due_soon_grace_days"
+    t.integer "escalation_fallback_grace_days"
+    t.integer "escalation_gm_grace_days"
+    t.integer "escalation_overdue_grace_days"
     t.integer "first_question_delay_minutes", default: 60, null: false
     t.string "gm_email", null: false
     t.string "gm_email_normalized", null: false
