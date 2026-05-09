@@ -242,6 +242,86 @@ RSpec.describe OnboardingFlow::EscalationCascade do
       end
     end
 
+    # FEAT-006 / TASK-008 — gating: filter unverified Contacts from fallback fan-out
+    context("gating: unverified Contacts are filtered from fallback fan-out") do
+      let(:fallback_emails) {
+        ["unverified@smithtoyota.com", "verified@smithtoyota.com", "external@vendor.com"]
+      }
+
+      before do
+        # Existing Contact records: one unverified (default factory), one verified.
+        # "external@vendor.com" intentionally has NO Contact row — legacy GM-typed
+        # fallback that must pass through unchanged.
+        create(:contact, tenant: tenant, email: "unverified@smithtoyota.com")
+        create(:contact, :verified, tenant: tenant, email: "verified@smithtoyota.com")
+
+        FlowEvent.record!(
+          event_type: "escalation.due_soon",
+          tenant: tenant,
+          subject: prompt,
+          payload: {},
+          occurred_at: Time.zone.parse("2026-05-29 10:00:00")
+        )
+        FlowEvent.record!(
+          event_type: "escalation.overdue",
+          tenant: tenant,
+          subject: prompt,
+          payload: {},
+          occurred_at: Time.zone.parse("2026-06-03 10:00:00")
+        )
+      end
+
+      it "skips the unverified Contact and selects the verified Contact as first fallback" do
+        result = described_class.next_action_for(
+          prompt: prompt,
+          now: Time.zone.parse("2026-06-07 10:00:00")
+        )
+        expect(result.severity).to(eq(:fallback_fanout))
+        expect(result.recipient_email).to(eq("verified@smithtoyota.com"))
+      end
+
+      it "passes through emails not in the contacts table (legacy raw strings)" do
+        FlowEvent.record!(
+          event_type: "escalation.fallback_fanout",
+          tenant: tenant,
+          subject: prompt,
+          payload: {fallback_index: 0, fallback_email: "verified@smithtoyota.com"},
+          occurred_at: Time.zone.parse("2026-06-07 10:00:00")
+        )
+        result = described_class.next_action_for(
+          prompt: prompt,
+          now: Time.zone.parse("2026-06-11 10:00:00")
+        )
+        expect(result.severity).to(eq(:fallback_fanout))
+        expect(result.recipient_email).to(eq("external@vendor.com"))
+      end
+
+      it "filters the gm_nudge fallback_chain payload identically — unverified contacts are not CC'd" do
+        FlowEvent.record!(
+          event_type: "escalation.fallback_fanout",
+          tenant: tenant,
+          subject: prompt,
+          payload: {fallback_index: 0, fallback_email: "verified@smithtoyota.com"},
+          occurred_at: Time.zone.parse("2026-06-07 10:00:00")
+        )
+        FlowEvent.record!(
+          event_type: "escalation.fallback_fanout",
+          tenant: tenant,
+          subject: prompt,
+          payload: {fallback_index: 1, fallback_email: "external@vendor.com"},
+          occurred_at: Time.zone.parse("2026-06-11 10:00:00")
+        )
+        result = described_class.next_action_for(
+          prompt: prompt,
+          now: Time.zone.parse("2026-06-16 10:00:00")
+        )
+        expect(result.severity).to(eq(:gm_nudge))
+        expect(result.payload[:fallback_chain]).to(
+          eq(["verified@smithtoyota.com", "external@vendor.com"])
+        )
+      end
+    end
+
     # FEAT-005 — per-tenant grace window overrides
     context("with per-tenant grace overrides") do
       it "respects tenant.escalation_due_soon_grace_days when set" do
