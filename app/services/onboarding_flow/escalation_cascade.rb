@@ -143,8 +143,26 @@ module OnboardingFlow
 
     private_class_method :primary_email_for
 
+    # Filters out fallback emails whose Contact record is unverified
+    # (FEAT-006 / TASK-008 gating). Raw strings that don't match any Contact
+    # row pass through — preserves legacy GM-typed fallback behavior. Verified
+    # Contacts pass through too. Self-healing: once a contact verifies, they
+    # rejoin the cascade on the next evaluation.
     def self.fallback_emails_for(prompt)
-      Array(active_responsibility_for(prompt)&.fallback_contact_emails)
+      emails = Array(active_responsibility_for(prompt)&.fallback_contact_emails)
+      return emails if emails.empty?
+
+      normalized = emails.map { |e| e.to_s.downcase.strip }
+      contacts_by_email = prompt
+        .tenant
+        .contacts
+        .where(email_normalized: normalized)
+        .index_by(&:email_normalized)
+
+      emails.reject do |email|
+        contact = contacts_by_email[email.to_s.downcase.strip]
+        contact && !contact.verified?
+      end
     end
 
     private_class_method :fallback_emails_for
