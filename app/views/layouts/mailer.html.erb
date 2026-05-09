@@ -9,5 +9,13 @@
 
   <body>
     <%= yield %>
+    <% if (dev_url = dev_conductor_reply_url(message: @_message)) %>
+      <hr style="margin-top: 32px; border: none; border-top: 1px dashed #d4b106;">
+      <p style="background: #fffbe6; border: 1px dashed #d4b106; padding: 12px 16px; margin: 16px 0 0; font-size: 12px; color: #614700; line-height: 1.5;">
+        <strong>DEV ONLY:</strong>
+        <a href="<%= dev_url %>" style="color: #614700;">Reply via Action Mailbox conductor &rarr;</a>
+        (opens the inbound-email form pre-filled from this email's headers)
+      </p>
+    <% end %>
   </body>
 </html>
