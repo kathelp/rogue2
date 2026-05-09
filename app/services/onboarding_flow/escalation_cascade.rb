@@ -104,8 +104,9 @@ module OnboardingFlow
         severity:        :gm_nudge,
         recipient_email: tenant.gm_email,
         payload:         {
-          period_end:     period_end_date.iso8601,
-          fallback_chain: fallbacks
+          period_end:        period_end_date.iso8601,
+          fallback_chain:    fallbacks,
+          primary_email:     responsibility_primary_email_for(prompt)
         }
       )
     end
@@ -136,7 +137,20 @@ module OnboardingFlow
     private_class_method :primary_email_for
 
     def self.fallback_emails_for(prompt)
-      responsibility = prompt
+      Array(active_responsibility_for(prompt)&.fallback_contact_emails)
+    end
+    private_class_method :fallback_emails_for
+
+    # Email of the responsibility's primary_contact — i.e., the person the GM
+    # said is on the hook, NOT the source.configured_by_contact (which is
+    # whoever clicked through setup; usually the same but not always).
+    def self.responsibility_primary_email_for(prompt)
+      active_responsibility_for(prompt)&.primary_contact&.email
+    end
+    private_class_method :responsibility_primary_email_for
+
+    def self.active_responsibility_for(prompt)
+      prompt
         .tenant
         .responsibilities
         .where(status: :active)
@@ -144,9 +158,7 @@ module OnboardingFlow
         .where(tenant_questions: { key: prompt.request.source.responsibility_key })
         .order(created_at: :desc)
         .first
-
-      Array(responsibility&.fallback_contact_emails)
     end
-    private_class_method :fallback_emails_for
+    private_class_method :active_responsibility_for
   end
 end

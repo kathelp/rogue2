@@ -126,6 +126,12 @@ RSpec.describe OnboardingFlow::EscalationCascade do
         expect(result.recipient_email).to eq("jane@smithtoyota.com")
       end
 
+      it "carries the responsibility chain (primary + fallbacks) on the gm_nudge payload for CCing" do
+        result = described_class.next_action_for(prompt: prompt, now: Time.zone.parse("2026-06-12 10:00:00"))
+        expect(result.payload[:primary_email]).to eq("alex@smithtoyota.com")
+        expect(result.payload[:fallback_chain]).to eq([ "taylor@smithtoyota.com" ])
+      end
+
       it "returns nil after GM nudge has fired (one-shot per period)" do
         FlowEvent.record!(event_type: "escalation.gm_nudge", tenant: tenant, subject: prompt,
                           payload: {}, occurred_at: Time.zone.parse("2026-06-12 10:00:00"))

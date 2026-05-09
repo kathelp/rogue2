@@ -23,6 +23,7 @@ class EscalationMailer < ApplicationMailer
 
     mail(
       to:       @recipient,
+      cc:       cc_for(@severity, @payload, @recipient).presence,
       from:     onboarding_address(@tenant),
       reply_to: onboarding_address(@tenant),
       subject:  subject_for(@severity)
@@ -30,6 +31,16 @@ class EscalationMailer < ApplicationMailer
   end
 
   private
+
+  # On gm_nudge, CC the full responsibility chain (primary + fallbacks) so
+  # the GM can reply-all and lean on the people who are supposed to deliver.
+  # Other severities have no CC — they're directed at one accountable party.
+  def cc_for(severity, payload, recipient)
+    return [] unless severity == :gm_nudge
+
+    chain = [ payload[:primary_email], *Array(payload[:fallback_chain]) ].compact
+    chain.uniq.reject { |e| e.casecmp?(recipient.to_s) }
+  end
 
   def subject_for(severity)
     metric_label = @request.metric_key.to_s.tr("_", " ")
