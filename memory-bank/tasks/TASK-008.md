@@ -1,7 +1,8 @@
 # TASK-008: Cc'd Contact Self-Verification
 
 **Complexity**: Level 3 (inherited from FEAT-006)
-**Status**: REFLECT_COMPLETE
+**Status**: ARCHIVED 2026-05-09
+**Archive**: memory-bank/archive/archive-TASK-008.md
 **Roadmap**: FEAT-006
 **Branch**: feature/FEAT-006-ccd-contact-self-verification
 **Worktree**: N/A
@@ -268,10 +269,10 @@ All three phases are REQUIRED before `/rai-build` can start. Run them in this or
 
 | Item | Phase | Owner | Target | Resolution |
 |------|-------|-------|--------|------------|
-| Setup walkthrough identity step (controller + view) | DEFERRED-FE | user | future FE design pass | PENDING |
-| Edited `invitee_setup_email` subject + body copy | DEFERRED-FE | user | future FE design pass | PENDING |
-| End-to-end system spec (GM reply → CC promotion → identity step → cascade gating) | DEFERRED-FE | user | future FE design pass | PENDING |
-| Letter-opener manual verification of edited email | DEFERRED-FE | user | future FE design pass | PENDING |
+| Setup walkthrough identity step (controller + view) | DEFERRED-FE | user | future FE design task | RESOLVED — parked at archive (2026-05-09); UI/UX spec preserved at `memory-bank/creative/TASK-008-uiux.md` |
+| Edited `invitee_setup_email` subject + body copy | DEFERRED-FE | user | future FE design task | RESOLVED — parked at archive (2026-05-09); copy spec preserved in UI/UX creative doc |
+| End-to-end system spec (GM reply → CC promotion → identity step → cascade gating) | DEFERRED-FE | user | future FE design task | RESOLVED — parked at archive (2026-05-09); to be authored alongside the FE work |
+| Letter-opener manual verification of edited email | DEFERRED-FE | user | future FE design task | RESOLVED — parked at archive (2026-05-09); applies once email body edits land |
 
 ---
 
