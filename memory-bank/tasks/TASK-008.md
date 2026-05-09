@@ -1,7 +1,7 @@
 # TASK-008: Cc'd Contact Self-Verification
 
 **Complexity**: Level 3 (inherited from FEAT-006)
-**Status**: CREATIVE_COMPLETE
+**Status**: BUILD_COMPLETE (active backend phases)
 **Roadmap**: FEAT-006
 **Branch**: feature/FEAT-006-ccd-contact-self-verification
 **Worktree**: N/A
@@ -223,15 +223,9 @@ What happens if the contact ignores the verification invitation?
   - **No** model-level presence validations on the new columns. Presence is enforced at the future identity-form controller, not on every `Contact.find_or_create_for_email` call.
   - Update `spec/factories/contacts.rb` with `:verified` / `:unverified` traits.
 
-- [ ] **Phase 2: `Contacts::PhoneNormalizer` PORO**
-  - `app/services/contacts/phone_normalizer.rb` — US-only E.164 normalizer (~10 lines, no `phonelib` gem).
-  - `spec/services/contacts/phone_normalizer_spec.rb` — happy path, invalid format, edge cases.
-  - The PORO returns a normalized string or `nil` for invalid input (no exceptions). Caller decides what to do with `nil`.
+- [x] **Phase 2: `Contacts::PhoneNormalizer` PORO** — COMPLETE 2026-05-09 (commit 9a01d5d). 10/10 phone normalizer specs pass.
 
-- [ ] **Phase 3: Escalation cascade gating**
-  - Edit `OnboardingFlow::EscalationCascade.fallback_emails_for(prompt)` (private method): bounded `tenant.contacts.where(email_normalized: raw).index_by(&:email_normalized)` lookup; filter the array to drop emails matching unverified Contacts; pass through unknown emails unchanged (legacy GM-typed strings).
-  - This is the only gate that lands this cycle — submission prompts still flow to unverified contacts as designed.
-  - Extend `spec/services/onboarding_flow/escalation_cascade_spec.rb`: unverified Contact email is filtered, verified Contact stays in, unknown raw email passes through, sender chooses next eligible fallback.
+- [x] **Phase 3: Escalation cascade gating** — COMPLETE 2026-05-09 (commit 3af0344). 16/16 cascade specs pass; 414 total specs green; rubyfmt --check exits 0 globally.
 
 ### Deferred phases (front-end design pass — separate task or follow-up cycle)
 
@@ -283,11 +277,13 @@ All three phases are REQUIRED before `/rai-build` can start. Run them in this or
 
 ## Execution State
 
-**Build Status**: IDLE (paused for human review between phases)
-**Current Phase**: BUILD
-**Phase Number**: 1 of 3 active backend phases
-**Last Completed**: 2026-05-09 — Phase 1 (schema + Contact model) committed as af9c745. 401 specs green, rubyfmt --check passes globally.
+**Build Status**: IDLE
+**Current Phase**: BUILD_COMPLETE for active phases
+**Phase Number**: 3 of 3 active backend phases (all complete)
+**Last Completed**: 2026-05-09 — Phase 3 (cascade gating) committed as 3af0344. 414 specs green, rubyfmt --check exits 0 globally.
 **Can Resume**: NO
+
+**Note:** All 3 active backend phases are complete. The 3 deferred FE phases (identity step UI, edited invitee_setup_email, system spec) remain in the Live-Dogfood-Pending Tracker and will be resolved in a separate FE design pass.
 
 ### Active Sub-Agents
 - Architecture Design (general-purpose, opus): COMPLETE → memory-bank/creative/TASK-008-architecture.md
@@ -327,4 +323,7 @@ All three phases are REQUIRED before `/rai-build` can start. Run them in this or
 - /rai-creative Step 4: All three output files validated (memory-bank/creative/TASK-008-*.md)
 - /rai-creative Step 5: Implementation Roadmap reconciled with locked decisions (Phase 5 dropped, Phase 2 reframed as setup-walkthrough extension, Phase 6 inline-CSS not Tailwind). Test Strategy refined to 12–16 tests with concrete file targets.
 - 2026-05-09 user directive: scope cut — all FE work deferred to a separate design pass. Roadmap refactored to 3 active backend phases (schema/model, PhoneNormalizer, cascade gating); 3 deferred FE phases tracked in Live-Dogfood-Pending Tracker. Test Strategy reduced to 8–11 backend-only tests.
-- /rai-build Phase 1 (2026-05-09): branch `feature/FEAT-006-ccd-contact-self-verification` created from main; planning + creative committed (6a12ddb); migration `RemoveDisplayNameFromContactsAndAddIdentityFields` ran (drop `display_name`, add `first_name`/`last_name`/`phone`); Contact model gained `encrypts :phone`, `verified?`, `:verified`/`:unverified` scopes, `nullify_blank_identity_fields` callback; factory got `:verified`/`:unverified` traits; 19 model specs added (verified? matrix, scope inverses, phone encryption round-trip, blank-to-nil); 401 total specs green; rubyfmt --check exits 0; phase committed (af9c745). STOPPED for human review.
+- /rai-build Phase 1 (2026-05-09): branch `feature/FEAT-006-ccd-contact-self-verification` created from main; planning + creative committed (6a12ddb); migration `RemoveDisplayNameFromContactsAndAddIdentityFields` ran (drop `display_name`, add `first_name`/`last_name`/`phone`); Contact model gained `encrypts :phone`, `verified?`, `:verified`/`:unverified` scopes, `nullify_blank_identity_fields` callback; factory got `:verified`/`:unverified` traits; 19 model specs added (verified? matrix, scope inverses, phone encryption round-trip, blank-to-nil); 401 total specs green; rubyfmt --check exits 0; phase committed (af9c745).
+- /rai-build Phase 2 (2026-05-09): `Contacts::PhoneNormalizer` PORO module-function (US-only E.164, ~6 lines of logic). Strips formatting, accepts 10-digit/11-digit-1/+1, returns nil for non-US shapes. 10 specs cover the contract. Phase committed (9a01d5d).
+- /rai-build Phase 3 (2026-05-09): Filter unverified Contact emails out of `EscalationCascade.fallback_emails_for`. One bounded query per cascade evaluation; raw legacy emails pass through; verified contacts pass through. Filtering also flows through the gm_nudge `fallback_chain` payload, so unverified contacts are not CC'd on the GM nudge either. 3 new specs (skip-unverified, raw-passthrough, gm_nudge consistency). 414 total specs green; rubyfmt --check exits 0; phase committed (3af0344).
+- All active backend phases COMPLETE. STOPPED for human review. Three deferred FE items remain in Live-Dogfood-Pending Tracker for a separate design pass.
