@@ -84,12 +84,56 @@ RSpec.describe EscalationMailer, type: :mailer do
           prompt:    prompt,
           severity:  :gm_nudge,
           recipient: "jane@smithtoyota.com",
-          payload:   { period_end: "2026-05-31", fallback_chain: [ "taylor@smithtoyota.com" ] }
+          payload:   {
+            period_end:     "2026-05-31",
+            fallback_chain: [ "taylor@smithtoyota.com" ],
+            primary_email:  "alex@smithtoyota.com"
+          }
         ).escalation_email
       end
 
       it "sends to the GM" do
         expect(mail.to).to eq([ "jane@smithtoyota.com" ])
+      end
+
+      it "CCs the full responsibility chain (primary + fallbacks) so the GM can reply-all" do
+        expect(mail.cc).to contain_exactly("alex@smithtoyota.com", "taylor@smithtoyota.com")
+      end
+
+      it "filters the GM (recipient) out of the CC list defensively" do
+        m = described_class.with(
+          prompt:    prompt,
+          severity:  :gm_nudge,
+          recipient: "jane@smithtoyota.com",
+          payload:   {
+            primary_email:  "alex@smithtoyota.com",
+            fallback_chain: [ "jane@smithtoyota.com", "taylor@smithtoyota.com" ]
+          }
+        ).escalation_email
+        expect(m.cc).to contain_exactly("alex@smithtoyota.com", "taylor@smithtoyota.com")
+      end
+
+      it "dedups overlapping primary and fallback addresses" do
+        m = described_class.with(
+          prompt:    prompt,
+          severity:  :gm_nudge,
+          recipient: "jane@smithtoyota.com",
+          payload:   {
+            primary_email:  "alex@smithtoyota.com",
+            fallback_chain: [ "alex@smithtoyota.com", "taylor@smithtoyota.com" ]
+          }
+        ).escalation_email
+        expect(m.cc).to contain_exactly("alex@smithtoyota.com", "taylor@smithtoyota.com")
+      end
+
+      it "tolerates a missing primary_email payload field" do
+        m = described_class.with(
+          prompt:    prompt,
+          severity:  :gm_nudge,
+          recipient: "jane@smithtoyota.com",
+          payload:   { fallback_chain: [ "taylor@smithtoyota.com" ] }
+        ).escalation_email
+        expect(m.cc).to contain_exactly("taylor@smithtoyota.com")
       end
 
       it "subject is the still-no-data nudge" do
@@ -98,6 +142,24 @@ RSpec.describe EscalationMailer, type: :mailer do
 
       it "body lists the fallback chain that was pinged" do
         expect(mail.html_part.body.decoded).to include("taylor@smithtoyota.com")
+      end
+    end
+
+    context "non-gm_nudge severities never set CC" do
+      it "due_soon has no CC" do
+        m = described_class.with(prompt: prompt, severity: :due_soon, recipient: "alex@smithtoyota.com", payload: {}).escalation_email
+        expect(m.cc).to be_blank
+      end
+
+      it "overdue has no CC" do
+        m = described_class.with(prompt: prompt, severity: :overdue, recipient: "alex@smithtoyota.com", payload: {}).escalation_email
+        expect(m.cc).to be_blank
+      end
+
+      it "fallback_fanout has no CC" do
+        m = described_class.with(prompt: prompt, severity: :fallback_fanout, recipient: "taylor@smithtoyota.com",
+                                 payload: { fallback_index: 0, fallback_email: "taylor@smithtoyota.com" }).escalation_email
+        expect(m.cc).to be_blank
       end
     end
 
