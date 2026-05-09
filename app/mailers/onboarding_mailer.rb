@@ -134,7 +134,13 @@ class OnboardingMailer < ApplicationMailer
     @question        = params[:tenant_question]
     message_id_param = params[:message_id]
 
-    m = mail(
+    # Set the explicit Message-ID before rendering so it's on @_message at
+    # template-render time (the dev mailer layout reads it to build the
+    # conductor reply link). The job pre-generates and persists this ID
+    # before delivery so inbound In-Reply-To resolution can look it up.
+    headers["Message-ID"] = message_id_param if message_id_param.present?
+
+    mail(
       to:         @tenant.gm_email,
       from:       onboarding_address(@tenant),
       reply_to:   onboarding_address(@tenant),
@@ -143,14 +149,5 @@ class OnboardingMailer < ApplicationMailer
       format.html
       format.text
     end
-
-    # Set the explicit Message-ID if the caller supplied one, so inbound
-    # In-Reply-To resolution can look it up before delivery completes.
-    if message_id_param.present?
-      # Mail gem exposes message_id= on the Mail::Message object
-      m.message_id = message_id_param
-    end
-
-    m
   end
 end
