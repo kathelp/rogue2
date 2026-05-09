@@ -16,6 +16,7 @@
 | TASK-001 | 2026-05-03 | 4 | 0 | 4 |
 | TASK-002 | 2026-05-03 | 3 | 2 | 1 |
 | TASK-003 | 2026-05-03 | 2 | 2 | 0 |
+| TASK-008 | 2026-05-09 | 4 | 1 | 3 |
 
 ## Rule Effectiveness
 
@@ -23,9 +24,12 @@
 |------|--------|---------------:|:--------:|:------------:|
 | idempotency.md | idempotency, recurring-jobs, inbound-handlers | 3 | medium | 2026-05-03 |
 | time-zones.md | time-zones, scheduling | 3 | medium | 2026-05-03 |
-| service-shape.md | service-classes, testing, value-objects | 1 | low | 2026-05-03 |
+| service-shape.md | service-classes, testing, value-objects | 2 | low | 2026-05-09 |
 | audit-trail.md | audit-logging, observability, domain-events | 1 | low | 2026-05-03 |
 | namespacing.md | namespacing, service-classes, zeitwerk | 1 | low | 2026-05-03 |
+| schema-validation.md | planning, schema, spec-writing | 1 | low | 2026-05-09 |
+| scope-cut-resilience.md | planning, build-orchestration | 1 | low | 2026-05-09 |
+| gating-filter-passthrough.md | filtering, data-modeling, gating | 1 | low | 2026-05-09 |
 
 ## Consolidation History
 
@@ -33,3 +37,4 @@
 |------|------------:|------------:|-------:|--------:|---------:|
 | 2026-05-03 | 4 | 4 | 0 | 0 | 0 |
 | 2026-05-03 | 5 | 5 | 0 | 0 | 2 |
+| 2026-05-09 | 5 | 8 | 0 | 0 | 0 |

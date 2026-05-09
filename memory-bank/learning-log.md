@@ -47,3 +47,16 @@ Chronological record of pattern extraction and consolidation events from task re
 
 ### systemPatterns.md Updates
 - None this round (FlowEvent-as-state-machine reinforces an existing TASK-001 pattern; not novel).
+
+---
+
+## 2026-05-09 — TASK-008 Reflection
+
+### Extracted Patterns
+- **schema-validation** → created `agent-rules/_learned/schema-validation.md` (evidence count: 1). Spec Writer should grep proposed column names against `app/` and `spec/` to surface dead schema before planning builds on it.
+- **scope-cut-resilience** → created `agent-rules/_learned/scope-cut-resilience.md` (evidence count: 1). Post-creative scope cuts require regenerating Implementation Roadmap and Test Strategy from scratch, not in-place edits.
+- **gating-filter-passthrough** → created `agent-rules/_learned/gating-filter-passthrough.md` (evidence count: 1). When filtering a collection by a related model's state, "no record" → KEEP; only "record exists AND fails gate" → DROP.
+- **service-shape** → amended `agent-rules/_learned/service-shape.md` (evidence count: 1 → 2). Two-outcome services may return nil-or-value, but if an architecture doc has specified a Result struct, implement OR update the doc — don't diverge silently.
+
+### systemPatterns.md Updates
+- None this round — all four learnings are coding/workflow practices, not novel architectural patterns.
