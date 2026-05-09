@@ -29,7 +29,8 @@ module OnboardingFlow
       elsif elapsed <= 72.hours
         48.hours
       else
-        nil # silence — do not schedule
+        # silence — do not schedule
+        nil
       end
     end
 
@@ -37,7 +38,7 @@ module OnboardingFlow
     # Used as the `wait_hours:` argument to EnqueueNextQuestionJob.
     def self.next_wait_hours(question_sent_at:, reply_received_at:)
       duration = next_wait(question_sent_at: question_sent_at, reply_received_at: reply_received_at)
-      duration&./ 1.hour
+      duration&./(1.hour)
     end
   end
 end

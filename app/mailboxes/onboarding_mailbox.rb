@@ -17,9 +17,9 @@ class OnboardingMailbox < ApplicationMailbox
 
     # Persist parser metadata on the InboundEmail row
     inbound_email.update!(
-      parser_intent:     parsed.intent.to_s,
+      parser_intent: parsed.intent.to_s,
       parser_confidence: parsed.confidence.to_s,
-      parser_warnings:   parsed.warnings.map(&:to_s)
+      parser_warnings: parsed.warnings.map(&:to_s)
     )
 
     # Update last_gm_reply_at on every processed reply (all intents count)
@@ -27,22 +27,28 @@ class OnboardingMailbox < ApplicationMailbox
 
     FlowEvent.record!(
       event_type: "reply.parsed",
-      tenant:     @tenant,
-      subject:    inbound_email,
-      payload:    {
-        intent:     parsed.intent,
+      tenant: @tenant,
+      subject: inbound_email,
+      payload: {
+        intent: parsed.intent,
         confidence: parsed.confidence,
-        warnings:   parsed.warnings
+        warnings: parsed.warnings
       }
     )
 
     case parsed.intent
-    when :assign             then handle_assignment(parsed)
-    when :self_assign        then handle_assignment(parsed)
-    when :skip               then handle_skip(parsed)
-    when :clarification_response then handle_clarification(parsed)
-    when :unparseable        then handle_unparseable(parsed)
+    when :assign
+      handle_assignment(parsed)
+    when :self_assign
+      handle_assignment(parsed)
+    when :skip
+      handle_skip(parsed)
+    when :clarification_response
+      handle_clarification(parsed)
+    when :unparseable
+      handle_unparseable(parsed)
     end
+
   ensure
     Current.tenant = nil
   end
@@ -74,9 +80,9 @@ class OnboardingMailbox < ApplicationMailbox
 
     FlowEvent.record!(
       event_type: "reply.rejected_non_gm_sender",
-      tenant:     @tenant,
-      subject:    inbound_email,
-      payload:    { sender: sender }
+      tenant: @tenant,
+      subject: inbound_email,
+      payload: {sender: sender}
     )
 
     bounced!
@@ -87,7 +93,7 @@ class OnboardingMailbox < ApplicationMailbox
   # ---------------------------------------------------------------------------
 
   def handle_assignment(parsed)
-    primary_email   = parsed.primary_email
+    primary_email = parsed.primary_email
     fallback_emails = parsed.fallback_emails
 
     inference = VendorInferenceService.call(email: primary_email, tenant: @tenant)
@@ -98,10 +104,10 @@ class OnboardingMailbox < ApplicationMailbox
     end
 
     contact = Contact.find_or_create_for_email(
-      tenant:         @tenant,
-      email:          primary_email,
+      tenant: @tenant,
+      email: primary_email,
       classification: inference.classification,
-      vendor:         inference.vendor
+      vendor: inference.vendor
     )
 
     question = parsed.question || find_sent_or_skipped_question
@@ -119,12 +125,12 @@ class OnboardingMailbox < ApplicationMailbox
     @tenant.responsibilities.where(tenant_question: question).status_active.update_all(status: :superseded)
 
     responsibility = Responsibility.create!(
-      tenant:                  @tenant,
-      tenant_question:         question,
-      primary_contact:         contact,
-      gm_self_assigned:        parsed.intent == :self_assign,
+      tenant: @tenant,
+      tenant_question: question,
+      primary_contact: contact,
+      gm_self_assigned: parsed.intent == :self_assign,
       fallback_contact_emails: fallback_emails,
-      status:                  :active
+      status: :active
     )
 
     # Create or find the Source for this (tenant, domain, responsibility_key) tuple
@@ -146,12 +152,12 @@ class OnboardingMailbox < ApplicationMailbox
 
     FlowEvent.record!(
       event_type: "responsibility.created",
-      tenant:     @tenant,
-      subject:    responsibility,
-      payload:    {
+      tenant: @tenant,
+      subject: responsibility,
+      payload: {
         primary_email: primary_email,
-        fallbacks:     fallback_emails,
-        intent:        parsed.intent
+        fallbacks: fallback_emails,
+        intent: parsed.intent
       }
     )
 
@@ -168,7 +174,7 @@ class OnboardingMailbox < ApplicationMailbox
 
     # Record the skip (skipped_at lives on SkippedQuestion, not TenantQuestion)
     SkippedQuestion.find_or_create_by!(
-      tenant:          @tenant,
+      tenant: @tenant,
       tenant_question: question
     ) do |sq|
       sq.skipped_at = Time.current
@@ -178,9 +184,9 @@ class OnboardingMailbox < ApplicationMailbox
 
     FlowEvent.record!(
       event_type: "question.skipped",
-      tenant:     @tenant,
-      subject:    question,
-      payload:    { intent: :skip }
+      tenant: @tenant,
+      subject: question,
+      payload: {intent: :skip}
     )
 
     enqueue_next_question(question)
@@ -190,9 +196,9 @@ class OnboardingMailbox < ApplicationMailbox
   def handle_unparseable(parsed)
     FlowEvent.record!(
       event_type: "reply.unparseable",
-      tenant:     @tenant,
-      subject:    inbound_email,
-      payload:    { warnings: parsed.warnings }
+      tenant: @tenant,
+      subject: inbound_email,
+      payload: {warnings: parsed.warnings}
     )
 
     # Do NOT enqueue next question — question remains unanswered
@@ -226,13 +232,13 @@ class OnboardingMailbox < ApplicationMailbox
     return handle_unparseable(parsed) if ambiguous_email.nil?
 
     reassigned_parsed = OnboardingReplyParser::ParsedReply.new(
-      intent:          :assign,
-      primary_email:   ambiguous_email,
+      intent: :assign,
+      primary_email: ambiguous_email,
       fallback_emails: [],
-      question:        question,
-      raw_excerpt:     parsed.raw_excerpt,
-      confidence:      :high,
-      warnings:        []
+      question: question,
+      raw_excerpt: parsed.raw_excerpt,
+      confidence: :high,
+      warnings: []
     )
 
     handle_assignment(reassigned_parsed)
@@ -248,28 +254,28 @@ class OnboardingMailbox < ApplicationMailbox
     ambiguous_domain = ambiguous_email.split("@", 2).last
 
     vendor = Vendor.bootstrap!(
-      name:              vendor_name,
-      domains:           [ ambiguous_domain ],
-      state:             :pending_review,
-      source:            :clarification,
+      name: vendor_name,
+      domains: [ambiguous_domain],
+      state: :pending_review,
+      source: :clarification,
       created_by_tenant: @tenant
     )
 
     FlowEvent.record!(
       event_type: "vendor.bootstrap_from_clarification",
-      tenant:     @tenant,
-      subject:    vendor,
-      payload:    { name: vendor_name, domain: ambiguous_domain }
+      tenant: @tenant,
+      subject: vendor,
+      payload: {name: vendor_name, domain: ambiguous_domain}
     )
 
     reassigned_parsed = OnboardingReplyParser::ParsedReply.new(
-      intent:          :assign,
-      primary_email:   ambiguous_email,
+      intent: :assign,
+      primary_email: ambiguous_email,
       fallback_emails: [],
-      question:        question,
-      raw_excerpt:     parsed.raw_excerpt,
-      confidence:      :high,
-      warnings:        []
+      question: question,
+      raw_excerpt: parsed.raw_excerpt,
+      confidence: :high,
+      warnings: []
     )
 
     handle_assignment(reassigned_parsed)
@@ -280,20 +286,20 @@ class OnboardingMailbox < ApplicationMailbox
 
     FlowEvent.record!(
       event_type: "vendor.clarification_requested",
-      tenant:     @tenant,
-      subject:    inbound_email,
-      payload:    {
-        ambiguous_email:  ambiguous_email,
+      tenant: @tenant,
+      subject: inbound_email,
+      payload: {
+        ambiguous_email: ambiguous_email,
         ambiguous_domain: ambiguous_domain,
-        question_id:      parsed.question&.id
+        question_id: parsed.question&.id
       }
     )
 
     OnboardingMailer
       .with(
-        tenant:           @tenant,
-        inbound_email:    inbound_email,
-        ambiguous_email:  ambiguous_email,
+        tenant: @tenant,
+        inbound_email: inbound_email,
+        ambiguous_email: ambiguous_email,
         ambiguous_domain: ambiguous_domain
       )
       .vendor_clarification
@@ -313,7 +319,7 @@ class OnboardingMailbox < ApplicationMailbox
     return nil if candidate_ids.empty?
 
     normalized = candidate_ids.map { |id| id.to_s.delete("<>").strip }
-    question   = TenantQuestion.where(outbound_message_id: normalized).first
+    question = TenantQuestion.where(outbound_message_id: normalized).first
     question&.tenant
   end
 
@@ -338,15 +344,15 @@ class OnboardingMailbox < ApplicationMailbox
 
     FlowEvent.record!(
       event_type: "question.revisited",
-      tenant:     @tenant,
-      subject:    question,
-      payload:    {}
+      tenant: @tenant,
+      subject: question,
+      payload: {}
     )
   end
 
   def find_or_create_source(question:, vendor:)
     @tenant.sources.find_or_create_by!(
-      domain:             question.domain,
+      domain: question.domain,
       responsibility_key: question.key
     ) do |s|
       s.vendor = vendor
@@ -355,7 +361,7 @@ class OnboardingMailbox < ApplicationMailbox
 
   def enqueue_next_question(answered_question)
     wait_hours = OnboardingFlow::AdaptivePacing.next_wait_hours(
-      question_sent_at:  answered_question&.sent_at,
+      question_sent_at: answered_question&.sent_at,
       reply_received_at: Time.current
     )
 
@@ -368,7 +374,7 @@ class OnboardingMailbox < ApplicationMailbox
 
   def next_question_delivery_time(answered_question)
     wait_hours = OnboardingFlow::AdaptivePacing.next_wait_hours(
-      question_sent_at:  answered_question&.sent_at,
+      question_sent_at: answered_question&.sent_at,
       reply_received_at: Time.current
     )
 
@@ -376,7 +382,7 @@ class OnboardingMailbox < ApplicationMailbox
 
     target = Time.current + wait_hours.hours
     OnboardingFlow::Scheduling.next_business_window(
-      after:     target,
+      after: target,
       time_zone: @tenant.time_zone
     )
   end
@@ -394,13 +400,13 @@ class OnboardingMailbox < ApplicationMailbox
   def send_in_thread_ack(parsed, next_question_at:)
     OnboardingMailer
       .with(
-        tenant:           @tenant,
-        intent:           parsed.intent.to_s,
-        primary_email:    parsed.primary_email,
-        fallback_emails:  parsed.fallback_emails,
-        warnings:         parsed.warnings.map(&:to_s),
-        question:         parsed.question,
-        inbound_email:    inbound_email,
+        tenant: @tenant,
+        intent: parsed.intent.to_s,
+        primary_email: parsed.primary_email,
+        fallback_emails: parsed.fallback_emails,
+        warnings: parsed.warnings.map(&:to_s),
+        question: parsed.question,
+        inbound_email: inbound_email,
         next_question_at: next_question_at
       )
       .in_thread_ack

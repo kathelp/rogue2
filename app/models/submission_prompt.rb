@@ -2,12 +2,16 @@ class SubmissionPrompt < ApplicationRecord
   # --------------------------------------------------------------------------
   # Enums
   # --------------------------------------------------------------------------
-  enum :status, {
-    pending: "pending",
-    sent: "sent",
-    fulfilled: "fulfilled",
-    superseded: "superseded"
-  }, prefix: :status
+  enum(
+    :status,
+    {
+      pending: "pending",
+      sent: "sent",
+      fulfilled: "fulfilled",
+      superseded: "superseded"
+    },
+    prefix: :status
+  )
 
   # --------------------------------------------------------------------------
   # Associations

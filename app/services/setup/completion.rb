@@ -23,8 +23,8 @@ module Setup
 
       ApplicationRecord.transaction do
         source.update!(
-          submission_method:        method,
-          configured_at:            Time.current,
+          submission_method: method,
+          configured_at: Time.current,
           configured_by_contact_id: contact.id
         )
 
@@ -37,11 +37,11 @@ module Setup
 
         FlowEvent.record!(
           event_type: "source.configured",
-          tenant:     source.tenant,
-          subject:    source,
-          payload:    {
+          tenant: source.tenant,
+          subject: source,
+          payload: {
             submission_method: method,
-            contact_id:        contact.id
+            contact_id: contact.id
           }
         )
       end

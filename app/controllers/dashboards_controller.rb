@@ -8,13 +8,13 @@ class DashboardsController < ApplicationController
     @tenant = Tenant.find_by_dashboard_signed_id(params[:signed_id])
 
     if @tenant.nil?
-      render :expired, status: :not_found
+      render(:expired, status: :not_found)
       return
     end
 
     @digest = Accountability::DigestAssembler.call(tenant: @tenant)
   rescue ActiveSupport::MessageVerifier::InvalidSignature
     @tenant = nil
-    render :expired, status: :not_found
+    render(:expired, status: :not_found)
   end
 end

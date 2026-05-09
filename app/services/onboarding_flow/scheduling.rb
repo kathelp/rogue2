@@ -11,9 +11,12 @@
 #   OnboardingMailer.with(...).question_email.deliver_later(wait_until: deliver_at)
 module OnboardingFlow
   module Scheduling
-    BUSINESS_HOURS_START = 9.5  # 9:30am expressed as decimal hours
-    BUSINESS_HOURS_END   = 18.0 # 6:00pm expressed as decimal hours
-    BUSINESS_DAYS        = (1..5).to_a.freeze # Mon(1)..Fri(5) per Time#wday
+    # 9:30am expressed as decimal hours
+    BUSINESS_HOURS_START = 9.5
+    # 6:00pm expressed as decimal hours
+    BUSINESS_HOURS_END = 18.0
+    # Mon(1)..Fri(5) per Time#wday
+    BUSINESS_DAYS = (1..5).to_a.freeze
 
     # Returns the next moment that falls within a business window at or after `after`.
     #
@@ -25,7 +28,7 @@ module OnboardingFlow
     # @param time_zone [String]  Rails/TZ database name, e.g. "America/New_York"
     # @return          [ActiveSupport::TimeWithZone]
     def self.next_business_window(after:, time_zone:)
-      tz   = ActiveSupport::TimeZone[time_zone] || ActiveSupport::TimeZone["UTC"]
+      tz = ActiveSupport::TimeZone[time_zone] || ActiveSupport::TimeZone["UTC"]
       time = after.in_time_zone(tz)
 
       return time if in_business_window?(time, time_zone: time_zone)
@@ -41,7 +44,7 @@ module OnboardingFlow
     # @param time_zone [String]
     # @return          [Boolean]
     def self.in_business_window?(time, time_zone:)
-      tz    = ActiveSupport::TimeZone[time_zone] || ActiveSupport::TimeZone["UTC"]
+      tz = ActiveSupport::TimeZone[time_zone] || ActiveSupport::TimeZone["UTC"]
       local = time.in_time_zone(tz)
 
       return false unless BUSINESS_DAYS.include?(local.wday)
@@ -67,11 +70,13 @@ module OnboardingFlow
     def self.beginning_of_day(time, tz)
       tz.local(time.year, time.month, time.day, 0, 0, 0)
     end
+
     private_class_method :beginning_of_day
 
     def self.hours_to_seconds(decimal_hours)
       (decimal_hours * 3600).to_i.seconds
     end
+
     private_class_method :hours_to_seconds
   end
 end

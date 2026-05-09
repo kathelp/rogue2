@@ -2,13 +2,17 @@ class Request < ApplicationRecord
   # --------------------------------------------------------------------------
   # Enums
   # --------------------------------------------------------------------------
-  enum :cadence, {
-    weekly: "weekly",
-    monthly: "monthly",
-    quarterly: "quarterly",
-    semi_annual: "semi_annual",
-    annual: "annual"
-  }, prefix: :cadence
+  enum(
+    :cadence,
+    {
+      weekly: "weekly",
+      monthly: "monthly",
+      quarterly: "quarterly",
+      semi_annual: "semi_annual",
+      annual: "annual"
+    },
+    prefix: :cadence
+  )
 
   # --------------------------------------------------------------------------
   # Associations

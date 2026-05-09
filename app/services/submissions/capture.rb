@@ -25,26 +25,26 @@ module Submissions
         period_start = period_starting_for(prompt)
 
         submission = ::Submission.create!(
-          tenant:               prompt.tenant,
-          request:              prompt.request,
-          submission_prompt:    prompt,
+          tenant: prompt.tenant,
+          request: prompt.request,
+          submission_prompt: prompt,
           submitted_by_contact: contact,
-          value:                coerced_value,
-          notes:                notes.presence,
-          period_starting:      period_start,
-          submitted_at:         Time.current
+          value: coerced_value,
+          notes: notes.presence,
+          period_starting: period_start,
+          submitted_at: Time.current
         )
 
         prompt.update!(status: :fulfilled, fulfilled_at: Time.current)
 
         FlowEvent.record!(
           event_type: "submission.captured",
-          tenant:     prompt.tenant,
-          subject:    submission,
-          payload:    {
-            request_id:      prompt.request_id,
-            metric_key:      prompt.request.metric_key,
-            value:           coerced_value.to_s,
+          tenant: prompt.tenant,
+          subject: submission,
+          payload: {
+            request_id: prompt.request_id,
+            metric_key: prompt.request.metric_key,
+            value: coerced_value.to_s,
             period_starting: period_start.iso8601
           }
         )
@@ -63,12 +63,14 @@ module Submissions
 
       f
     end
+
     private_class_method :coerce_value
 
     def self.period_starting_for(prompt)
       tz = ActiveSupport::TimeZone[prompt.tenant.time_zone] || ActiveSupport::TimeZone["UTC"]
       prompt.scheduled_for.in_time_zone(tz).to_date.beginning_of_month
     end
+
     private_class_method :period_starting_for
   end
 end

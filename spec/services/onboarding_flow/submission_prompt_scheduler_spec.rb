@@ -13,10 +13,11 @@ RSpec.describe OnboardingFlow::SubmissionPromptScheduler do
 
       expect {
         described_class.call(source: source)
-      }.to change(SubmissionPrompt, :count).by(2)
+      }
+        .to(change(SubmissionPrompt, :count).by(2))
 
-      expect(SubmissionPrompt.where(request: r1).count).to eq(1)
-      expect(SubmissionPrompt.where(request: r2).count).to eq(1)
+      expect(SubmissionPrompt.where(request: r1).count).to(eq(1))
+      expect(SubmissionPrompt.where(request: r2).count).to(eq(1))
     end
 
     it "schedules monthly prompts for the 1st of the next month" do
@@ -25,7 +26,7 @@ RSpec.describe OnboardingFlow::SubmissionPromptScheduler do
         described_class.call(source: source)
         prompt = SubmissionPrompt.where(request: request).first
         expect(prompt.scheduled_for.in_time_zone(tenant.time_zone).to_date)
-          .to eq(Date.new(2026, 6, 1))
+          .to(eq(Date.new(2026, 6, 1)))
       end
     end
 
@@ -36,7 +37,7 @@ RSpec.describe OnboardingFlow::SubmissionPromptScheduler do
         prompt = SubmissionPrompt.where(request: request).first
         # Q2 is Apr-Jun → next quarter starts Jul 1
         expect(prompt.scheduled_for.in_time_zone(tenant.time_zone).to_date)
-          .to eq(Date.new(2026, 7, 1))
+          .to(eq(Date.new(2026, 7, 1)))
       end
     end
 
@@ -45,7 +46,8 @@ RSpec.describe OnboardingFlow::SubmissionPromptScheduler do
       described_class.call(source: source)
       expect {
         described_class.call(source: source)
-      }.not_to change(SubmissionPrompt, :count)
+      }
+        .not_to(change(SubmissionPrompt, :count))
     end
   end
 end

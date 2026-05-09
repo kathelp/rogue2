@@ -12,9 +12,12 @@
 # Per architecture design A3.
 class VendorInferenceService
   Result = Struct.new(
-    :classification,          # :internal_staff | :vendor_user | :unknown
-    :vendor,                  # Vendor | nil
-    :requires_clarification,  # Boolean
+    # :internal_staff | :vendor_user | :unknown
+    :classification,
+    # Vendor | nil
+    :vendor,
+    # Boolean
+    :requires_clarification,
     keyword_init: true
   )
 
@@ -23,7 +26,7 @@ class VendorInferenceService
   end
 
   def initialize(email:, tenant:)
-    @email  = email.to_s.downcase.strip
+    @email = email.to_s.downcase.strip
     @tenant = tenant
   end
 

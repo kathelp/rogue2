@@ -16,8 +16,8 @@ module OnboardingFlow
 
       metrics.map do |metric|
         Request.find_or_create_by!(
-          tenant:     source.tenant,
-          source:     source,
+          tenant: source.tenant,
+          source: source,
           metric_key: metric[:key]
         ) do |r|
           r.cadence = metric[:cadence]

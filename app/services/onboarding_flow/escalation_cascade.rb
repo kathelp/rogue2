@@ -18,51 +18,55 @@
 #   nil                  → GM nudge already fired (one-shot per period)
 module OnboardingFlow
   module EscalationCascade
-    DUE_SOON_GRACE_DAYS  = 3
-    OVERDUE_GRACE_DAYS   = 3
-    FALLBACK_GRACE_DAYS  = 4
-    GM_GRACE_DAYS        = 5
+    DUE_SOON_GRACE_DAYS = 3
+    OVERDUE_GRACE_DAYS = 3
+    FALLBACK_GRACE_DAYS = 4
+    GM_GRACE_DAYS = 5
 
     NextAction = Struct.new(
-      :severity,         # :due_soon | :overdue | :fallback_fanout | :gm_nudge
-      :recipient_email,  # String — who to mail
-      :payload,          # Hash — extra context (e.g., fallback_index)
+      # :due_soon | :overdue | :fallback_fanout | :gm_nudge
+      :severity,
+      # String — who to mail
+      :recipient_email,
+      # Hash — extra context (e.g., fallback_index)
+      :payload,
       keyword_init: true
     )
 
     # Returns NextAction or nil.
     def self.next_action_for(prompt:, now: Time.current)
       tenant = prompt.tenant
-      tz     = ActiveSupport::TimeZone[tenant.time_zone] || ActiveSupport::TimeZone["UTC"]
+      tz = ActiveSupport::TimeZone[tenant.time_zone] || ActiveSupport::TimeZone["UTC"]
 
       period_end_date = period_end_date_for(prompt, tz)
-      now_date        = now.in_time_zone(tz).to_date
-      events          = escalation_events_for(prompt)
+      now_date = now.in_time_zone(tz).to_date
+      events = escalation_events_for(prompt)
 
       # GM nudge already happened: one-shot, done.
       return nil if events.any? { |e| e.event_type == "escalation.gm_nudge" }
 
       due_soon_event = events.find { |e| e.event_type == "escalation.due_soon" }
-      overdue_event  = events.find { |e| e.event_type == "escalation.overdue" }
-      fallback_events = events.select { |e| e.event_type == "escalation.fallback_fanout" }
-                              .sort_by(&:occurred_at)
+      overdue_event = events.find { |e| e.event_type == "escalation.overdue" }
+      fallback_events = events
+        .select { |e| e.event_type == "escalation.fallback_fanout" }
+        .sort_by(&:occurred_at)
 
       due_soon_grace = tenant.escalation_due_soon_grace_days || DUE_SOON_GRACE_DAYS
-      overdue_grace  = tenant.escalation_overdue_grace_days  || OVERDUE_GRACE_DAYS
+      overdue_grace = tenant.escalation_overdue_grace_days || OVERDUE_GRACE_DAYS
       fallback_grace = tenant.escalation_fallback_grace_days || FALLBACK_GRACE_DAYS
-      gm_grace       = tenant.escalation_gm_grace_days       || GM_GRACE_DAYS
+      gm_grace = tenant.escalation_gm_grace_days || GM_GRACE_DAYS
 
       due_soon_open_date = period_end_date - due_soon_grace
-      overdue_open_date  = period_end_date + overdue_grace
+      overdue_open_date = period_end_date + overdue_grace
 
       # Step 1: due_soon (calendar-day threshold)
       if due_soon_event.nil?
         return nil if now_date < due_soon_open_date
 
         return NextAction.new(
-          severity:        :due_soon,
+          severity: :due_soon,
           recipient_email: primary_email_for(prompt),
-          payload:         { period_end: period_end_date.iso8601 }
+          payload: {period_end: period_end_date.iso8601}
         )
       end
 
@@ -71,9 +75,9 @@ module OnboardingFlow
         return nil if now_date < overdue_open_date
 
         return NextAction.new(
-          severity:        :overdue,
+          severity: :overdue,
           recipient_email: primary_email_for(prompt),
-          payload:         { period_end: period_end_date.iso8601 }
+          payload: {period_end: period_end_date.iso8601}
         )
       end
 
@@ -87,9 +91,9 @@ module OnboardingFlow
         return nil if now < threshold
 
         return NextAction.new(
-          severity:        :fallback_fanout,
+          severity: :fallback_fanout,
           recipient_email: fallbacks[next_fallback_index],
-          payload:         {
+          payload: {
             fallback_index: next_fallback_index,
             fallback_email: fallbacks[next_fallback_index]
           }
@@ -101,12 +105,12 @@ module OnboardingFlow
       return nil if now < threshold
 
       NextAction.new(
-        severity:        :gm_nudge,
+        severity: :gm_nudge,
         recipient_email: tenant.gm_email,
-        payload:         {
-          period_end:        period_end_date.iso8601,
-          fallback_chain:    fallbacks,
-          primary_email:     responsibility_primary_email_for(prompt)
+        payload: {
+          period_end: period_end_date.iso8601,
+          fallback_chain: fallbacks,
+          primary_email: responsibility_primary_email_for(prompt)
         }
       )
     end
@@ -120,6 +124,7 @@ module OnboardingFlow
         .order(:occurred_at)
         .to_a
     end
+
     private_class_method :escalation_events_for
 
     # Last day of the reporting period in tenant TZ as a Date. Monthly
@@ -128,17 +133,20 @@ module OnboardingFlow
       scheduled_local = prompt.scheduled_for.in_time_zone(tz)
       scheduled_local.end_of_month.to_date
     end
+
     private_class_method :period_end_date_for
 
     def self.primary_email_for(prompt)
       contact = prompt.request.source.configured_by_contact
       contact&.email || prompt.tenant.gm_email
     end
+
     private_class_method :primary_email_for
 
     def self.fallback_emails_for(prompt)
       Array(active_responsibility_for(prompt)&.fallback_contact_emails)
     end
+
     private_class_method :fallback_emails_for
 
     # Email of the responsibility's primary_contact — i.e., the person the GM
@@ -147,6 +155,7 @@ module OnboardingFlow
     def self.responsibility_primary_email_for(prompt)
       active_responsibility_for(prompt)&.primary_contact&.email
     end
+
     private_class_method :responsibility_primary_email_for
 
     def self.active_responsibility_for(prompt)
@@ -155,10 +164,11 @@ module OnboardingFlow
         .responsibilities
         .where(status: :active)
         .joins(:tenant_question)
-        .where(tenant_questions: { key: prompt.request.source.responsibility_key })
+        .where(tenant_questions: {key: prompt.request.source.responsibility_key})
         .order(created_at: :desc)
         .first
     end
+
     private_class_method :active_responsibility_for
   end
 end

@@ -12,45 +12,45 @@ class Submissions::FormsController < ApplicationController
 
   def show
     if @prompt.nil?
-      render :expired, status: :not_found
+      render(:expired, status: :not_found)
       return
     end
 
     if @prompt.status_fulfilled?
-      render :already_submitted
+      render(:already_submitted)
       return
     end
 
-    render :show
+    render(:show)
   end
 
   def create
     if @prompt.nil?
-      render :expired, status: :not_found
+      render(:expired, status: :not_found)
       return
     end
 
     if @prompt.status_fulfilled?
-      render :already_submitted
+      render(:already_submitted)
       return
     end
 
     contact = @prompt.request.source.configured_by_contact
 
     result = Submissions::Capture.call(
-      prompt:  @prompt,
+      prompt: @prompt,
       contact: contact,
-      value:   submission_params[:value],
-      notes:   submission_params[:notes]
+      value: submission_params[:value],
+      notes: submission_params[:notes]
     )
 
     if result.success?
-      redirect_to submission_form_path(signed_id: params[:signed_id], submitted: 1)
+      redirect_to(submission_form_path(signed_id: params[:signed_id], submitted: 1))
     else
       flash.now[:alert] = error_message_for(result.error)
       @value_attempt = submission_params[:value]
       @notes_attempt = submission_params[:notes]
-      render :show, status: :unprocessable_entity
+      render(:show, status: :unprocessable_entity)
     end
   end
 
@@ -68,9 +68,12 @@ class Submissions::FormsController < ApplicationController
 
   def error_message_for(error)
     case error
-    when :invalid_value     then "Please enter a non-negative number."
-    when :already_submitted then "This submission has already been recorded."
-    else                         "We couldn't save your submission. Please try again."
+    when :invalid_value
+      "Please enter a non-negative number."
+    when :already_submitted
+      "This submission has already been recorded."
+    else
+      "We couldn't save your submission. Please try again."
     end
   end
 end

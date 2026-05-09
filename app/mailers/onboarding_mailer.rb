@@ -17,27 +17,28 @@ class OnboardingMailer < ApplicationMailer
   # params[:inbound_email]    - ActionMailbox::InboundEmail
   # params[:next_question_at] - Time | nil
   def in_thread_ack
-    @tenant           = params[:tenant]
-    @inbound_email    = params[:inbound_email]
+    @tenant = params[:tenant]
+    @inbound_email = params[:inbound_email]
     @next_question_at = params[:next_question_at]
 
     # Reconstruct a view-friendly struct from serializable params
-    @parsed = OpenStruct.new( # rubocop:disable Style/OpenStructUse
-      intent:          params[:intent]&.to_sym,
-      primary_email:   params[:primary_email],
+    # rubocop:disable Style/OpenStructUse
+    @parsed = OpenStruct.new(
+      intent: params[:intent]&.to_sym,
+      primary_email: params[:primary_email],
       fallback_emails: Array(params[:fallback_emails]),
-      warnings:        Array(params[:warnings]).map(&:to_sym),
-      question:        params[:question]
+      warnings: Array(params[:warnings]).map(&:to_sym),
+      question: params[:question]
     )
 
     topic = @parsed.question&.prompt || "your reply"
     thread_with(@inbound_email.message_id)
 
     mail(
-      to:       @tenant.gm_email,
-      from:     onboarding_address(@tenant),
+      to: @tenant.gm_email,
+      from: onboarding_address(@tenant),
       reply_to: onboarding_address(@tenant),
-      subject:  canonical_subject(@tenant, topic, reply: true)
+      subject: canonical_subject(@tenant, topic, reply: true)
     )
   end
 
@@ -47,15 +48,15 @@ class OnboardingMailer < ApplicationMailer
   # params[:tenant]        - Tenant
   # params[:inbound_email] - ActionMailbox::InboundEmail
   def gm_only_thread_notice
-    @tenant         = params[:tenant]
-    @inbound_email  = params[:inbound_email]
+    @tenant = params[:tenant]
+    @inbound_email = params[:inbound_email]
     @sender_address = @inbound_email.mail.from.first
 
     thread_with(@inbound_email.message_id)
 
     mail(
-      to:      @sender_address,
-      from:    onboarding_address(@tenant),
+      to: @sender_address,
+      from: onboarding_address(@tenant),
       subject: "This thread is for #{@tenant.dealership_name}'s GM only"
     )
   end
@@ -68,18 +69,18 @@ class OnboardingMailer < ApplicationMailer
   # params[:ambiguous_email]  - String  e.g. "alex@unknownvendor.com"
   # params[:ambiguous_domain] - String  e.g. "unknownvendor.com"
   def vendor_clarification
-    @tenant           = params[:tenant]
-    @inbound_email    = params[:inbound_email]
-    @ambiguous_email  = params[:ambiguous_email]
+    @tenant = params[:tenant]
+    @inbound_email = params[:inbound_email]
+    @ambiguous_email = params[:ambiguous_email]
     @ambiguous_domain = params[:ambiguous_domain]
 
     thread_with(@inbound_email.message_id)
 
     mail(
-      to:       @tenant.gm_email,
-      from:     onboarding_address(@tenant),
+      to: @tenant.gm_email,
+      from: onboarding_address(@tenant),
       reply_to: onboarding_address(@tenant),
-      subject:  canonical_subject(
+      subject: canonical_subject(
         @tenant,
         "is #{@ambiguous_domain} internal or a vendor?",
         reply: true
@@ -94,17 +95,17 @@ class OnboardingMailer < ApplicationMailer
   # params[:contact]        - Contact (the invitee)
   # params[:responsibility] - Responsibility being set up
   def invitee_setup_email
-    @tenant         = params[:tenant]
-    @contact        = params[:contact]
+    @tenant = params[:tenant]
+    @contact = params[:contact]
     @responsibility = params[:responsibility]
-    @question       = @responsibility.tenant_question
-    @setup_url      = setup_walkthrough_url(
+    @question = @responsibility.tenant_question
+    @setup_url = setup_walkthrough_url(
       signed_id: @contact.invitee_setup_signed_id(expires_in: 7.days)
     )
 
     mail(
-      to:      @contact.email,
-      from:    onboarding_address(@tenant),
+      to: @contact.email,
+      from: onboarding_address(@tenant),
       subject: "#{@tenant.dealership_name}: data collection assignment"
     )
   end
@@ -130,8 +131,8 @@ class OnboardingMailer < ApplicationMailer
   #                            When provided, the header is set explicitly so
   #                            the job can persist it before delivery.
   def question_email
-    @tenant          = params[:tenant]
-    @question        = params[:tenant_question]
+    @tenant = params[:tenant]
+    @question = params[:tenant_question]
     message_id_param = params[:message_id]
 
     # Set the explicit Message-ID before rendering so it's on @_message at
@@ -141,10 +142,10 @@ class OnboardingMailer < ApplicationMailer
     headers["Message-ID"] = message_id_param if message_id_param.present?
 
     mail(
-      to:         @tenant.gm_email,
-      from:       onboarding_address(@tenant),
-      reply_to:   onboarding_address(@tenant),
-      subject:    canonical_subject(@tenant, @question.prompt)
+      to: @tenant.gm_email,
+      from: onboarding_address(@tenant),
+      reply_to: onboarding_address(@tenant),
+      subject: canonical_subject(@tenant, @question.prompt)
     ) do |format|
       format.html
       format.text

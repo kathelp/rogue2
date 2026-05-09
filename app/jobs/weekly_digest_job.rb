@@ -30,9 +30,9 @@ class WeeklyDigestJob < ApplicationJob
     # Insert idempotency row first; if the unique constraint fires, skip
     # delivery — another process already handled this week.
     delivery = WeeklyDigestDelivery.new(
-      tenant:        tenant,
+      tenant: tenant,
       week_starting: week_starting,
-      delivered_at:  Time.current
+      delivered_at: Time.current
     )
 
     return unless delivery.save
@@ -44,9 +44,9 @@ class WeeklyDigestJob < ApplicationJob
 
     FlowEvent.record!(
       event_type: "digest.sent",
-      tenant:     tenant,
-      subject:    delivery,
-      payload:    { week_starting: week_starting.iso8601 }
+      tenant: tenant,
+      subject: delivery,
+      payload: {week_starting: week_starting.iso8601}
     )
   rescue ActiveRecord::RecordNotUnique
     # Another worker beat us to it — no-op.

@@ -6,14 +6,14 @@ RSpec.describe Contact, type: :model do
   # --------------------------------------------------------------------------
   # Associations
   # --------------------------------------------------------------------------
-  it { is_expected.to belong_to(:tenant) }
-  it { is_expected.to belong_to(:vendor).optional }
+  it { is_expected.to(belong_to(:tenant)) }
+  it { is_expected.to(belong_to(:vendor).optional) }
 
   # --------------------------------------------------------------------------
   # Validations
   # --------------------------------------------------------------------------
-  it { is_expected.to validate_presence_of(:email) }
-  it { is_expected.to validate_presence_of(:classification) }
+  it { is_expected.to(validate_presence_of(:email)) }
+  it { is_expected.to(validate_presence_of(:classification)) }
 
   # --------------------------------------------------------------------------
   # find_or_create_for_email
@@ -27,8 +27,8 @@ RSpec.describe Contact, type: :model do
         email: "alex@smithtoyota.com",
         classification: :internal_staff
       )
-      expect(contact).to be_persisted
-      expect(contact.classification).to eq("internal_staff")
+      expect(contact).to(be_persisted)
+      expect(contact.classification).to(eq("internal_staff"))
     end
 
     it "normalizes the email to lowercase" do
@@ -37,22 +37,28 @@ RSpec.describe Contact, type: :model do
         email: "Alex@SmithToyota.com",
         classification: :internal_staff
       )
-      expect(contact.email_normalized).to eq("alex@smithtoyota.com")
+      expect(contact.email_normalized).to(eq("alex@smithtoyota.com"))
     end
 
     it "is idempotent — returns existing contact on re-call" do
       Contact.find_or_create_for_email(tenant: tenant, email: "alex@smithtoyota.com", classification: :internal_staff)
       expect {
         Contact.find_or_create_for_email(tenant: tenant, email: "alex@smithtoyota.com", classification: :internal_staff)
-      }.not_to change(Contact, :count)
+      }
+        .not_to(change(Contact, :count))
     end
 
     it "is scoped to the tenant — same email for different tenant creates a new contact" do
       other_tenant = create(:tenant)
       Contact.find_or_create_for_email(tenant: tenant, email: "alex@smithtoyota.com", classification: :internal_staff)
       expect {
-        Contact.find_or_create_for_email(tenant: other_tenant, email: "alex@smithtoyota.com", classification: :internal_staff)
-      }.to change(Contact, :count).by(1)
+        Contact.find_or_create_for_email(
+          tenant: other_tenant,
+          email: "alex@smithtoyota.com",
+          classification: :internal_staff
+        )
+      }
+        .to(change(Contact, :count).by(1))
     end
 
     it "optionally sets the vendor" do
@@ -63,7 +69,7 @@ RSpec.describe Contact, type: :model do
         classification: :vendor_user,
         vendor: vendor
       )
-      expect(contact.vendor).to eq(vendor)
+      expect(contact.vendor).to(eq(vendor))
     end
   end
 end

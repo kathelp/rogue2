@@ -7,12 +7,16 @@ class Tenant < ApplicationRecord
   # --------------------------------------------------------------------------
   # Enums
   # --------------------------------------------------------------------------
-  enum :status, {
-    seeded: "seeded",
-    pending_confirm: "pending_confirm",
-    confirmed: "confirmed",
-    active: "active"
-  }, prefix: :status
+  enum(
+    :status,
+    {
+      seeded: "seeded",
+      pending_confirm: "pending_confirm",
+      confirmed: "confirmed",
+      active: "active"
+    },
+    prefix: :status
+  )
 
   # --------------------------------------------------------------------------
   # Associations
@@ -33,12 +37,16 @@ class Tenant < ApplicationRecord
   validates :gm_name, presence: true
   validates :gm_email, presence: true
   validates :gm_email_normalized, presence: true, uniqueness: true
-  validates :status, presence: true, inclusion: { in: statuses.keys }
+  validates :status, presence: true, inclusion: {in: statuses.keys}
   validates :onboarding_token, presence: true, uniqueness: true
-  validates :first_question_delay_minutes, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
-  validates :next_question_delay_hours, presence: true, numericality: { only_integer: true, greater_than: 0 }
+  validates(
+    :first_question_delay_minutes,
+    presence: true,
+    numericality: {only_integer: true, greater_than_or_equal_to: 0}
+  )
+  validates :next_question_delay_hours, presence: true, numericality: {only_integer: true, greater_than: 0}
   validates :time_zone, presence: true
-  validates :question_catalog_version, presence: true, numericality: { only_integer: true, greater_than: 0 }
+  validates :question_catalog_version, presence: true, numericality: {only_integer: true, greater_than: 0}
 
   # --------------------------------------------------------------------------
   # Callbacks
@@ -49,10 +57,13 @@ class Tenant < ApplicationRecord
   # --------------------------------------------------------------------------
   # Scopes
   # --------------------------------------------------------------------------
-  scope :in_onboarding_silence, ->(threshold: 7.days) {
-    where(status: [ :confirmed, :active ])
-      .where("last_gm_reply_at IS NULL OR last_gm_reply_at < ?", threshold.ago)
-  }
+  scope(
+    :in_onboarding_silence,
+    -> (threshold: 7.days) {
+      where(status: [:confirmed, :active])
+        .where("last_gm_reply_at IS NULL OR last_gm_reply_at < ?", threshold.ago)
+    }
+  )
 
   # --------------------------------------------------------------------------
   # State machine helpers

@@ -3,7 +3,7 @@ Rails.application.routes.draw do
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
-  get "up" => "rails/health#show", as: :rails_health_check
+  get("up" => "rails/health#show", :as => :rails_health_check)
 
   # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
@@ -12,24 +12,24 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   # root "posts#index"
 
-  namespace :admin do
-    resources :tenants, only: %i[new create show] do
+  namespace(:admin) do
+    resources(:tenants, only: %i[new create show]) do
       member do
-        post :resend_confirmation
+        post(:resend_confirmation)
       end
     end
   end
 
-  namespace :onboarding do
-    resources :confirmations, only: [ :show ], param: :signed_id
-    post "confirmations/resend", to: "confirmations#resend", as: :resend_confirmation
+  namespace(:onboarding) do
+    resources(:confirmations, only: [:show], param: :signed_id)
+    post("confirmations/resend", to: "confirmations#resend", as: :resend_confirmation)
   end
 
-  get   "/setup/:signed_id" => "setup/walkthroughs#show",   as: :setup_walkthrough
-  patch "/setup/:signed_id" => "setup/walkthroughs#update"
+  get("/setup/:signed_id" => "setup/walkthroughs#show", :as => :setup_walkthrough)
+  patch("/setup/:signed_id" => "setup/walkthroughs#update")
 
-  get "/dashboard/:signed_id" => "dashboards#show", as: :dashboard
+  get("/dashboard/:signed_id" => "dashboards#show", :as => :dashboard)
 
-  get  "/submissions/:signed_id" => "submissions/forms#show",   as: :submission_form
-  post "/submissions/:signed_id" => "submissions/forms#create"
+  get("/submissions/:signed_id" => "submissions/forms#show", :as => :submission_form)
+  post("/submissions/:signed_id" => "submissions/forms#create")
 end

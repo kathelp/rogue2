@@ -12,38 +12,38 @@ class Setup::WalkthroughsController < ApplicationController
 
   def show
     if @contact.nil?
-      render :expired, status: :not_found
+      render(:expired, status: :not_found)
       return
     end
 
     @responsibility = current_responsibility
-    @source         = current_source
+    @source = current_source
 
     render(template_for_step(params[:step]))
   end
 
   def update
     if @contact.nil?
-      render :expired, status: :not_found
+      render(:expired, status: :not_found)
       return
     end
 
     @responsibility = current_responsibility
-    @source         = current_source
+    @source = current_source
 
     method = params.dig(:source, :submission_method).to_s
 
     result = Setup::Completion.call(
-      source:            @source,
-      contact:           @contact,
+      source: @source,
+      contact: @contact,
       submission_method: method
     )
 
     if result.success?
-      redirect_to setup_walkthrough_path(signed_id: params[:signed_id], step: "done")
+      redirect_to(setup_walkthrough_path(signed_id: params[:signed_id], step: "done"))
     else
       flash.now[:alert] = "Please pick a submission method."
-      render :method_picker, status: :unprocessable_entity
+      render(:method_picker, status: :unprocessable_entity)
     end
   end
 
@@ -66,7 +66,7 @@ class Setup::WalkthroughsController < ApplicationController
     return nil if @responsibility.nil?
 
     @responsibility.tenant.sources.find_by(
-      domain:             @responsibility.tenant_question.domain,
+      domain: @responsibility.tenant_question.domain,
       responsibility_key: @responsibility.tenant_question.key
     )
   end
@@ -75,9 +75,12 @@ class Setup::WalkthroughsController < ApplicationController
     return :done if @source && @source.submission_method.present?
 
     case step_param
-    when "method" then :method_picker
-    when "done"   then :done
-    else               :summary
+    when "method"
+      :method_picker
+    when "done"
+      :done
+    else
+      :summary
     end
   end
 end

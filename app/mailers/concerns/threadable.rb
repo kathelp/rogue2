@@ -56,7 +56,7 @@ module Threadable
 
     mid = ensure_angle_brackets(parent_message_id.to_s)
     headers["In-Reply-To"] = mid
-    headers["References"]  = mid
+    headers["References"] = mid
   end
 
   private

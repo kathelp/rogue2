@@ -18,19 +18,20 @@ class OnboardingFlow::EnqueueFirstQuestionJob < ApplicationJob
     tenant = Tenant.find_by(id: tenant_id)
     return unless tenant&.status_confirmed?
 
-    question = tenant.tenant_questions
-                     .where(status: "pending")
-                     .order(:position)
-                     .first
+    question = tenant
+      .tenant_questions
+      .where(status: "pending")
+      .order(:position)
+      .first
     return if question.nil?
 
     # Pre-generate a deterministic Message-ID so we can persist it before delivery.
     message_id = generate_message_id(tenant, question)
 
     # Compute delivery time: first_question_delay_minutes + business-hours envelope.
-    target     = Time.current + tenant.first_question_delay_minutes.minutes
+    target = Time.current + tenant.first_question_delay_minutes.minutes
     deliver_at = OnboardingFlow::Scheduling.next_business_window(
-      after:     target,
+      after: target,
       time_zone: tenant.time_zone
     )
 
@@ -41,16 +42,16 @@ class OnboardingFlow::EnqueueFirstQuestionJob < ApplicationJob
 
     # Persist tracking state on the question row.
     question.update!(
-      status:              "sent",
-      sent_at:             deliver_at,
+      status: "sent",
+      sent_at: deliver_at,
       outbound_message_id: message_id
     )
 
     FlowEvent.record!(
       event_type: "question.sent",
-      tenant:     tenant,
-      subject:    question,
-      payload:    { message_id: message_id, deliver_at: deliver_at.iso8601 }
+      tenant: tenant,
+      subject: question,
+      payload: {message_id: message_id, deliver_at: deliver_at.iso8601}
     )
   end
 

@@ -2,10 +2,14 @@ class Responsibility < ApplicationRecord
   # --------------------------------------------------------------------------
   # Enums
   # --------------------------------------------------------------------------
-  enum :status, {
-    active: "active",
-    superseded: "superseded"
-  }, prefix: :status
+  enum(
+    :status,
+    {
+      active: "active",
+      superseded: "superseded"
+    },
+    prefix: :status
+  )
 
   # --------------------------------------------------------------------------
   # Associations

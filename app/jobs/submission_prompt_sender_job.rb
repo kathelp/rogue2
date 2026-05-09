@@ -46,9 +46,9 @@ class SubmissionPromptSenderJob < ApplicationJob
 
     FlowEvent.record!(
       event_type: "submission.prompt_sent",
-      tenant:     prompt.tenant,
-      subject:    prompt,
-      payload:    { method: method.presence || "unknown", request_id: prompt.request_id }
+      tenant: prompt.tenant,
+      subject: prompt,
+      payload: {method: method.presence || "unknown", request_id: prompt.request_id}
     )
   end
 

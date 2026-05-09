@@ -7,11 +7,15 @@ class Contact < ApplicationRecord
   # --------------------------------------------------------------------------
   # Enums
   # --------------------------------------------------------------------------
-  enum :classification, {
-    internal_staff: "internal_staff",
-    vendor_user: "vendor_user",
-    unknown: "unknown"
-  }, prefix: :classification
+  enum(
+    :classification,
+    {
+      internal_staff: "internal_staff",
+      vendor_user: "vendor_user",
+      unknown: "unknown"
+    },
+    prefix: :classification
+  )
 
   # --------------------------------------------------------------------------
   # Associations
@@ -20,7 +24,13 @@ class Contact < ApplicationRecord
   belongs_to :vendor, optional: true
 
   has_many :responsibilities, foreign_key: :primary_contact_id, dependent: :nullify, inverse_of: :primary_contact
-  has_many :sourced_as_configured_by, class_name: "Source", foreign_key: :configured_by_contact_id, dependent: :nullify, inverse_of: :configured_by_contact
+  has_many(
+    :sourced_as_configured_by,
+    class_name: "Source",
+    foreign_key: :configured_by_contact_id,
+    dependent: :nullify,
+    inverse_of: :configured_by_contact
+  )
 
   # --------------------------------------------------------------------------
   # Validations
@@ -28,8 +38,8 @@ class Contact < ApplicationRecord
   validates :tenant, presence: true
   validates :email, presence: true
   validates :email_normalized, presence: true
-  validates :classification, presence: true, inclusion: { in: classifications.keys }
-  validates :email_normalized, uniqueness: { scope: :tenant_id }
+  validates :classification, presence: true, inclusion: {in: classifications.keys}
+  validates :email_normalized, uniqueness: {scope: :tenant_id}
 
   # --------------------------------------------------------------------------
   # Callbacks
@@ -39,7 +49,7 @@ class Contact < ApplicationRecord
   # --------------------------------------------------------------------------
   # Scopes
   # --------------------------------------------------------------------------
-  scope :for_tenant, ->(tenant) { where(tenant: tenant) }
+  scope :for_tenant, -> (tenant) { where(tenant: tenant) }
 
   # --------------------------------------------------------------------------
   # Signed ID helpers (per purpose)

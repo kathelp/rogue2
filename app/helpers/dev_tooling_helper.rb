@@ -24,7 +24,7 @@ module DevToolingHelper
     return nil if message.nil?
 
     original_from = Array(message.from).first
-    original_to   = Array(message.to).first
+    original_to = Array(message.to).first
     return nil if original_from.blank? || original_to.blank?
 
     subject = message.subject.to_s
@@ -34,9 +34,9 @@ module DevToolingHelper
     in_reply_to = msg_id.present? ? "<#{msg_id}>" : nil
 
     new_rails_conductor_inbound_email_url(
-      from:        original_to,
-      to:          original_from,
-      subject:     subject,
+      from: original_to,
+      to: original_from,
+      subject: subject,
       in_reply_to: in_reply_to
     )
   end

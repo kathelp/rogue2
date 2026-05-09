@@ -24,7 +24,14 @@ class FlowEvent < ApplicationRecord
   #     actor: nil,
   #     payload: { ip: request.remote_ip }
   #   )
-  def self.record!(event_type:, tenant: Current.tenant, actor: nil, subject: nil, payload: {}, occurred_at: Time.current)
+  def self.record!(
+    event_type:,
+    tenant: Current.tenant,
+    actor: nil,
+    subject: nil,
+    payload: {},
+    occurred_at: Time.current
+  )
     create!(
       event_type: event_type,
       tenant: tenant,

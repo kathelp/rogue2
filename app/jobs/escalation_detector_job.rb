@@ -30,20 +30,20 @@ class EscalationDetectorJob < ApplicationJob
 
     FlowEvent.record!(
       event_type: "escalation.#{action.severity}",
-      tenant:     prompt.tenant,
-      subject:    prompt,
-      payload:    action.payload.merge(
-        severity:        action.severity.to_s,
+      tenant: prompt.tenant,
+      subject: prompt,
+      payload: action.payload.merge(
+        severity: action.severity.to_s,
         recipient_email: action.recipient_email
       )
     )
 
     EscalationMailer
       .with(
-        prompt:    prompt,
-        severity:  action.severity,
+        prompt: prompt,
+        severity: action.severity,
         recipient: action.recipient_email,
-        payload:   action.payload
+        payload: action.payload
       )
       .escalation_email
       .deliver_later

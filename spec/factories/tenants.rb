@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory :tenant do
+  factory(:tenant) do
     sequence(:dealership_name) { |n| "Smith Toyota #{n}" }
     gm_name { "Jane Smith" }
     sequence(:gm_email) { |n| "jane#{n}@smithtoyota.com" }
@@ -9,12 +9,12 @@ FactoryBot.define do
     time_zone { "America/New_York" }
     question_catalog_version { 1 }
 
-    trait :confirmed do
+    trait(:confirmed) do
       status { "confirmed" }
       confirmed_at { 1.day.ago }
     end
 
-    trait :active do
+    trait(:active) do
       status { "active" }
       confirmed_at { 7.days.ago }
     end

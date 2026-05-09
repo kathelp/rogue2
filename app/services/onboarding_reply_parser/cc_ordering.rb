@@ -2,6 +2,9 @@
 # This stub satisfies Zeitwerk's file-to-constant mapping requirement.
 # rubocop:disable Lint/EmptyClass
 class OnboardingReplyParser
-  module CcOrdering; end unless const_defined?(:CcOrdering, false)
+  unless const_defined?(:CcOrdering, false)
+    module CcOrdering
+    end
+  end
 end
 # rubocop:enable Lint/EmptyClass

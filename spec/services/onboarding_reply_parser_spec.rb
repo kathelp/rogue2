@@ -2,95 +2,101 @@ require "rails_helper"
 
 RSpec.describe OnboardingReplyParser, type: :service do
   let(:tenant) do
-    create(:tenant,
-           dealership_name: "Smith Toyota",
-           gm_email:        "jane@smithtoyota.com")
+    create(
+      :tenant,
+      dealership_name: "Smith Toyota",
+      gm_email: "jane@smithtoyota.com"
+    )
   end
+
   let(:question) do
-    create(:tenant_question,
-           tenant:                tenant,
-           key:                   "marketing_strategy",
-           prompt:                "Who controls your marketing strategy?",
-           outbound_message_id:   "abc123@inbound.rogue.example")
+    create(
+      :tenant_question,
+      tenant: tenant,
+      key: "marketing_strategy",
+      prompt: "Who controls your marketing strategy?",
+      outbound_message_id: "abc123@inbound.rogue.example"
+    )
   end
 
   # Helper: build a minimal Mail::Message that looks like a reply to the question
   def build_mail(from:, cc: nil, body:, in_reply_to: nil, content_type: "text/plain")
     msg = Mail.new
-    msg.from    = from
-    msg.to      = "onboarding+#{tenant.onboarding_token}@inbound.rogue.example"
-    msg.cc      = cc if cc.present?
+    msg.from = from
+    msg.to = "onboarding+#{tenant.onboarding_token}@inbound.rogue.example"
+    msg.cc = cc if cc.present?
     msg.subject = "Re: [Smith Toyota Onboarding] Who controls your marketing strategy?"
     msg.in_reply_to = "<#{in_reply_to}>" if in_reply_to
-    msg.body    = body
+    msg.body = body
     msg.content_type = content_type
     msg
   end
 
   def build_inbound_email(mail_message)
-    raw  = mail_message.to_s
+    raw = mail_message.to_s
     ActionMailbox::InboundEmail.create_and_extract_message_id!(raw)
   end
 
-  before { question } # ensure question exists so thread resolution can work
+  # ensure question exists so thread resolution can work
+  before { question }
 
   # ---------------------------------------------------------------------------
   describe ":assign intent" do
     it "detects assign with one CC — high confidence, ordered lists" do
       mail_msg = build_mail(
-        from:       "jane@smithtoyota.com",
-        cc:         "alex@smithtoyota.com",
-        body:       "That's Alex, our CMO.",
+        from: "jane@smithtoyota.com",
+        cc: "alex@smithtoyota.com",
+        body: "That's Alex, our CMO.",
         in_reply_to: "abc123@inbound.rogue.example"
       )
       ie = build_inbound_email(mail_msg)
       result = described_class.call(inbound_email: ie, tenant: tenant)
 
-      expect(result.intent).to eq(:assign)
-      expect(result.primary_email).to eq("alex@smithtoyota.com")
-      expect(result.fallback_emails).to eq([])
-      expect(result.confidence).to eq(:high)
+      expect(result.intent).to(eq(:assign))
+      expect(result.primary_email).to(eq("alex@smithtoyota.com"))
+      expect(result.fallback_emails).to(eq([]))
+      expect(result.confidence).to(eq(:high))
     end
 
     it "detects assign with three CCs — preserves wire order" do
       mail_msg = build_mail(
-        from:       "jane@smithtoyota.com",
-        cc:         "alex@smithtoyota.com, taylor@smithtoyota.com, casey@smithtoyota.com",
-        body:       "These three handle it.",
+        from: "jane@smithtoyota.com",
+        cc: "alex@smithtoyota.com, taylor@smithtoyota.com, casey@smithtoyota.com",
+        body: "These three handle it.",
         in_reply_to: "abc123@inbound.rogue.example"
       )
       ie = build_inbound_email(mail_msg)
       result = described_class.call(inbound_email: ie, tenant: tenant)
 
-      expect(result.intent).to eq(:assign)
-      expect(result.primary_email).to eq("alex@smithtoyota.com")
-      expect(result.fallback_emails).to eq([ "taylor@smithtoyota.com", "casey@smithtoyota.com" ])
+      expect(result.intent).to(eq(:assign))
+      expect(result.primary_email).to(eq("alex@smithtoyota.com"))
+      expect(result.fallback_emails).to(eq(["taylor@smithtoyota.com", "casey@smithtoyota.com"]))
     end
 
     it "resolves the question via In-Reply-To" do
       mail_msg = build_mail(
-        from:       "jane@smithtoyota.com",
-        cc:         "alex@smithtoyota.com",
-        body:       "Alex handles this.",
+        from: "jane@smithtoyota.com",
+        cc: "alex@smithtoyota.com",
+        body: "Alex handles this.",
         in_reply_to: "abc123@inbound.rogue.example"
       )
       ie = build_inbound_email(mail_msg)
       result = described_class.call(inbound_email: ie, tenant: tenant)
 
-      expect(result.question).to eq(question)
+      expect(result.question).to(eq(question))
     end
 
     it "warns :question_unresolved when In-Reply-To doesn't match any question" do
       mail_msg = build_mail(
         from: "jane@smithtoyota.com",
-        cc:   "alex@smithtoyota.com",
+        cc: "alex@smithtoyota.com",
         body: "That's Alex.",
         in_reply_to: "no-such-message-id@example.com"
       )
       ie = build_inbound_email(mail_msg)
       result = described_class.call(inbound_email: ie, tenant: tenant)
 
-      expect(result.warnings).to include(:question_unresolved)
+      expect(result.warnings).to(include(:question_unresolved))
     end
   end
 
@@ -105,9 +111,9 @@ RSpec.describe OnboardingReplyParser, type: :service do
       ie = build_inbound_email(mail_msg)
       result = described_class.call(inbound_email: ie, tenant: tenant)
 
-      expect(result.intent).to eq(:self_assign)
-      expect(result.primary_email).to eq("jane@smithtoyota.com")
-      expect(result.confidence).to eq(:high)
+      expect(result.intent).to(eq(:self_assign))
+      expect(result.primary_email).to(eq("jane@smithtoyota.com"))
+      expect(result.confidence).to(eq(:high))
     end
 
     it "detects self-assign when body is 'I'll handle it'" do
@@ -119,8 +125,8 @@ RSpec.describe OnboardingReplyParser, type: :service do
       ie = build_inbound_email(mail_msg)
       result = described_class.call(inbound_email: ie, tenant: tenant)
 
-      expect(result.intent).to eq(:self_assign)
-      expect(result.primary_email).to eq("jane@smithtoyota.com")
+      expect(result.intent).to(eq(:self_assign))
+      expect(result.primary_email).to(eq("jane@smithtoyota.com"))
     end
 
     it "detects self-assign when body is 'me' on its own line" do
@@ -132,7 +138,7 @@ RSpec.describe OnboardingReplyParser, type: :service do
       ie = build_inbound_email(mail_msg)
       result = described_class.call(inbound_email: ie, tenant: tenant)
 
-      expect(result.intent).to eq(:self_assign)
+      expect(result.intent).to(eq(:self_assign))
     end
   end
 
@@ -147,8 +153,8 @@ RSpec.describe OnboardingReplyParser, type: :service do
       ie = build_inbound_email(mail_msg)
       result = described_class.call(inbound_email: ie, tenant: tenant)
 
-      expect(result.intent).to eq(:skip)
-      expect(result.confidence).to eq(:high)
+      expect(result.intent).to(eq(:skip))
+      expect(result.confidence).to(eq(:high))
     end
 
     it "detects skip with trailing punctuation" do
@@ -160,7 +166,7 @@ RSpec.describe OnboardingReplyParser, type: :service do
       ie = build_inbound_email(mail_msg)
       result = described_class.call(inbound_email: ie, tenant: tenant)
 
-      expect(result.intent).to eq(:skip)
+      expect(result.intent).to(eq(:skip))
     end
 
     it "detects skip when it appears on its own line with prose around it" do
@@ -173,7 +179,7 @@ RSpec.describe OnboardingReplyParser, type: :service do
       ie = build_inbound_email(mail_msg)
       result = described_class.call(inbound_email: ie, tenant: tenant)
 
-      expect(result.intent).to eq(:skip)
+      expect(result.intent).to(eq(:skip))
     end
 
     it "does NOT treat 'skipping this for now' as skip (word inside phrase)" do
@@ -185,7 +191,7 @@ RSpec.describe OnboardingReplyParser, type: :service do
       ie = build_inbound_email(mail_msg)
       result = described_class.call(inbound_email: ie, tenant: tenant)
 
-      expect(result.intent).not_to eq(:skip)
+      expect(result.intent).not_to(eq(:skip))
     end
 
     it "does NOT false-positive on 'skip' inside what was originally a quoted block" do
@@ -199,21 +205,21 @@ RSpec.describe OnboardingReplyParser, type: :service do
       ie = build_inbound_email(mail_msg)
       result = described_class.call(inbound_email: ie, tenant: tenant)
 
-      expect(result.intent).not_to eq(:skip)
+      expect(result.intent).not_to(eq(:skip))
     end
 
     it "emits :skip_with_ccs_present warning when CCs are present alongside skip" do
       mail_msg = build_mail(
-        from:       "jane@smithtoyota.com",
-        cc:         "alex@smithtoyota.com",
-        body:       "skip",
+        from: "jane@smithtoyota.com",
+        cc: "alex@smithtoyota.com",
+        body: "skip",
         in_reply_to: "abc123@inbound.rogue.example"
       )
       ie = build_inbound_email(mail_msg)
       result = described_class.call(inbound_email: ie, tenant: tenant)
 
-      expect(result.intent).to eq(:skip)
-      expect(result.warnings).to include(:skip_with_ccs_present)
+      expect(result.intent).to(eq(:skip))
+      expect(result.warnings).to(include(:skip_with_ccs_present))
     end
   end
 
@@ -228,7 +234,7 @@ RSpec.describe OnboardingReplyParser, type: :service do
       ie = build_inbound_email(mail_msg)
       result = described_class.call(inbound_email: ie, tenant: tenant)
 
-      expect(result.intent).to eq(:unparseable)
+      expect(result.intent).to(eq(:unparseable))
     end
 
     it "marks 'sounds good' with no CCs as unparseable" do
@@ -240,7 +246,7 @@ RSpec.describe OnboardingReplyParser, type: :service do
       ie = build_inbound_email(mail_msg)
       result = described_class.call(inbound_email: ie, tenant: tenant)
 
-      expect(result.intent).to eq(:unparseable)
+      expect(result.intent).to(eq(:unparseable))
     end
   end
 
@@ -255,7 +261,7 @@ RSpec.describe OnboardingReplyParser, type: :service do
       ie = build_inbound_email(mail_msg)
       result = described_class.call(inbound_email: ie, tenant: tenant)
 
-      expect(result.intent).to eq(:clarification_response)
+      expect(result.intent).to(eq(:clarification_response))
     end
 
     it "classifies 'vendor: Acme Corp' as clarification_response" do
@@ -267,7 +273,7 @@ RSpec.describe OnboardingReplyParser, type: :service do
       ie = build_inbound_email(mail_msg)
       result = described_class.call(inbound_email: ie, tenant: tenant)
 
-      expect(result.intent).to eq(:clarification_response)
+      expect(result.intent).to(eq(:clarification_response))
     end
   end
 
@@ -275,19 +281,19 @@ RSpec.describe OnboardingReplyParser, type: :service do
   describe "attachment handling" do
     it "emits :has_attachments warning but does not affect intent when CCs present" do
       mail_msg = build_mail(
-        from:       "jane@smithtoyota.com",
-        cc:         "alex@smithtoyota.com",
-        body:       "Here's the info.",
+        from: "jane@smithtoyota.com",
+        cc: "alex@smithtoyota.com",
+        body: "Here's the info.",
         in_reply_to: "abc123@inbound.rogue.example"
       )
       # Attach a fake file
-      mail_msg.add_file filename: "org_chart.pdf", content: "PDF content"
+      mail_msg.add_file(filename: "org_chart.pdf", content: "PDF content")
 
       ie = build_inbound_email(mail_msg)
       result = described_class.call(inbound_email: ie, tenant: tenant)
 
-      expect(result.intent).to eq(:assign)
-      expect(result.warnings).to include(:has_attachments)
+      expect(result.intent).to(eq(:assign))
+      expect(result.warnings).to(include(:has_attachments))
     end
   end
 
@@ -297,14 +303,14 @@ RSpec.describe OnboardingReplyParser, type: :service do
       long_body = "a" * 10_000
       mail_msg = build_mail(
         from: "jane@smithtoyota.com",
-        cc:   "alex@smithtoyota.com",
+        cc: "alex@smithtoyota.com",
         body: long_body,
         in_reply_to: "abc123@inbound.rogue.example"
       )
       ie = build_inbound_email(mail_msg)
       result = described_class.call(inbound_email: ie, tenant: tenant)
 
-      expect(result.raw_excerpt.bytesize).to be <= 4_096
+      expect(result.raw_excerpt.bytesize).to(be <= 4_096)
     end
   end
 end

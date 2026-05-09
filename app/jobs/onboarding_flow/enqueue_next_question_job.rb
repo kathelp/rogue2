@@ -20,10 +20,11 @@ class OnboardingFlow::EnqueueNextQuestionJob < ApplicationJob
     tenant = Tenant.find_by(id: tenant_id)
     return unless tenant
 
-    question = tenant.tenant_questions
-                     .where(status: "pending")
-                     .order(:position)
-                     .first
+    question = tenant
+      .tenant_questions
+      .where(status: "pending")
+      .order(:position)
+      .first
     return if question.nil?
 
     effective_wait_hours = wait_hours || tenant.next_question_delay_hours
@@ -32,9 +33,9 @@ class OnboardingFlow::EnqueueNextQuestionJob < ApplicationJob
     message_id = generate_message_id(tenant, question)
 
     # Compute delivery time: wait_hours + business-hours envelope.
-    target     = Time.current + effective_wait_hours.hours
+    target = Time.current + effective_wait_hours.hours
     deliver_at = OnboardingFlow::Scheduling.next_business_window(
-      after:     target,
+      after: target,
       time_zone: tenant.time_zone
     )
 
@@ -45,16 +46,16 @@ class OnboardingFlow::EnqueueNextQuestionJob < ApplicationJob
 
     # Persist tracking state on the question row.
     question.update!(
-      status:              "sent",
-      sent_at:             deliver_at,
+      status: "sent",
+      sent_at: deliver_at,
       outbound_message_id: message_id
     )
 
     FlowEvent.record!(
       event_type: "question.sent",
-      tenant:     tenant,
-      subject:    question,
-      payload:    { message_id: message_id, deliver_at: deliver_at.iso8601 }
+      tenant: tenant,
+      subject: question,
+      payload: {message_id: message_id, deliver_at: deliver_at.iso8601}
     )
   end
 

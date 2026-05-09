@@ -2,11 +2,16 @@ class Source < ApplicationRecord
   # --------------------------------------------------------------------------
   # Enums
   # --------------------------------------------------------------------------
-  enum :submission_method, {
-    form: "form",
-    csv: "csv",
-    api_post: "api_post"
-  }, prefix: :submission_method, allow_nil: true
+  enum(
+    :submission_method,
+    {
+      form: "form",
+      csv: "csv",
+      api_post: "api_post"
+    },
+    prefix: :submission_method,
+    allow_nil: true
+  )
 
   # --------------------------------------------------------------------------
   # Associations
@@ -29,5 +34,5 @@ class Source < ApplicationRecord
   validates :tenant, presence: true
   validates :domain, presence: true
   validates :responsibility_key, presence: true
-  validates :responsibility_key, uniqueness: { scope: %i[tenant_id domain] }
+  validates :responsibility_key, uniqueness: {scope: %i[tenant_id domain]}
 end

@@ -3,12 +3,12 @@ class Onboarding::ConfirmationsController < ApplicationController
     @tenant = Tenant.find_by_gm_confirm_signed_id(params[:signed_id])
 
     if @tenant.nil?
-      render :invalid, status: :not_found
+      render(:invalid, status: :not_found)
       return
     end
 
     if @tenant.status_confirmed? || @tenant.status_active?
-      render :already_confirmed
+      render(:already_confirmed)
       return
     end
 
@@ -19,9 +19,9 @@ class Onboarding::ConfirmationsController < ApplicationController
         subject: @tenant
       )
       OnboardingFlow::EnqueueFirstQuestionJob.perform_later(tenant_id: @tenant.id)
-      render :show
+      render(:show)
     else
-      render :invalid, status: :unprocessable_entity
+      render(:invalid, status: :unprocessable_entity)
     end
   end
 
@@ -39,7 +39,7 @@ class Onboarding::ConfirmationsController < ApplicationController
       )
     end
     # Always render the same response — anti-enumeration.
-    render :resend_sent
+    render(:resend_sent)
   end
 
   private

@@ -8,5 +8,5 @@ class WeeklyDigestDelivery < ApplicationRecord
   validates :tenant, presence: true
   validates :week_starting, presence: true
   validates :delivered_at, presence: true
-  validates :week_starting, uniqueness: { scope: :tenant_id }
+  validates :week_starting, uniqueness: {scope: :tenant_id}
 end

@@ -12,7 +12,7 @@ module Rogue
             prompt: "Who controls your marketing strategy at <%= dealership_name %>?",
             default_cadence: "monthly",
             metrics: [
-              { key: "strategy_summary", cadence: "monthly" }
+              {key: "strategy_summary", cadence: "monthly"}
             ]
           },
           {
@@ -21,7 +21,7 @@ module Rogue
             prompt: "Who is responsible for reviewing and approving marketing invoices at <%= dealership_name %>?",
             default_cadence: "monthly",
             metrics: [
-              { key: "invoice_review", cadence: "monthly" }
+              {key: "invoice_review", cadence: "monthly"}
             ]
           },
           {
@@ -30,8 +30,8 @@ module Rogue
             prompt: "Who manages your dealer website at <%= dealership_name %>?",
             default_cadence: "monthly",
             metrics: [
-              { key: "website_traffic", cadence: "monthly" },
-              { key: "website_leads", cadence: "monthly" }
+              {key: "website_traffic", cadence: "monthly"},
+              {key: "website_leads", cadence: "monthly"}
             ]
           },
           {
@@ -40,9 +40,9 @@ module Rogue
             prompt: "Who manages your paid search and social advertising at <%= dealership_name %>?",
             default_cadence: "monthly",
             metrics: [
-              { key: "paid_search_spend", cadence: "monthly" },
-              { key: "paid_search_leads", cadence: "monthly" },
-              { key: "social_spend", cadence: "monthly" }
+              {key: "paid_search_spend", cadence: "monthly"},
+              {key: "paid_search_leads", cadence: "monthly"},
+              {key: "social_spend", cadence: "monthly"}
             ]
           },
           {
@@ -51,7 +51,7 @@ module Rogue
             prompt: "Who oversees OEM marketing compliance and co-op programs at <%= dealership_name %>?",
             default_cadence: "quarterly",
             metrics: [
-              { key: "oem_compliance_status", cadence: "quarterly" }
+              {key: "oem_compliance_status", cadence: "quarterly"}
             ]
           },
           {
@@ -60,7 +60,7 @@ module Rogue
             prompt: "Who is responsible for tracking and attributing lead sources at <%= dealership_name %>?",
             default_cadence: "monthly",
             metrics: [
-              { key: "lead_source_report", cadence: "monthly" }
+              {key: "lead_source_report", cadence: "monthly"}
             ]
           }
         ].freeze
@@ -81,17 +81,18 @@ module Rogue
               tenant.dealership_name
             )
 
-            TenantQuestion.find_or_create_by!(
-              tenant: tenant,
-              key: question_attrs[:key],
-              catalog_version: VERSION
-            ) do |tq|
-              tq.domain = DOMAIN
-              tq.position = question_attrs[:position]
-              tq.prompt = rendered_prompt
-              tq.default_cadence = question_attrs[:default_cadence]
-              tq.status = :pending
-            end
+            TenantQuestion
+              .find_or_create_by!(
+                tenant: tenant,
+                key: question_attrs[:key],
+                catalog_version: VERSION
+              ) do |tq|
+                tq.domain = DOMAIN
+                tq.position = question_attrs[:position]
+                tq.prompt = rendered_prompt
+                tq.default_cadence = question_attrs[:default_cadence]
+                tq.status = :pending
+              end
           end
         end
       end

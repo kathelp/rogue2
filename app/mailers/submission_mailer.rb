@@ -8,20 +8,20 @@ class SubmissionMailer < ApplicationMailer
   #
   # params[:prompt] - SubmissionPrompt
   def prompt_email
-    @prompt    = params[:prompt]
-    @tenant    = @prompt.tenant
-    @request   = @prompt.request
-    @source    = @request.source
-    @contact   = @source.configured_by_contact
-    @form_url  = submission_form_url(
+    @prompt = params[:prompt]
+    @tenant = @prompt.tenant
+    @request = @prompt.request
+    @source = @request.source
+    @contact = @source.configured_by_contact
+    @form_url = submission_form_url(
       signed_id: @prompt.submission_form_signed_id(expires_in: 14.days)
     )
 
     mail(
-      to:       @contact.email,
-      from:     onboarding_address(@tenant),
+      to: @contact.email,
+      from: onboarding_address(@tenant),
       reply_to: onboarding_address(@tenant),
-      subject:  prompt_subject
+      subject: prompt_subject
     )
   end
 
@@ -31,16 +31,16 @@ class SubmissionMailer < ApplicationMailer
   #
   # params[:prompt] - SubmissionPrompt
   def adapter_pending_email
-    @prompt   = params[:prompt]
-    @tenant   = @prompt.tenant
-    @request  = @prompt.request
-    @source   = @request.source
-    @contact  = @source.configured_by_contact
-    @method   = @source.submission_method
+    @prompt = params[:prompt]
+    @tenant = @prompt.tenant
+    @request = @prompt.request
+    @source = @request.source
+    @contact = @source.configured_by_contact
+    @method = @source.submission_method
 
     mail(
-      to:      @contact.email,
-      from:    onboarding_address(@tenant),
+      to: @contact.email,
+      from: onboarding_address(@tenant),
       subject: "#{@tenant.dealership_name}: your #{@method.to_s.upcase} adapter is on the way"
     )
   end

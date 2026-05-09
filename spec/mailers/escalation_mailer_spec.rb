@@ -2,192 +2,251 @@ require "rails_helper"
 
 RSpec.describe EscalationMailer, type: :mailer do
   let(:tenant) do
-    create(:tenant, :confirmed,
-           dealership_name: "Smith Toyota", gm_email: "jane@smithtoyota.com",
-           gm_name: "Jane Smith", onboarding_token: "esctok9999")
+    create(
+      :tenant,
+      :confirmed,
+      dealership_name: "Smith Toyota",
+      gm_email: "jane@smithtoyota.com",
+      gm_name: "Jane Smith",
+      onboarding_token: "esctok9999"
+    )
   end
+
   let(:contact) { create(:contact, tenant: tenant, email: "alex@smithtoyota.com") }
   let(:source) do
-    create(:source, :configured, tenant: tenant,
-           responsibility_key: "marketing_strategy", configured_by_contact: contact)
+    create(
+      :source,
+      :configured,
+      tenant: tenant,
+      responsibility_key: "marketing_strategy",
+      configured_by_contact: contact
+    )
   end
+
   let(:request_record) do
-    create(:request, tenant: tenant, source: source,
-           metric_key: "strategy_summary", cadence: "monthly")
+    create(
+      :request,
+      tenant: tenant,
+      source: source,
+      metric_key: "strategy_summary",
+      cadence: "monthly"
+    )
   end
+
   let(:prompt) do
-    create(:submission_prompt, tenant: tenant, request: request_record,
-           status: "sent", scheduled_for: Time.zone.parse("2026-05-01 09:00:00"))
+    create(
+      :submission_prompt,
+      tenant: tenant,
+      request: request_record,
+      status: "sent",
+      scheduled_for: Time.zone.parse("2026-05-01 09:00:00")
+    )
   end
 
   describe "#escalation_email" do
-    context "severity: :due_soon" do
+    context("severity: :due_soon") do
       let(:mail) do
-        described_class.with(
-          prompt:    prompt,
-          severity:  :due_soon,
-          recipient: "alex@smithtoyota.com",
-          payload:   { period_end: "2026-05-31" }
-        ).escalation_email
+        described_class
+          .with(
+            prompt: prompt,
+            severity: :due_soon,
+            recipient: "alex@smithtoyota.com",
+            payload: {period_end: "2026-05-31"}
+          )
+          .escalation_email
       end
 
       it "sends to the recipient" do
-        expect(mail.to).to eq([ "alex@smithtoyota.com" ])
+        expect(mail.to).to(eq(["alex@smithtoyota.com"]))
       end
 
       it "subject mentions due-soon framing" do
-        expect(mail.subject).to match(/due/i)
+        expect(mail.subject).to(match(/due/i))
       end
 
       it "html body includes the magic-link" do
-        expect(mail.html_part.body.decoded).to match(%r{/submissions/[A-Za-z0-9._\-]+})
+        expect(mail.html_part.body.decoded).to(match(%r{/submissions/[A-Za-z0-9._\-]+}))
       end
 
       it "is from the per-tenant onboarding address" do
-        expect(mail.from.first).to include("onboarding+esctok9999@inbound.rogue.example")
+        expect(mail.from.first).to(include("onboarding+esctok9999@inbound.rogue.example"))
       end
     end
 
-    context "severity: :overdue" do
+    context("severity: :overdue") do
       let(:mail) do
-        described_class.with(
-          prompt: prompt, severity: :overdue, recipient: "alex@smithtoyota.com",
-          payload: {}
-        ).escalation_email
+        described_class
+          .with(
+            prompt: prompt,
+            severity: :overdue,
+            recipient: "alex@smithtoyota.com",
+            payload: {}
+          )
+          .escalation_email
       end
 
       it "subject says overdue" do
-        expect(mail.subject).to match(/overdue/i)
+        expect(mail.subject).to(match(/overdue/i))
       end
     end
 
-    context "severity: :fallback_fanout" do
+    context("severity: :fallback_fanout") do
       let(:mail) do
-        described_class.with(
-          prompt: prompt, severity: :fallback_fanout, recipient: "taylor@smithtoyota.com",
-          payload: { fallback_index: 0, fallback_email: "taylor@smithtoyota.com" }
-        ).escalation_email
+        described_class
+          .with(
+            prompt: prompt,
+            severity: :fallback_fanout,
+            recipient: "taylor@smithtoyota.com",
+            payload: {fallback_index: 0, fallback_email: "taylor@smithtoyota.com"}
+          )
+          .escalation_email
       end
 
       it "sends to the fallback recipient" do
-        expect(mail.to).to eq([ "taylor@smithtoyota.com" ])
+        expect(mail.to).to(eq(["taylor@smithtoyota.com"]))
       end
 
       it "subject signals overdue framing (same as overdue)" do
-        expect(mail.subject).to match(/overdue/i)
+        expect(mail.subject).to(match(/overdue/i))
       end
     end
 
-    context "severity: :gm_nudge" do
+    context("severity: :gm_nudge") do
       let(:mail) do
-        described_class.with(
-          prompt:    prompt,
-          severity:  :gm_nudge,
-          recipient: "jane@smithtoyota.com",
-          payload:   {
-            period_end:     "2026-05-31",
-            fallback_chain: [ "taylor@smithtoyota.com" ],
-            primary_email:  "alex@smithtoyota.com"
-          }
-        ).escalation_email
+        described_class
+          .with(
+            prompt: prompt,
+            severity: :gm_nudge,
+            recipient: "jane@smithtoyota.com",
+            payload: {
+              period_end: "2026-05-31",
+              fallback_chain: ["taylor@smithtoyota.com"],
+              primary_email: "alex@smithtoyota.com"
+            }
+          )
+          .escalation_email
       end
 
       it "sends to the GM" do
-        expect(mail.to).to eq([ "jane@smithtoyota.com" ])
+        expect(mail.to).to(eq(["jane@smithtoyota.com"]))
       end
 
       it "CCs the full responsibility chain (primary + fallbacks) so the GM can reply-all" do
-        expect(mail.cc).to contain_exactly("alex@smithtoyota.com", "taylor@smithtoyota.com")
+        expect(mail.cc).to(contain_exactly("alex@smithtoyota.com", "taylor@smithtoyota.com"))
       end
 
       it "filters the GM (recipient) out of the CC list defensively" do
-        m = described_class.with(
-          prompt:    prompt,
-          severity:  :gm_nudge,
-          recipient: "jane@smithtoyota.com",
-          payload:   {
-            primary_email:  "alex@smithtoyota.com",
-            fallback_chain: [ "jane@smithtoyota.com", "taylor@smithtoyota.com" ]
-          }
-        ).escalation_email
-        expect(m.cc).to contain_exactly("alex@smithtoyota.com", "taylor@smithtoyota.com")
+        m = described_class
+          .with(
+            prompt: prompt,
+            severity: :gm_nudge,
+            recipient: "jane@smithtoyota.com",
+            payload: {
+              primary_email: "alex@smithtoyota.com",
+              fallback_chain: ["jane@smithtoyota.com", "taylor@smithtoyota.com"]
+            }
+          )
+          .escalation_email
+        expect(m.cc).to(contain_exactly("alex@smithtoyota.com", "taylor@smithtoyota.com"))
       end
 
       it "dedups overlapping primary and fallback addresses" do
-        m = described_class.with(
-          prompt:    prompt,
-          severity:  :gm_nudge,
-          recipient: "jane@smithtoyota.com",
-          payload:   {
-            primary_email:  "alex@smithtoyota.com",
-            fallback_chain: [ "alex@smithtoyota.com", "taylor@smithtoyota.com" ]
-          }
-        ).escalation_email
-        expect(m.cc).to contain_exactly("alex@smithtoyota.com", "taylor@smithtoyota.com")
+        m = described_class
+          .with(
+            prompt: prompt,
+            severity: :gm_nudge,
+            recipient: "jane@smithtoyota.com",
+            payload: {
+              primary_email: "alex@smithtoyota.com",
+              fallback_chain: ["alex@smithtoyota.com", "taylor@smithtoyota.com"]
+            }
+          )
+          .escalation_email
+        expect(m.cc).to(contain_exactly("alex@smithtoyota.com", "taylor@smithtoyota.com"))
       end
 
       it "tolerates a missing primary_email payload field" do
-        m = described_class.with(
-          prompt:    prompt,
-          severity:  :gm_nudge,
-          recipient: "jane@smithtoyota.com",
-          payload:   { fallback_chain: [ "taylor@smithtoyota.com" ] }
-        ).escalation_email
-        expect(m.cc).to contain_exactly("taylor@smithtoyota.com")
+        m = described_class
+          .with(
+            prompt: prompt,
+            severity: :gm_nudge,
+            recipient: "jane@smithtoyota.com",
+            payload: {fallback_chain: ["taylor@smithtoyota.com"]}
+          )
+          .escalation_email
+        expect(m.cc).to(contain_exactly("taylor@smithtoyota.com"))
       end
 
       it "subject is the still-no-data nudge" do
-        expect(mail.subject).to match(/still no/i)
+        expect(mail.subject).to(match(/still no/i))
       end
 
       it "body lists the fallback chain that was pinged" do
-        expect(mail.html_part.body.decoded).to include("taylor@smithtoyota.com")
+        expect(mail.html_part.body.decoded).to(include("taylor@smithtoyota.com"))
       end
     end
 
-    context "non-gm_nudge severities never set CC" do
+    context("non-gm_nudge severities never set CC") do
       it "due_soon has no CC" do
-        m = described_class.with(prompt: prompt, severity: :due_soon, recipient: "alex@smithtoyota.com", payload: {}).escalation_email
-        expect(m.cc).to be_blank
+        m = described_class
+          .with(prompt: prompt, severity: :due_soon, recipient: "alex@smithtoyota.com", payload: {})
+          .escalation_email
+        expect(m.cc).to(be_blank)
       end
 
       it "overdue has no CC" do
-        m = described_class.with(prompt: prompt, severity: :overdue, recipient: "alex@smithtoyota.com", payload: {}).escalation_email
-        expect(m.cc).to be_blank
+        m = described_class
+          .with(prompt: prompt, severity: :overdue, recipient: "alex@smithtoyota.com", payload: {})
+          .escalation_email
+        expect(m.cc).to(be_blank)
       end
 
       it "fallback_fanout has no CC" do
-        m = described_class.with(prompt: prompt, severity: :fallback_fanout, recipient: "taylor@smithtoyota.com",
-                                 payload: { fallback_index: 0, fallback_email: "taylor@smithtoyota.com" }).escalation_email
-        expect(m.cc).to be_blank
+        m = described_class
+          .with(
+            prompt: prompt,
+            severity: :fallback_fanout,
+            recipient: "taylor@smithtoyota.com",
+            payload: {fallback_index: 0, fallback_email: "taylor@smithtoyota.com"}
+          )
+          .escalation_email
+        expect(m.cc).to(be_blank)
       end
     end
 
     # FEAT-005 — per-severity body partials with distinctive headlines
     describe "per-severity headline differentiation" do
       def render_for(severity, recipient = "alex@smithtoyota.com", payload = {})
-        described_class.with(prompt: prompt, severity: severity, recipient: recipient, payload: payload).escalation_email
+        described_class
+          .with(prompt: prompt, severity: severity, recipient: recipient, payload: payload)
+          .escalation_email
       end
 
       it "due_soon body uses friendly heads-up phrasing" do
         body = render_for(:due_soon).html_part.body.decoded
-        expect(body).to match(/heads up|due in|few days/i)
+        expect(body).to(match(/heads up|due in|few days/i))
       end
 
       it "overdue body uses firmer phrasing" do
         body = render_for(:overdue).html_part.body.decoded
-        expect(body).to match(/overdue|hasn't come in/i)
+        expect(body).to(match(/overdue|hasn't come in/i))
       end
 
       it "fallback_fanout body names the fallback recipient and points to the primary contact" do
-        body = render_for(:fallback_fanout, "taylor@smithtoyota.com", { fallback_index: 0 }).html_part.body.decoded
-        expect(body).to match(/overdue|stepping in|fallback/i)
+        body = render_for(:fallback_fanout, "taylor@smithtoyota.com", {fallback_index: 0}).html_part.body.decoded
+        expect(body).to(match(/overdue|stepping in|fallback/i))
       end
 
       it "gm_nudge body uses executive escalation tone" do
-        body = render_for(:gm_nudge, "jane@smithtoyota.com",
-                          { fallback_chain: [ "taylor@smithtoyota.com" ] }).html_part.body.decoded
-        expect(body).to match(/still no|haven't gotten/i)
+        body = render_for(
+          :gm_nudge,
+          "jane@smithtoyota.com",
+          {fallback_chain: ["taylor@smithtoyota.com"]}
+        )
+          .html_part
+          .body
+          .decoded
+        expect(body).to(match(/still no|haven't gotten/i))
       end
     end
   end
