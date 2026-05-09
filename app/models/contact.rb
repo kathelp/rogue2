@@ -3,6 +3,7 @@ class Contact < ApplicationRecord
   # Encryption
   # --------------------------------------------------------------------------
   encrypts :email, deterministic: true
+  encrypts :phone
 
   # --------------------------------------------------------------------------
   # Enums
@@ -45,11 +46,31 @@ class Contact < ApplicationRecord
   # Callbacks
   # --------------------------------------------------------------------------
   before_validation :normalize_email, on: %i[create update]
+  before_validation :nullify_blank_identity_fields
 
   # --------------------------------------------------------------------------
   # Scopes
   # --------------------------------------------------------------------------
   scope :for_tenant, -> (tenant) { where(tenant: tenant) }
+  scope(
+    :verified,
+    -> {
+      where.not(first_name: nil).where.not(last_name: nil).where.not(phone: nil)
+    }
+  )
+  scope(
+    :unverified,
+    -> {
+      where(first_name: nil).or(where(last_name: nil)).or(where(phone: nil))
+    }
+  )
+
+  # --------------------------------------------------------------------------
+  # Verification — derived state from field presence (TASK-008 / FEAT-006)
+  # --------------------------------------------------------------------------
+  def verified?
+    first_name.present? && last_name.present? && phone.present?
+  end
 
   # --------------------------------------------------------------------------
   # Signed ID helpers (per purpose)
@@ -84,5 +105,11 @@ class Contact < ApplicationRecord
     normalized = email.downcase.strip
     self.email = normalized
     self.email_normalized = normalized
+  end
+
+  def nullify_blank_identity_fields
+    self.first_name = nil if first_name.blank?
+    self.last_name = nil if last_name.blank?
+    self.phone = nil if phone.blank?
   end
 end
