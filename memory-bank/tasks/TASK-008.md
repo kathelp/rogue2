@@ -216,7 +216,7 @@ What happens if the contact ignores the verification invitation?
 
 ### Active phases (this cycle)
 
-- [ ] **Phase 1: Schema + Contact model**
+- [x] **Phase 1: Schema + Contact model** — COMPLETE 2026-05-09 (commit af9c745). 401 specs pass; rubyfmt --check exits 0 globally.
   - Migration `RemoveDisplayNameFromContactsAndAddIdentityFields`: drops `display_name` (specify column type on `remove_column` so the migration is reversible); adds `first_name :string`, `last_name :string`, `phone :string` (all nullable — an unverified contact is a valid record).
   - `Contact#verified?` predicate (`first_name.present? && last_name.present? && phone.present?`); add `:verified` / `:unverified` scopes.
   - `encrypts :phone` (NON-deterministic per architecture doc; names stay unencrypted at MVP).
@@ -283,9 +283,10 @@ All three phases are REQUIRED before `/rai-build` can start. Run them in this or
 
 ## Execution State
 
-**Build Status**: IDLE
-**Current Phase**: CREATIVE → BUILD
-**Last Completed**: 2026-05-09 — All three creative phases complete; Implementation Roadmap and Test Strategy reconciled with locked decisions.
+**Build Status**: IDLE (paused for human review between phases)
+**Current Phase**: BUILD
+**Phase Number**: 1 of 3 active backend phases
+**Last Completed**: 2026-05-09 — Phase 1 (schema + Contact model) committed as af9c745. 401 specs green, rubyfmt --check passes globally.
 **Can Resume**: NO
 
 ### Active Sub-Agents
@@ -326,3 +327,4 @@ All three phases are REQUIRED before `/rai-build` can start. Run them in this or
 - /rai-creative Step 4: All three output files validated (memory-bank/creative/TASK-008-*.md)
 - /rai-creative Step 5: Implementation Roadmap reconciled with locked decisions (Phase 5 dropped, Phase 2 reframed as setup-walkthrough extension, Phase 6 inline-CSS not Tailwind). Test Strategy refined to 12–16 tests with concrete file targets.
 - 2026-05-09 user directive: scope cut — all FE work deferred to a separate design pass. Roadmap refactored to 3 active backend phases (schema/model, PhoneNormalizer, cascade gating); 3 deferred FE phases tracked in Live-Dogfood-Pending Tracker. Test Strategy reduced to 8–11 backend-only tests.
+- /rai-build Phase 1 (2026-05-09): branch `feature/FEAT-006-ccd-contact-self-verification` created from main; planning + creative committed (6a12ddb); migration `RemoveDisplayNameFromContactsAndAddIdentityFields` ran (drop `display_name`, add `first_name`/`last_name`/`phone`); Contact model gained `encrypts :phone`, `verified?`, `:verified`/`:unverified` scopes, `nullify_blank_identity_fields` callback; factory got `:verified`/`:unverified` traits; 19 model specs added (verified? matrix, scope inverses, phone encryption round-trip, blank-to-nil); 401 total specs green; rubyfmt --check exits 0; phase committed (af9c745). STOPPED for human review.
