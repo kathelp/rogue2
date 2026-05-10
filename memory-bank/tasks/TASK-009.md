@@ -132,7 +132,7 @@ Carried forward from the TASK-008 spec, deferred at archive:
 
 - [x] **Phase 0: `Contacts::PhoneNormalizer::Result` struct** — COMPLETE 2026-05-10. Refactored `Contacts::PhoneNormalizer.call` to return `Result = Struct.new(:normalized, :valid?, keyword_init: true)`. Implementation matches the architecture doc's prescribed shape exactly (no doc edit needed). 13 specs now assert against the struct (`.normalized` + `.valid?`). Full suite green: 424 examples, 0 failures. `rubyfmt --check` exits 0 globally. No callers existed yet — purely contract-shaping change ahead of Phase 1.
 
-- [ ] **Phase 1: Identity step (controller + view + ancillary view edits)** — implement `identity.html.erb` verbatim per UI/UX Sub-Decision 2; extend `Setup::WalkthroughsController` `template_for_step` (route to `:identity` when unverified) and `update` (params branch on `:contact`, build `@errors`, transact Contact + FlowEvent, redirect to `step=summary` on success). Edit step counters in `summary.html.erb` and `method_picker.html.erb`. Add first-name greeting on `done.html.erb`. Refresh empty-responsibility else-branch on `summary.html.erb` and wrap the Continue link in `<% if @responsibility %>`. Request specs cover happy path, validation errors, re-entry, expired link.
+- [x] **Phase 1: Identity step (controller + view + ancillary view edits)** — COMPLETE 2026-05-10. New `app/views/setup/walkthroughs/identity.html.erb` per UI/UX Sub-Decision 2 (Step 1 of 4, single-column inline-CSS, aria-described errors above each input, phone hint always visible). `Setup::WalkthroughsController` gained `template_for_step` identity route (`return :identity if @contact.unverified?` after the resume short-circuit) and a `handle_identity_update` branch in `update` that builds an `@errors` hash, calls `Contacts::PhoneNormalizer`, and on success transacts `Contact.update! + FlowEvent.record!(event_type: "contact.verified")` and redirects to `step=summary`. Step-counter edits in `summary.html.erb` (now Step 2 of 4) and `method_picker.html.erb` (Step 3 of 4). `done.html.erb` greets by first name. Empty-responsibility branch on `summary.html.erb` refreshed with the "Your details are saved, X" copy and Continue link wrapped in `<% if @responsibility %>`. Added `Contact#unverified?` instance predicate to mirror `verified?`. Updated the existing FEAT-001 system spec (`gm_email_first_onboarding_full_loop_spec.rb`) to walk the identity step (Alex now fills in name + phone before the assignment summary). Spec body: 18 new request specs (33 total in the file, was 15). Full suite: **442 / 442 passing**. `rubyfmt --check` exits 0 globally.
 
 - [ ] **Phase 2: `OnboardingMailer#invitee_setup_email` edits** — subject line update in the mailer; full replacement of `invitee_setup_email.html.erb` and `.text.erb` per UI/UX Sub-Decision 1. Mailer specs extended for new subject + body content. Letter-opener manual eyeball (note in commit body, not in tests).
 
@@ -158,13 +158,13 @@ None — all five resolved in TASK-008's `/rai-creative` (preserved in the three
 
 ## Execution State
 
-**Build Status**: PHASE_COMPLETE (Phase 0)
-**Current Build**: Phase 0: Contacts::PhoneNormalizer::Result struct — COMPLETE
+**Build Status**: PHASE_COMPLETE (Phase 1)
+**Current Build**: Phase 1: Identity step (controller + view + ancillary edits) — COMPLETE
 **Build Started**: 2026-05-10
-**Phase Number**: 0 of 4 (labelled 0,1,2,3); next phase = Phase 1 (identity step controller + view + ancillary edits)
+**Phase Number**: 1 of 4 (labelled 0,1,2,3); next phase = Phase 2 (OnboardingMailer#invitee_setup_email subject + HTML + text per UI/UX Sub-Decision 1)
 **Is Multi-Phase**: YES
 **Current Phase**: BUILD
-**Current Step**: Phase 0 complete; STOPPED for human review before Phase 1
+**Current Step**: Phase 1 complete; STOPPED for human review before Phase 2
 **Step Started**: 2026-05-10
 **Can Resume**: YES
 
@@ -178,3 +178,4 @@ None — all five resolved in TASK-008's `/rai-creative` (preserved in the three
 - 2026-05-10: Branch `feature/FEAT-006-self-verification-fe` created; planning commit c432a1d
 - 2026-05-10: /rai-build TASK-009 invoked — Phase 0 started, lighter route (direct execution)
 - 2026-05-10: Phase 0 — refactored `Contacts::PhoneNormalizer.call` to return `Result = Struct.new(:normalized, :valid?, keyword_init: true)` per architecture doc. Spec rewritten to assert on `.normalized` and `.valid?` (13 examples, was 10 — split the single blank-input it-block into three separate specs for nil/empty/whitespace + added a struct-type assertion). Full suite 424/424 green. `rubyfmt --check` exits 0 globally.
+- 2026-05-10: Phase 1 — implemented identity step. New `identity.html.erb` (UI/UX Sub-Decision 2 verbatim), controller `template_for_step` identity branch + `handle_identity_update` in `update`, three ancillary view edits (summary/method_picker step counters, done first-name greeting, summary empty-responsibility else-branch refresh + Continue gating). Added `Contact#unverified?` instance predicate (mirrors `verified?`). Updated FEAT-001 full-loop system spec to walk the new identity step. 18 new request specs (33 total in `walkthroughs_spec.rb`, was 15). Full suite **442 / 442** green. `rubyfmt --check` exits 0 globally.

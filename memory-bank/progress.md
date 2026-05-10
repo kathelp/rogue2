@@ -178,4 +178,26 @@ Spec rewritten against the struct (`.normalized` + `.valid?`). Net spec count: w
 
 **Build & Quality**: 424 examples, 0 failures. `rubyfmt --check` exits 0 globally.
 
+## TASK-009 — Phase 1: Identity step controller + view + ancillary edits (2026-05-10)
+
+The FE surface for FEAT-006 is now live. CC'd contacts arrive at `/setup/<signed_id>` and now land on a Step 1 of 4 identity form (per UI/UX Sub-Decision 2: single-column inline-CSS, three required fields, aria-described errors above each input, phone hint always visible). On successful PATCH the controller writes `Contact.update! + FlowEvent.record!(event_type: "contact.verified")` atomically and redirects to `step=summary`. Failures rerender with 422, per-field error text + `aria-invalid`, and preserve submitted values (first/last from `@contact.assign_attributes`, raw phone from `@phone_attempt` because the `:phone` column is encrypted non-deterministically and can't accept the pre-normalized string).
+
+Implementation:
+- New `app/views/setup/walkthroughs/identity.html.erb` — verbatim per UI/UX Sub-Decision 2.
+- `Setup::WalkthroughsController` extended: `template_for_step` returns `:identity` when `@contact.unverified?` (after the configured-source resume short-circuit); `update` branches on `params.key?(:contact)` into `handle_identity_update` vs the existing `handle_source_update`.
+- `Contact#unverified?` instance predicate added (`!verified?`) to mirror the existing `verified?` and the `:unverified` scope.
+- View renumbering: `summary.html.erb` → "Step 2 of 4"; `method_picker.html.erb` → "Step 3 of 4".
+- `done.html.erb` greets by first name: `You're set up, <FirstName>.`
+- `summary.html.erb` empty-responsibility else-branch refreshed with "Your details are saved, X" acknowledgment; Continue link wrapped in `<% if @responsibility %>` so post-identity contacts without an active assignment don't see a button that leads to a dead end.
+
+Spec changes:
+- `walkthroughs_spec.rb`: 18 new request specs (33 total, was 15). The existing top-level `let(:contact)` switched to `:verified` trait so the pre-identity tests still exercise the post-identity flow; a new `describe "Identity step (FEAT-006 FE pass)"` block creates an unverified contact for the new flow coverage.
+- Existing FEAT-001 full-loop system spec (`gm_email_first_onboarding_full_loop_spec.rb`) updated to walk the identity step (Alex fills in name + phone before reaching the assignment summary).
+
+Surprises:
+- Rails HTML-escapes the apostrophe in `"can't be blank"` to `&#39;`. First test pass failed on three blank-field assertions matching the un-escaped string. Tightened those assertions to check the `id="<field>-error"` element plus a regex `/Field name.{0,20}blank/` that's agnostic to the entity encoding. Cleaner than escaping the test strings.
+- `Contact` had a `verified?` instance predicate + `:verified`/`:unverified` scopes from TASK-008, but no `unverified?` instance predicate. Added it (one-liner) rather than uglying up the controller with `!@contact.verified?`.
+
+**Build & Quality**: **442 examples, 0 failures** (18 added in this phase). `rubyfmt --check` exits 0 globally.
+
 

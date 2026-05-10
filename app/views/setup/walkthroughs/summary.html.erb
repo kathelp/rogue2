@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
   </head>
   <body style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 640px; margin: 40px auto; padding: 0 20px; color: #222;">
-    <h1 style="font-size: 24px;">Step 1 of 3 — Your assignment</h1>
+    <h1 style="font-size: 24px;">Step 2 of 4 — Your assignment</h1>
     <% if @responsibility %>
       <p>
         <strong><%= @responsibility.tenant.dealership_name %></strong>
@@ -15,14 +15,19 @@
       </p>
       <p>You'll be reminded by email when each submission is due. Nothing to remember.</p>
     <% else %>
-      <p>We don't have an active assignment for you right now. If this is unexpected, please reply to the original email.</p>
+      <p>
+        Your details are saved<%= @contact&.first_name.present? ? ", #{@contact.first_name}" : "" %>.
+        We don't have an active assignment for you right now — if you were expecting one, reply to the original email and we'll sort it out.
+      </p>
     <% end %>
 
-    <p style="margin-top: 32px;">
-      <a href="<%= setup_walkthrough_path(signed_id: params[:signed_id], step: "method") %>"
-         style="display: inline-block; padding: 12px 24px; background: #000; color: #fff; text-decoration: none; border-radius: 4px;">
-        Continue
-      </a>
-    </p>
+    <% if @responsibility %>
+      <p style="margin-top: 32px;">
+        <a href="<%= setup_walkthrough_path(signed_id: params[:signed_id], step: "method") %>"
+           style="display: inline-block; padding: 12px 24px; background: #000; color: #fff; text-decoration: none; border-radius: 4px;">
+          Continue
+        </a>
+      </p>
+    <% end %>
   </body>
 </html>

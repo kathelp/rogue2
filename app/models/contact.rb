@@ -72,6 +72,10 @@ class Contact < ApplicationRecord
     first_name.present? && last_name.present? && phone.present?
   end
 
+  def unverified?
+    !verified?
+  end
+
   # --------------------------------------------------------------------------
   # Signed ID helpers (per purpose)
   # --------------------------------------------------------------------------
