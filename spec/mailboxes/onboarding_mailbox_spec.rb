@@ -93,7 +93,7 @@ RSpec.describe OnboardingMailbox, type: :mailbox do
       # Phase 5: invitee setup email queued to the assigned contact
       setup_mail = ActionMailer::Base.deliveries.find { |m| m.to.include?("alex@smithtoyota.com") }
       expect(setup_mail).not_to(be_nil)
-      expect(setup_mail.subject).to(include("data collection assignment"))
+      expect(setup_mail.subject).to(include("set up your details"))
 
       # Phase 5: Request rows created for the catalog metrics
       expect(Request.where(source: source).count).to(be >= 1)

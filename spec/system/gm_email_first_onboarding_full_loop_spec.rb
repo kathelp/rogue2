@@ -101,7 +101,7 @@ RSpec.describe "GM email-first onboarding full loop", type: :system do
 
     # Two outbound mails should have been queued: in_thread_ack to Jane + invitee_setup_email to Alex
     setup_mail = ActionMailer::Base.deliveries.find { |m|
-      m.to.include?("alex@smithtoyota.com") && m.subject&.include?("data collection assignment")
+      m.to.include?("alex@smithtoyota.com") && m.subject&.include?("set up your details")
     }
     expect(setup_mail).not_to(be_nil)
 

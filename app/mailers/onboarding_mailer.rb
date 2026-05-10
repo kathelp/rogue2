@@ -106,7 +106,7 @@ class OnboardingMailer < ApplicationMailer
     mail(
       to: @contact.email,
       from: onboarding_address(@tenant),
-      subject: "#{@tenant.dealership_name}: data collection assignment"
+      subject: "#{@tenant.dealership_name}: set up your details and how you'll send data"
     )
   end
 

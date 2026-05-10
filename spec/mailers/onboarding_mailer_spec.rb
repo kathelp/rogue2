@@ -336,16 +336,30 @@ RSpec.describe OnboardingMailer, type: :mailer do
       expect(mail.to).to(eq(["alex@smithtoyota.com"]))
     end
 
-    it "has subject naming the dealership and the assignment" do
-      expect(mail.subject).to(eq("Smith Toyota: data collection assignment"))
+    it(
+      "has subject naming the dealership and the new 'set up your details and how you'll send data' framing (FEAT-006 FE)"
+    ) do
+      expect(mail.subject).to(eq("Smith Toyota: set up your details and how you'll send data"))
     end
 
     it "comes from the per-tenant onboarding address" do
       expect(mail.from.first).to(include("onboarding+abc123test456789@inbound.rogue.example"))
     end
 
-    it "HTML body contains the 'Set up data collection' CTA" do
-      expect(mail.html_part.body.decoded).to(include("Set up data collection"))
+    it "HTML body contains the 'Set up your assignment' CTA" do
+      expect(mail.html_part.body.decoded).to(include("Set up your assignment"))
+    end
+
+    it "HTML body sets expectations about the ~1-minute identity step" do
+      body = mail.html_part.body.decoded
+      expect(body).to(include("about a minute"))
+      expect(body).to(match(/name and phone/i))
+    end
+
+    it "plain-text body mirrors the new framing" do
+      text = mail.text_part.body.decoded
+      expect(text).to(include("about a minute"))
+      expect(text).to(match(/name and phone/i))
     end
 
     it "HTML body contains a link to /setup/<signed_id>" do

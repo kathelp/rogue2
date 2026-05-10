@@ -200,4 +200,19 @@ Surprises:
 
 **Build & Quality**: **442 examples, 0 failures** (18 added in this phase). `rubyfmt --check` exits 0 globally.
 
+## TASK-009 — Phase 2: OnboardingMailer#invitee_setup_email edits (2026-05-10)
+
+Setup-invitation email subject and both body templates rewritten per UI/UX Sub-Decision 1. Subject changed from `"<Dealership>: data collection assignment"` to `"<Dealership>: set up your details and how you'll send data"` — honest about the three-step ask (name + phone + method) and consistent with the existing colon-separator subject pattern. Both `invitee_setup_email.html.erb` and `.text.erb` replaced verbatim from the doc:
+- Heading unchanged: `You've been added to <Dealership>'s data setup`.
+- Body softened from "named you as the person to handle this" → "asked you to handle this" (less formal, more recognizable to a busy person).
+- Expectation-setting sentence: "It takes about a minute. You'll confirm your name and phone number, then pick how you want to send data." (was: "To finish setup (about a minute), click below").
+- CTA: "Set up your assignment" (was: "Set up data collection") — matches the in-app step label.
+- Reassurance footer: "No password or account needed — just your name, phone, and a submission preference."
+
+Two parallel specs (mailbox + system) updated because they look the email up by subject substring. The mailer spec gained four assertions (CTA copy, ~1-minute language in HTML and text, "name and phone" framing in both parts).
+
+Manually rendered via `bin/rails runner` to eyeball output — text body matches the doc verbatim, and the dev-only conductor reply link (from TASK-006) auto-fills the new subject correctly into the action_mailbox conductor URL.
+
+**Build & Quality**: **444 examples, 0 failures** (2 added in this phase). `rubyfmt --check` exits 0 globally.
+
 
