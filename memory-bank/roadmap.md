@@ -80,14 +80,15 @@
 ### FEAT-006: Cc'd Contact Self-Verification
 
 - **Version**: next
-- **Status**: backend complete, archived 2026-05-09 (FE pass deferred)
-- **Archive**: memory-bank/archive/archive-TASK-008.md
+- **Status**: backend complete (archived 2026-05-09); FE pass in progress (TASK-009, started 2026-05-10)
+- **Archive**: memory-bank/archive/archive-TASK-008.md (backend)
 - **Priority**: medium
 - **Complexity**: Level 3
-- **Description**: When new users are onboarded from being cc'd on an email, we should ask them to enter their first name, last name, and phone number to complete their account verification. Today, contacts promoted into the system via a GM CC arrive with little more than an email address; this feature closes that gap by giving the contact a self-service step to fill in their identity and phone before they're treated as a fully-onboarded responsibility holder. **Decided:** verification status is *derived* from field presence — a contact is "unverified" while any of `first_name`, `last_name`, or `phone` is blank, and "verified" once all three are populated. No separate `verified_at` timestamp or state machine; the columns are the source of truth. Open design questions to resolve in `/rai-creative`: (1) **Trigger** — verification email with signed-link landing page, inline prompt on the next setup-email click-through, or both? (2) **Gating semantics** — what specifically changes for an unverified contact? Candidate gates: pause submission prompts, suppress escalation fanout to them, hold them out of the GM's weekly digest until verified, mark them visually in admin views. (3) **Schema** — split the existing `Contact#name` into `first_name` / `last_name`, or keep `name` and add the new fields alongside? (4) **Phone handling** — validation/normalization (E.164 for future Twilio use). (5) **Re-prompt cadence** — what happens if the contact ignores the verification email; expire the link? Escalate to the GM? Note: Rogue's onboarding model treats `Contact` as the persona record; `Responsibility` is the accountability assignment. Verification belongs on `Contact`.
+- **Description**: When new users are onboarded from being cc'd on an email, we should ask them to enter their first name, last name, and phone number to complete their account verification. Today, contacts promoted into the system via a GM CC arrive with little more than an email address; this feature closes that gap by giving the contact a self-service step to fill in their identity and phone before they're treated as a fully-onboarded responsibility holder. **Decided:** verification status is *derived* from field presence — a contact is "unverified" while any of `first_name`, `last_name`, or `phone` is blank, and "verified" once all three are populated. No separate `verified_at` timestamp or state machine; the columns are the source of truth. All five `/rai-creative` open questions resolved in TASK-008 (preserved in `memory-bank/creative/TASK-008-*.md`). Note: Rogue's onboarding model treats `Contact` as the persona record; `Responsibility` is the accountability assignment. Verification belongs on `Contact`.
 - **Linked Tasks**:
-  - TASK-008: Cc'd Contact Self-Verification (backend complete; FE deferred to a future task)
-- **Branch**: feature/FEAT-006-ccd-contact-self-verification (merged 2026-05-09)
+  - TASK-008: Cc'd Contact Self-Verification — backend (archived 2026-05-09)
+  - TASK-009: Cc'd Contact Self-Verification — FE pass (planned 2026-05-10; executes the deferred views, controller branch, mailer copy, and system spec against the TASK-008 creative docs)
+- **Branch**: feature/FEAT-006-ccd-contact-self-verification (backend; merged 2026-05-09) + feature/FEAT-006-self-verification-fe (FE pass; to be created)
 - **Created**: 2026-05-09
 
 ### FEAT-Ops-Cutover: Production email ingress, outbound provider, raw-payload archive
