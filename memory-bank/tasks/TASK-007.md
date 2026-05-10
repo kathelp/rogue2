@@ -1,10 +1,12 @@
 # TASK-007: gm_nudge emails CC the full responsibility chain
 
 **Complexity**: Level 1
-**Status**: IN_PROGRESS
+**Status**: COMPLETE
 **Roadmap**: N/A
-**Branch**: task/007-gm-nudge-cc-responsible-parties
+**Branch**: task/007-gm-nudge-cc-responsible-parties (merged into main via c34674c; branch deleted on archive)
 **Worktree**: N/A (Level 1 uses direct branch)
+**Archived**: memory-bank/archive/archive-TASK-007.md
+**Completed**: 2026-05-09 (merged); archived 2026-05-10
 
 ## Task Description
 
@@ -56,8 +58,8 @@ behavior.
 
 ## Execution State
 
-**Build Status**: IMPLEMENTED — awaiting commit
-**Current Phase**: BUILD
+**Build Status**: IDLE
+**Current Phase**: COMPLETE
 **Can Resume**: NO
 
 ### Active Sub-Agents

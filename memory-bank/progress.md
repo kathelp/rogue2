@@ -154,3 +154,18 @@ Single-phase build. Three additive refinements to FEAT-004:
 **Archive**: `memory-bank/archive/archive-TASK-004.md`
 
 ---
+
+## TASK-007 — gm_nudge CCs responsibility chain (Level 1, 2026-05-09)
+
+Single-file scope. The `gm_nudge` rung of the escalation cascade now CCs every responsible party (active Responsibility's `primary_contact` + `fallback_contact_emails`); other rungs unchanged. Cascade emits `primary_email` in the gm_nudge `NextAction` payload sourced from the active Responsibility (not `source.configured_by_contact`); mailer's new `cc_for` helper dedups and filters the recipient. Merged into `main` via `c34674c`.
+
+**Build & Quality**: 398 examples, 0 failures.
+
+## Task Archive: TASK-007
+
+**Task**: gm_nudge CCs responsibility chain
+**Status**: ✅ ARCHIVED
+**Date**: 2026-05-10
+**Archive**: `memory-bank/archive/archive-TASK-007.md`
+
+---
