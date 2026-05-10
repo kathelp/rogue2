@@ -1,0 +1,385 @@
+/* ============================================================================
+   Rogue Design System — Components
+   ----------------------------------------------------------------------------
+   BEM-ish class names match the design's UI kit 1:1 so future ViewComponents
+   can map directly. Token values are also reproduced as literals here so
+   inline-styled mailers can reference the same colors.
+   ============================================================================ */
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: #FFFFFF;
+  color: #0F172A;
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+button { font-family: inherit; }
+
+/* ───── Layout primitives ───────────────────────────────────────── */
+
+.rogue-app {
+  min-height: 100vh;
+  background: #FFFFFF;
+  position: relative;
+}
+
+.rogue-frame {
+  background: #FFFFFF;
+  min-height: 100vh;
+  padding: 40px 20px;
+  position: relative;
+}
+@media (min-width: 768px) {
+  .rogue-frame { padding: 56px 32px; }
+}
+
+.rogue-frame.--has-wordmark { padding-top: 80px; }
+
+.rogue-wordmark {
+  position: absolute;
+  top: 24px;
+  left: 32px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #64748B;
+}
+.rogue-wordmark::after {
+  content: "";
+  display: inline-block;
+  width: 4px; height: 4px; border-radius: 50%;
+  background: #1E40AF;
+  margin-left: 3px;
+  vertical-align: 2px;
+}
+
+.rogue-content {
+  margin: 0 auto;
+}
+.rogue-content.--form  { max-width: 640px; }
+.rogue-content.--board { max-width: 960px; }
+.rogue-content.--admin { max-width: 1200px; }
+
+/* ───── Page header ─────────────────────────────────────────────── */
+
+.rogue-header { margin-bottom: 32px; }
+.rogue-header__crumb {
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748B;
+  margin-bottom: 8px;
+}
+.rogue-header__h1 {
+  font-size: 28px;
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #0F172A;
+  margin: 0 0 12px;
+}
+@media (min-width: 768px) { .rogue-header__h1 { font-size: 32px; } }
+
+.rogue-header__sub {
+  font-size: 16px;
+  color: #334155;
+  margin: 0;
+}
+
+/* ───── Card ───────────────────────────────────────────────────── */
+
+.rogue-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  padding: 24px;
+}
+@media (min-width: 768px) { .rogue-card { padding: 32px; } }
+.rogue-card.--tinted {
+  background: #F8FAFC;
+  border: 0;
+}
+.rogue-card.--elevated { box-shadow: 0 1px 2px rgba(15,23,42,0.06); }
+.rogue-card.--padless { padding: 0; }
+
+.rogue-card__title-bar {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.rogue-card__title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #0F172A;
+  margin: 0;
+}
+@media (min-width: 768px) { .rogue-card__title { font-size: 24px; } }
+
+/* ───── Button ──────────────────────────────────────────────────── */
+
+.rogue-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 100ms ease-out, color 100ms ease-out, border-color 100ms ease-out;
+  white-space: nowrap;
+  font-family: inherit;
+}
+.rogue-btn.--lg { height: 52px; padding: 0 20px; font-size: 16px; }
+.rogue-btn.--block { width: 100%; }
+
+.rogue-btn:focus { outline: none; }
+.rogue-btn:focus-visible { box-shadow: 0 0 0 2px #FFFFFF, 0 0 0 4px #1E40AF; }
+
+.rogue-btn.--primary { background: #1E40AF; color: #FFFFFF; }
+.rogue-btn.--primary:hover { background: #1E3A8A; }
+.rogue-btn.--primary:active { background: #1E3A8A; }
+
+.rogue-btn.--secondary {
+  background: #FFFFFF;
+  color: #0F172A;
+  border: 1px solid #CBD5E1;
+  font-weight: 500;
+}
+.rogue-btn.--secondary:hover { background: #F8FAFC; }
+
+.rogue-btn.--ghost {
+  background: transparent;
+  color: #1E40AF;
+  font-weight: 500;
+  padding: 0 4px;
+  height: auto;
+}
+.rogue-btn.--ghost:hover { text-decoration: underline; }
+
+.rogue-btn.--danger { background: #991B1B; color: #FFFFFF; }
+.rogue-btn.--danger:hover { background: #7F1D1D; }
+
+.rogue-btn[disabled], .rogue-btn[aria-disabled="true"] { opacity: 0.5; cursor: not-allowed; }
+.rogue-btn[disabled]:hover { background: inherit; }
+
+.rogue-spinner {
+  width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: #FFFFFF;
+  border-radius: 50%;
+  animation: rogue-spin 800ms linear infinite;
+}
+@keyframes rogue-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .rogue-spinner { animation: none; border-top-color: rgba(255,255,255,0.7); }
+}
+
+/* ───── Field / inputs ──────────────────────────────────────────── */
+
+.rogue-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 20px; }
+.rogue-field__label { font-size: 14px; font-weight: 500; color: #0F172A; }
+.rogue-field__req { color: #991B1B; margin-left: 2px; }
+.rogue-field__help { font-size: 13px; color: #64748B; margin: 0; }
+.rogue-field__error { font-size: 13px; color: #991B1B; margin: 0; }
+
+.rogue-input, .rogue-textarea, .rogue-select {
+  font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.4;
+  color: #0F172A;
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 4px;
+  padding: 11px 12px;
+  width: 100%;
+  min-height: 44px;
+  transition: box-shadow 100ms ease-out;
+}
+.rogue-input:focus, .rogue-textarea:focus, .rogue-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #FFFFFF, 0 0 0 4px #1E40AF;
+}
+.rogue-input.--num {
+  font-variant-numeric: tabular-nums;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.rogue-input.--num::-webkit-outer-spin-button,
+.rogue-input.--num::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+.rogue-input.--error { border-color: #991B1B; }
+
+.rogue-input[readonly], .rogue-textarea[readonly] { background: #F8FAFC; }
+.rogue-input[disabled] { background: #F8FAFC; color: #64748B; }
+
+.rogue-textarea { resize: vertical; min-height: 96px; }
+
+/* ───── Status badge ────────────────────────────────────────────── */
+
+.rogue-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.rogue-badge svg { width: 12px; height: 12px; flex: 0 0 auto; }
+.rogue-badge.--success { background: #DCFCE7; color: #14532D; }
+.rogue-badge.--neutral { background: #F1F5F9; color: #334155; }
+.rogue-badge.--warning { background: #FEF3C7; color: #78350F; }
+.rogue-badge.--danger  { background: #FEE2E2; color: #991B1B; }
+
+/* ───── Banner ──────────────────────────────────────────────────── */
+
+.rogue-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 1.45;
+  margin-bottom: 24px;
+}
+.rogue-banner svg { width: 18px; height: 18px; flex: 0 0 auto; margin-top: 1px; }
+.rogue-banner__body { flex: 1 1 auto; }
+.rogue-banner__title { font-weight: 600; }
+.rogue-banner__list { margin: 6px 0 0; padding-left: 16px; }
+.rogue-banner__list li { margin: 2px 0; }
+.rogue-banner__list a { color: inherit; text-decoration: underline; }
+.rogue-banner__close {
+  background: transparent;
+  border: 0;
+  font-size: 18px;
+  line-height: 1;
+  color: inherit;
+  opacity: 0.6;
+  cursor: pointer;
+  padding: 0 4px;
+  align-self: flex-start;
+}
+.rogue-banner__close:hover { opacity: 1; }
+
+.rogue-banner.--info    { background: #EFF6FF; border-color: #1E40AF; color: #1E3A8A; }
+.rogue-banner.--success { background: #DCFCE7; border-color: #14532D; color: #14532D; }
+.rogue-banner.--warning { background: #FEF3C7; border-color: #78350F; color: #78350F; }
+.rogue-banner.--danger  { background: #FEE2E2; border-color: #991B1B; color: #991B1B; }
+
+/* ───── Data table ──────────────────────────────────────────────── */
+
+.rogue-table { width: 100%; border-collapse: collapse; }
+.rogue-table th {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748B;
+  font-weight: 500;
+  text-align: left;
+  padding: 10px 16px;
+  border-bottom: 1px solid #E2E8F0;
+}
+@media (min-width: 768px) { .rogue-table th { font-size: 12px; } }
+.rogue-table th.--right { text-align: right; }
+.rogue-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #E2E8F0;
+  font-size: 15px;
+  color: #334155;
+  vertical-align: middle;
+}
+@media (min-width: 768px) { .rogue-table td { font-size: 16px; } }
+.rogue-table td:first-child { color: #0F172A; font-weight: 500; }
+.rogue-table td.--right { text-align: right; font-variant-numeric: tabular-nums; }
+.rogue-table tr:last-child td { border-bottom: 0; }
+
+/* helpers for the single-<table> mobile collapse */
+.rogue-table__mobile-only { display: none; }
+.rogue-table td.--mobile-only-cell { display: none; }
+
+/* mobile collapse — single <table>, CSS-only (preserves screen-reader semantics) */
+@media (max-width: 639px) {
+  .rogue-table__mobile-only { display: inline-flex; align-items: center; }
+  .rogue-table td.--mobile-only-cell { display: block; }
+
+  .rogue-table thead { display: none; }
+  .rogue-table tbody, .rogue-table tr { display: block; }
+  .rogue-table tr {
+    padding: 14px 0;
+    border-bottom: 1px solid #E2E8F0;
+  }
+  .rogue-table tr:last-child { border-bottom: 0; }
+  .rogue-table td {
+    display: block;
+    padding: 0 16px;
+    border: 0;
+    font-size: 14px;
+  }
+  .rogue-table td.--mobile-line1 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+  .rogue-table td.--mobile-line1 .rogue-table__primary {
+    font-weight: 500;
+    color: #0F172A;
+  }
+  .rogue-table td.--mobile-line2 {
+    color: #64748B;
+    font-size: 13px;
+    font-weight: 400;
+  }
+  .rogue-table td.--mobile-hide { display: none; }
+}
+
+/* ───── Empty state ─────────────────────────────────────────────── */
+
+.rogue-empty {
+  text-align: center;
+  padding: 48px 24px;
+}
+.rogue-empty__title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #0F172A;
+  margin: 0 0 6px;
+}
+.rogue-empty__body {
+  font-size: 15px;
+  color: #334155;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+/* ───── Footnote ────────────────────────────────────────────────── */
+
+.rogue-footnote {
+  margin-top: 40px;
+  font-size: 13px;
+  color: #64748B;
+  text-align: left;
+}
+
+/* ───── Misc ────────────────────────────────────────────────────── */
+
+.rogue-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.rogue-actions.--end { justify-content: flex-end; }
+.rogue-stack { display: flex; flex-direction: column; }
+
+p.rogue-paragraph { font-size: 16px; color: #334155; margin: 0; }
+p.rogue-paragraph + p.rogue-paragraph { margin-top: 12px; }

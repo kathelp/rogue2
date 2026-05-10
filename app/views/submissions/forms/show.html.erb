@@ -1,51 +1,86 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Submit — <%= @prompt.tenant.dealership_name %></title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-  </head>
-  <body style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 640px; margin: 40px auto; padding: 0 20px; color: #222;">
-    <% if params[:submitted] %>
-      <h1 style="font-size: 24px;">Got it.</h1>
-      <p>
-        We received your <%= @prompt.request.metric_key.to_s.tr("_", " ") %>
-        for <%= @prompt.scheduled_for.in_time_zone(@prompt.tenant.time_zone).strftime("%B %Y") %>.
+<%
+  metric_label = @prompt.request.metric_key.to_s.tr("_", " ")
+  metric_label_capitalized = metric_label.capitalize
+  period_label = @prompt.scheduled_for.in_time_zone(@prompt.tenant.time_zone).strftime("%B %Y")
+  has_error = !params[:submitted] && flash[:alert].present?
+%>
+<% content_for :title, "Submit — #{@prompt.tenant.dealership_name}" %>
+
+<%= render "shared/frame", max_width: :form do %>
+  <% if params[:submitted] %>
+    <%= render "shared/page_header",
+          crumb: @prompt.tenant.dealership_name,
+          title: "Got it — submission received." %>
+    <section class="rogue-card">
+      <p class="rogue-paragraph">
+        We have your <strong><%= metric_label %></strong> for <strong><%= period_label %></strong>.
       </p>
-      <p>You can close this tab. We'll send the next prompt when it's due.</p>
-    <% else %>
-      <h1 style="font-size: 24px;">
-        <%= @prompt.tenant.dealership_name %> —
-        <%= @prompt.request.metric_key.to_s.tr("_", " ") %>
-        for <%= @prompt.scheduled_for.in_time_zone(@prompt.tenant.time_zone).strftime("%B %Y") %>
-      </h1>
-      <p style="color: #555;">Enter the value and any notes, then submit.</p>
+      <p class="rogue-paragraph">You can close this tab. We'll send the next prompt when it's due.</p>
+      <p class="rogue-paragraph">Need to amend it? Reply to your most recent email from Rogue and we'll help.</p>
+    </section>
+    <p class="rogue-footnote">This page is a snapshot. We'll send the next prompt when it's due.</p>
+  <% else %>
+    <%= render "shared/page_header",
+          crumb: @prompt.tenant.dealership_name,
+          title: "#{metric_label_capitalized} submission for #{period_label}",
+          subtitle: "Enter the value and any notes, then submit." %>
 
-      <% if flash[:alert] %>
-        <p style="background: #fee; border: 1px solid #fcc; padding: 12px; border-radius: 4px; color: #800;">
-          <%= flash[:alert] %>
-        </p>
-      <% end %>
-
-      <%= form_with url: submission_form_path(signed_id: params[:signed_id]), method: :post, local: true, scope: :submission do |f| %>
-        <div style="margin: 16px 0;">
-          <%= f.label :value, @prompt.request.metric_key.to_s.tr("_", " ").capitalize, style: "display: block; font-weight: bold; margin-bottom: 6px;" %>
-          <%= f.number_field :value,
-                             value: @value_attempt,
-                             step: "any",
-                             min: 0,
-                             required: true,
-                             style: "width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px;" %>
+    <% if has_error %>
+      <div class="rogue-banner --danger" role="alert">
+        <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 10-2 0v4a1 1 0 102 0V6zm-1 8a1 1 0 100-2 1 1 0 000 2z"></path>
+        </svg>
+        <div class="rogue-banner__body">
+          <div class="rogue-banner__title">Please fix the highlighted field below.</div>
+          <ul class="rogue-banner__list">
+            <li><a href="#field-value"><%= flash[:alert] %></a></li>
+          </ul>
         </div>
-        <div style="margin: 16px 0;">
-          <%= f.label :notes, "Notes (optional)", style: "display: block; font-weight: bold; margin-bottom: 6px;" %>
-          <%= f.text_area :notes, value: @notes_attempt, rows: 4,
-                          style: "width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;" %>
-        </div>
-        <p>
-          <%= f.submit "Submit",
-                       style: "padding: 12px 24px; background: #000; color: #fff; border: 0; border-radius: 4px; cursor: pointer; font-size: 16px;" %>
-        </p>
-      <% end %>
+      </div>
     <% end %>
-  </body>
-</html>
+
+    <%= form_with url: submission_form_path(signed_id: params[:signed_id]), method: :post, local: true, scope: :submission do |f| %>
+      <section class="rogue-card">
+        <div class="rogue-field">
+          <%= f.label :value, metric_label_capitalized, class: "rogue-field__label", for: "field-value" do %>
+            <%= metric_label_capitalized %><span class="rogue-field__req" aria-hidden="true">*</span>
+          <% end %>
+          <%= f.number_field :value,
+                id: "field-value",
+                value: @value_attempt,
+                step: "any",
+                min: 0,
+                required: true,
+                inputmode: "decimal",
+                placeholder: "e.g. 14250",
+                class: "rogue-input --num#{" --error" if has_error}",
+                "aria-invalid": has_error ? "true" : nil,
+                "aria-describedby": has_error ? "field-value-error" : "field-value-helper" %>
+          <% if has_error %>
+            <p class="rogue-field__error" id="field-value-error"><%= flash[:alert] %></p>
+          <% else %>
+            <p class="rogue-field__help" id="field-value-helper">Submit the value for the period.</p>
+          <% end %>
+        </div>
+
+        <div class="rogue-field">
+          <%= f.label :notes, "Notes", class: "rogue-field__label", for: "field-notes" %>
+          <%= f.text_area :notes,
+                id: "field-notes",
+                value: @notes_attempt,
+                rows: 4,
+                placeholder: "Anything to flag?",
+                class: "rogue-textarea",
+                "aria-describedby": "field-notes-helper" %>
+          <p class="rogue-field__help" id="field-notes-helper">Optional — any context the GM should see.</p>
+        </div>
+
+        <div class="rogue-actions --end">
+          <%= f.submit "Submit", class: "rogue-btn --primary --lg" %>
+        </div>
+      </section>
+    <% end %>
+
+    <p class="rogue-footnote">Magic links are reusable until they expire. Land on this page twice and we'll show your last submission, not an error.</p>
+  <% end %>
+<% end %>

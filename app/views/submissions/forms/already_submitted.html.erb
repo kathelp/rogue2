@@ -1,17 +1,19 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Already submitted — <%= @prompt.tenant.dealership_name %></title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-  </head>
-  <body style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 640px; margin: 40px auto; padding: 0 20px; color: #222;">
-    <h1 style="font-size: 22px;">Got it — submission received.</h1>
-    <p>
-      We have your <%= @prompt.request.metric_key.to_s.tr("_", " ") %>
-      for <%= @prompt.scheduled_for.in_time_zone(@prompt.tenant.time_zone).strftime("%B %Y") %>.
-      Thanks for the quick turnaround.
+<%
+  metric_label = @prompt.request.metric_key.to_s.tr("_", " ")
+  period_label = @prompt.scheduled_for.in_time_zone(@prompt.tenant.time_zone).strftime("%B %Y")
+%>
+<% content_for :title, "Already submitted — #{@prompt.tenant.dealership_name}" %>
+
+<%= render "shared/frame", max_width: :form do %>
+  <%= render "shared/page_header",
+        crumb: @prompt.tenant.dealership_name,
+        title: "Got it — submission received." %>
+
+  <section class="rogue-card">
+    <p class="rogue-paragraph">
+      We have your <strong><%= metric_label %></strong> for <strong><%= period_label %></strong>. Thanks for the quick turnaround.
     </p>
-    <p style="color: #555;">If you've come back to this link from a previous submission, this is the same screen — your data is already on file.</p>
-    <p>Need to amend it? Reply to your most recent email from Rogue and we'll help.</p>
-  </body>
-</html>
+    <p class="rogue-paragraph">If you've come back to this link from a previous submission, this is the same screen — your data is already on file.</p>
+    <p class="rogue-paragraph">Need to amend it? Reply to your most recent email from Rogue and we'll help.</p>
+  </section>
+<% end %>

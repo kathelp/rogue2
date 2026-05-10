@@ -41,7 +41,7 @@ RSpec.describe "Submissions::Forms", type: :request do
         get(submission_form_path(signed_id: signed_id))
         expect(response).to(have_http_status(:ok))
         expect(response.body).to(include("Smith Toyota"))
-        expect(response.body).to(include("strategy summary"))
+        expect(response.body).to(include("Strategy summary"))
         expect(response.body).to(include("name=\"submission[value]\""))
         expect(response.body).to(include("name=\"submission[notes]\""))
       end

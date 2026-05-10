@@ -1,0 +1,14 @@
+<%# Page header — dealership crumb + H1 + optional subtitle.                 %>
+<%# Locals:                                                                  %>
+<%#   crumb:    optional small breadcrumb line above the H1                  %>
+<%#   title:    required — the page H1                                       %>
+<%#   subtitle: optional one-sentence subtitle                               %>
+<header class="rogue-header">
+  <% if local_assigns[:crumb].present? %>
+    <div class="rogue-header__crumb"><%= crumb %></div>
+  <% end %>
+  <h1 class="rogue-header__h1"><%= title %></h1>
+  <% if local_assigns[:subtitle].present? %>
+    <p class="rogue-header__sub"><%= subtitle %></p>
+  <% end %>
+</header>

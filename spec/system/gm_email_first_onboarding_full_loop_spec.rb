@@ -154,8 +154,8 @@ RSpec.describe "GM email-first onboarding full loop", type: :system do
 
     submit_path = URI.parse(submit_url).path
     visit(submit_path)
-    fill_in("submission_value", with: "42500")
-    fill_in("submission_notes", with: "Strong May numbers")
+    fill_in("field-value", with: "42500")
+    fill_in("field-notes", with: "Strong May numbers")
     perform_enqueued_jobs { click_button("Submit") }
 
     expect(page).to(have_text(/got it|received/i))

@@ -1,11 +1,10 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>This submission link has expired</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-  </head>
-  <body style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 640px; margin: 40px auto; padding: 0 20px; color: #222;">
-    <h1 style="font-size: 22px;">This submission link has expired.</h1>
-    <p>For your security, submission links expire 14 days after they're sent. We'll send a fresh link the next time data is due.</p>
-  </body>
-</html>
+<% content_for :title, "This submission link has expired" %>
+
+<%= render "shared/frame", max_width: :form do %>
+  <%= render "shared/page_header", title: "This submission link has expired." %>
+
+  <section class="rogue-card">
+    <p class="rogue-paragraph">For your security, submission links expire 14 days after they're sent.</p>
+    <p class="rogue-paragraph">We'll send a fresh link the next time data is due.</p>
+  </section>
+<% end %>

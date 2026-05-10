@@ -1,0 +1,17 @@
+<%# Magic-link landing frame — the layout primitive every web surface uses. %>
+<%# Locals:                                                                  %>
+<%#   max_width: :form (640px) | :board (960px) | :admin (1200px)           %>
+<%#   wordmark:  true to render the Rogue wordmark top-left                  %>
+<%#   content:   block yielding the page body                                %>
+<%
+  max_width ||= :form
+  wordmark = false unless local_assigns.key?(:wordmark)
+%>
+<div class="rogue-frame <%= "--has-wordmark" if wordmark %>">
+  <% if wordmark %>
+    <div class="rogue-wordmark">Rogue</div>
+  <% end %>
+  <div class="rogue-content --<%= max_width %>">
+    <%= yield %>
+  </div>
+</div>

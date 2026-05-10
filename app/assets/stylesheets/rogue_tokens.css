@@ -1,0 +1,162 @@
+/* ============================================================================
+   Rogue Design System — Colors & Type
+   ----------------------------------------------------------------------------
+   Canonical hex values are also reproduced as literal hex (not abstract tokens)
+   so the same palette ports cleanly to inline-styled HTML email mailers.
+   ============================================================================ */
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("inter-variable.woff2") format("woff2-variations"),
+       url("inter-variable.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("inter-variable-italic.woff2") format("woff2-variations"),
+       url("inter-variable-italic.woff2") format("woff2");
+}
+
+:root {
+  /* ─── Foundation: warm-leaning neutrals ─────────────────────────── */
+  --ink:           #0F172A;
+  --ink-muted:     #334155;
+  --ink-subtle:    #64748B;
+  --paper:         #FFFFFF;
+  --paper-warm:    #F8FAFC;
+  --border:        #E2E8F0;
+  --border-strong: #CBD5E1;
+
+  /* ─── Brand: single accent ──────────────────────────────────────── */
+  --brand:         #1E40AF;
+  --brand-hover:   #1E3A8A;
+  --brand-tint:    #EFF6FF;
+
+  /* ─── Status: bg/fg pairs ───────────────────────────────────────── */
+  --status-success-bg: #DCFCE7;
+  --status-success-fg: #14532D;
+  --status-neutral-bg: #F1F5F9;
+  --status-neutral-fg: #334155;
+  --status-warning-bg: #FEF3C7;
+  --status-warning-fg: #78350F;
+  --status-danger-bg:  #FEE2E2;
+  --status-danger-fg:  #991B1B;
+
+  /* ─── Type stack ────────────────────────────────────────────────── */
+  --font-sans:
+    "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  /* ─── Type scale (mobile / desktop pairs) ───────────────────────── */
+  --fs-display:  28px;  --lh-display:  1.15;
+  --fs-title:    22px;  --lh-title:    1.25;
+  --fs-subtitle: 18px;  --lh-subtitle: 1.4;
+  --fs-body:     15px;  --lh-body:     1.55;
+  --fs-small:    13px;  --lh-small:    1.5;
+  --fs-micro:    11px;  --lh-micro:    1.4;
+
+  --fw-regular:  400;
+  --fw-medium:   500;
+  --fw-semibold: 600;
+  --fw-bold:     700;
+
+  /* ─── Spacing scale (only these) ────────────────────────────────── */
+  --sp-0:   0;
+  --sp-1:   4px;
+  --sp-2:   8px;
+  --sp-3:  12px;
+  --sp-4:  16px;
+  --sp-5:  20px;
+  --sp-6:  24px;
+  --sp-8:  32px;
+  --sp-10: 40px;
+  --sp-14: 56px;
+  --sp-20: 80px;
+
+  /* ─── Page max-widths ───────────────────────────────────────────── */
+  --w-form:  640px;
+  --w-board: 960px;
+  --w-admin: 1200px;
+
+  /* ─── Radii (only two) ──────────────────────────────────────────── */
+  --r-input:  4px;
+  --r-pill:   999px;
+
+  /* ─── Borders ───────────────────────────────────────────────────── */
+  --bw: 1px;
+
+  /* ─── Elevation: ONE only ───────────────────────────────────────── */
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.06);
+
+  /* ─── Focus ring (unified across the system) ────────────────────── */
+  --focus-ring: 0 0 0 2px var(--paper), 0 0 0 4px var(--brand);
+
+  /* ─── Motion budget ─────────────────────────────────────────────── */
+  --transition-fast: 100ms ease-out;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --fs-display: 32px;
+    --fs-title:   24px;
+    --fs-body:    16px;
+    --fs-small:   14px;
+    --fs-micro:   12px;
+  }
+}
+
+/* ============================================================================
+   Semantic element styles — apply these on top of the tokens above.
+   ============================================================================ */
+
+html { font-family: var(--font-sans); color: var(--ink); background: var(--paper); }
+body { margin: 0; font-size: var(--fs-body); line-height: var(--lh-body); }
+
+h1, h2, h3, h4, h5, h6 { margin: 0; color: var(--ink); }
+
+h1 {
+  font-size: var(--fs-display);
+  line-height: var(--lh-display);
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.01em;
+}
+h2 {
+  font-size: var(--fs-title);
+  line-height: var(--lh-title);
+  font-weight: var(--fw-semibold);
+}
+h3 {
+  font-size: var(--fs-subtitle);
+  line-height: var(--lh-subtitle);
+  font-weight: var(--fw-semibold);
+}
+
+p { margin: 0; color: var(--ink-muted); }
+p + p { margin-top: var(--sp-3); }
+
+small, .text-small { font-size: var(--fs-small); line-height: var(--lh-small); color: var(--ink-subtle); }
+.text-micro {
+  font-size: var(--fs-micro); line-height: var(--lh-micro);
+  text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--ink-subtle); font-weight: var(--fw-medium);
+}
+
+.tabular { font-variant-numeric: tabular-nums; }
+
+a { color: var(--brand); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+*:focus { outline: none; }
+*:focus-visible { box-shadow: var(--focus-ring); border-radius: var(--r-input); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0s !important;
+    transition-duration: 0s !important;
+  }
+}

@@ -35,8 +35,8 @@ RSpec.describe "Dashboards", type: :request do
         expect(response.body).to(include("alex@smithtoyota.com"))
       end
 
-      # FEAT-005 — status badges
-      it "renders the per-row status as an inline-colored badge span" do
+      # FEAT-005 — status badges (web rendering uses CSS classes; emails keep inline styles)
+      it "renders the per-row status as a rogue-badge class-based span" do
         question = create(
           :tenant_question,
           tenant: tenant,
@@ -52,7 +52,7 @@ RSpec.describe "Dashboards", type: :request do
         )
 
         get(dashboard_path(signed_id: signed_id))
-        expect(response.body).to(match(/<span[^>]*background:\s*#[0-9a-f]+/i))
+        expect(response.body).to(match(/<span class="rogue-badge --[a-z]+"/))
       end
     end
 
