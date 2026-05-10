@@ -153,7 +153,7 @@ GEM
     jbuilder (2.14.1)
       actionview (>= 7.0.0)
       activesupport (>= 7.0.0)
-    json (2.19.4)
+    json (2.19.5)
     kamal (2.11.0)
       activesupport (>= 7.0)
       base64 (~> 0.2)
@@ -353,8 +353,8 @@ GEM
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 4.0)
       websocket (~> 1.0)
-    shoulda-matchers (6.5.0)
-      activesupport (>= 5.2.0)
+    shoulda-matchers (7.0.1)
+      activesupport (>= 7.1)
     solid_cable (3.0.12)
       actioncable (>= 7.2)
       activejob (>= 7.2)
@@ -443,7 +443,7 @@ DEPENDENCIES
   rspec-rails (~> 7.0)
   rubocop-rails-omakase
   selenium-webdriver
-  shoulda-matchers (~> 6.0)
+  shoulda-matchers (~> 7.0)
   solid_cable
   solid_cache
   solid_queue
@@ -509,7 +509,7 @@ CHECKSUMS
   io-console (0.8.2) sha256=d6e3ae7a7cc7574f4b8893b4fca2162e57a825b223a177b7afa236c5ef9814cc
   irb (1.18.0) sha256=de9454a0703a54704b9811a5ef31a60c86949fbf4013fcf244fabc7c775248e3
   jbuilder (2.14.1) sha256=4eb26376ff60ef100cb4fd6fd7533cd271f9998327e86adf20fd8c0e69fabb42
-  json (2.19.4) sha256=670a7d333fb3b18ca5b29cb255eb7bef099e40d88c02c80bd42a3f30fe5239ac
+  json (2.19.5) sha256=218a18553e4801d579ca7e0f5bc72bafd776d7397238a1fb4e74db5b0a812c59
   kamal (2.11.0) sha256=1408864425e0dec7e0a14d712a3b13f614e9f3a425b7661d3f9d287a51d7dd75
   language_server-protocol (3.17.0.5) sha256=fd1e39a51a28bf3eec959379985a72e296e9f9acfce46f6a79d31ca8760803cc
   launchy (3.1.1) sha256=72b847b5cc961589dde2c395af0108c86ff0119f42d4648d25b5440ebb10059e
@@ -586,7 +586,7 @@ CHECKSUMS
   rubyzip (3.3.0) sha256=a372fc67892a4f8c0bc8ec906b720353d8e48807a64b2e63adf99b1e3583a034
   securerandom (0.4.1) sha256=cc5193d414a4341b6e225f0cb4446aceca8e50d5e1888743fac16987638ea0b1
   selenium-webdriver (4.43.0) sha256=a634377b964b701c6ac0a009ce3a08fa34ec1e1e7fe9a6d57e3088d14529a65c
-  shoulda-matchers (6.5.0) sha256=ef6b572b2bed1ac4aba6ab2c5ff345a24b6d055a93a3d1c3bfc86d9d499e3f44
+  shoulda-matchers (7.0.1) sha256=b4bfd8744c10e0a36c8ac1a687f921ee7e25ed529e50488d61b79a8688749c77
   solid_cable (3.0.12) sha256=a168a54731a455d5627af48d8441ea3b554b8c1f6e6cd6074109de493e6b0460
   solid_cache (1.0.10) sha256=bc05a2fb3ac78a6f43cbb5946679cf9db67dd30d22939ededc385cb93e120d41
   solid_queue (1.4.0) sha256=e6a18d196f0b27cb6e3c77c5b31258b05fb634f8ed64fb1866ed164047216c2a
