@@ -130,7 +130,7 @@ Carried forward from the TASK-008 spec, deferred at archive:
 
 ## Implementation Roadmap
 
-- [ ] **Phase 0: `Contacts::PhoneNormalizer::Result` struct** — refactor the normalizer to return a Struct with `:normalized` (String or nil) and `:valid?` (Boolean). Update the 10 existing specs to assert on `.normalized` and `.valid?`. Update `memory-bank/creative/TASK-008-architecture.md` if the doc's Result shape differs from the chosen signature. Touch nothing else; this is an isolated contract change. Forward-debt resolution per archive guidance.
+- [x] **Phase 0: `Contacts::PhoneNormalizer::Result` struct** — COMPLETE 2026-05-10. Refactored `Contacts::PhoneNormalizer.call` to return `Result = Struct.new(:normalized, :valid?, keyword_init: true)`. Implementation matches the architecture doc's prescribed shape exactly (no doc edit needed). 13 specs now assert against the struct (`.normalized` + `.valid?`). Full suite green: 424 examples, 0 failures. `rubyfmt --check` exits 0 globally. No callers existed yet — purely contract-shaping change ahead of Phase 1.
 
 - [ ] **Phase 1: Identity step (controller + view + ancillary view edits)** — implement `identity.html.erb` verbatim per UI/UX Sub-Decision 2; extend `Setup::WalkthroughsController` `template_for_step` (route to `:identity` when unverified) and `update` (params branch on `:contact`, build `@errors`, transact Contact + FlowEvent, redirect to `step=summary` on success). Edit step counters in `summary.html.erb` and `method_picker.html.erb`. Add first-name greeting on `done.html.erb`. Refresh empty-responsibility else-branch on `summary.html.erb` and wrap the Continue link in `<% if @responsibility %>`. Request specs cover happy path, validation errors, re-entry, expired link.
 
@@ -158,16 +158,23 @@ None — all five resolved in TASK-008's `/rai-creative` (preserved in the three
 
 ## Execution State
 
-**Build Status**: IDLE
-**Current Phase**: PLAN
-**Current Step**: Plan written; ready for /rai-build
+**Build Status**: PHASE_COMPLETE (Phase 0)
+**Current Build**: Phase 0: Contacts::PhoneNormalizer::Result struct — COMPLETE
+**Build Started**: 2026-05-10
+**Phase Number**: 0 of 4 (labelled 0,1,2,3); next phase = Phase 1 (identity step controller + view + ancillary edits)
+**Is Multi-Phase**: YES
+**Current Phase**: BUILD
+**Current Step**: Phase 0 complete; STOPPED for human review before Phase 1
 **Step Started**: 2026-05-10
 **Can Resume**: YES
 
 ### Active Sub-Agents
-(none)
+(none — lighter route, direct execution)
 
 ### Completed Steps
 - 2026-05-10: TASK-009 task file created (lighter route, design source = TASK-008 creative docs)
 - 2026-05-10: Roadmap link confirmed → FEAT-006 (status: backend complete, FE pass = this task)
 - 2026-05-10: Branch name decided: `feature/FEAT-006-self-verification-fe` (from main; original FEAT-006 backend branch left untouched at its archived state)
+- 2026-05-10: Branch `feature/FEAT-006-self-verification-fe` created; planning commit c432a1d
+- 2026-05-10: /rai-build TASK-009 invoked — Phase 0 started, lighter route (direct execution)
+- 2026-05-10: Phase 0 — refactored `Contacts::PhoneNormalizer.call` to return `Result = Struct.new(:normalized, :valid?, keyword_init: true)` per architecture doc. Spec rewritten to assert on `.normalized` and `.valid?` (13 examples, was 10 — split the single blank-input it-block into three separate specs for nil/empty/whitespace + added a struct-type assertion). Full suite 424/424 green. `rubyfmt --check` exits 0 globally.

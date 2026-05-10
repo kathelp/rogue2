@@ -9,4 +9,4 @@
 | TASK-006 | Dev-only reply link in mailer layout | DONE | COMPLETE | N/A |
 | TASK-007 | gm_nudge CCs responsibility chain | ARCHIVE | COMPLETE | N/A |
 | TASK-008 | Cc'd Contact Self-Verification | ARCHIVE | COMPLETE (backend; FE deferred) | FEAT-006 |
-| TASK-009 | Cc'd Contact Self-Verification — FE pass | PLAN | PLANNED | FEAT-006 |
+| TASK-009 | Cc'd Contact Self-Verification — FE pass | BUILD | Phase 0/4 COMPLETE | FEAT-006 |

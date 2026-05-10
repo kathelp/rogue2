@@ -169,3 +169,13 @@ Single-file scope. The `gm_nudge` rung of the escalation cascade now CCs every r
 **Archive**: `memory-bank/archive/archive-TASK-007.md`
 
 ---
+
+## TASK-009 — Phase 0: Contacts::PhoneNormalizer::Result struct (FEAT-006 FE pass, Level 3, 2026-05-10)
+
+Resolved forward debt from TASK-008 archive. `Contacts::PhoneNormalizer.call` now returns `Result = Struct.new(:normalized, :valid?, keyword_init: true)` exactly per the FEAT-006 architecture doc — `.normalized` is the E.164 string when valid, nil otherwise; `.valid?` is the predicate the upcoming `Setup::WalkthroughsController#update` identity branch will branch on. No callers exist yet; isolated contract change.
+
+Spec rewritten against the struct (`.normalized` + `.valid?`). Net spec count: was 10, now 13 (split the single blank-input it-block into three separate specs for nil/empty/whitespace + added a struct-type assertion). No production code beyond the normalizer touched. Architecture doc shape matches implementation exactly — no doc edit needed.
+
+**Build & Quality**: 424 examples, 0 failures. `rubyfmt --check` exits 0 globally.
+
+
