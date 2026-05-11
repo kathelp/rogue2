@@ -136,7 +136,7 @@ Carried forward from the TASK-008 spec, deferred at archive:
 
 - [x] **Phase 2: `OnboardingMailer#invitee_setup_email` edits** — COMPLETE 2026-05-10. Subject changed from `"<Dealership>: data collection assignment"` to `"<Dealership>: set up your details and how you'll send data"` (UI/UX Sub-Decision 1). Both `invitee_setup_email.html.erb` and `.text.erb` replaced per UI/UX Sub-Decision 1 verbatim — heading unchanged; body says "asked you to handle this" (was "named you as the person to handle this"), "It takes about a minute. You'll confirm your name and phone number, then pick how you want to send data." (was "To finish setup..."), CTA "Set up your assignment" (was "Set up data collection"), and a small-print reassurance line "No password or account needed — just your name, phone, and a submission preference." Two parallel specs (mailbox + system) updated to find the email by the new subject. Mailer spec gained 4 new assertions (CTA, ~1-minute language in HTML, ~1-minute language in text, "name and phone" framing). Rendered output eyeballed via `bin/rails runner` — text body matches the doc verbatim, conductor-reply dev link (TASK-006) auto-fills the new subject correctly. Full suite **444/444** green. `rubyfmt --check` exits 0 globally.
 
-- [ ] **Phase 3: System E2E spec + final verification** — `spec/system/contact_self_verification_spec.rb` exercises AC-INTEGRATION-1: simulate a GM reply landing in `OnboardingMailbox#handle_assignment`, contact created unverified, click setup link, complete identity, then verify the next cascade evaluation includes their email in `fallback_emails_for`. Capybara-driven end-to-end. Full suite expected to be ~430–435 specs, 0 failures, `rubyfmt --check` exits 0 globally.
+- [x] **Phase 3: System E2E spec + final verification** — COMPLETE 2026-05-11. New `spec/system/contact_self_verification_spec.rb` (1 spec) exercises AC-INTEGRATION-1 end-to-end: drives a real inbound email through `OnboardingMailbox#handle_assignment` to promote Alex (mailbox creates his Contact unverified + Responsibility + Source + setup email queued), synthesizes a parallel `marketing_budget` responsibility where Alex is in `fallback_contact_emails`, asserts the cascade's `fallback_emails_for` filters him out pre-verification, drives Alex through the identity form via Capybara (reads the setup URL out of the real queued email, visits, fills `First name` / `Last name` / `Mobile phone`, clicks Continue, lands on Step 2 of 4), then asserts the same `fallback_emails_for` call now INCLUDES him post-verification. Also asserts a `contact.verified` FlowEvent landed atomically with the update. Full suite **445 / 445** green. `rubyfmt --check` exits 0 globally.
 
 ### Cross-phase invariants
 - All `Contact` mutations are atomic with `FlowEvent.record!` inside the same DB transaction.
@@ -158,15 +158,16 @@ None — all five resolved in TASK-008's `/rai-creative` (preserved in the three
 
 ## Execution State
 
-**Build Status**: PHASE_COMPLETE (Phase 2)
-**Current Build**: Phase 2: OnboardingMailer#invitee_setup_email edits — COMPLETE
+**Build Status**: BUILD_COMPLETE (all phases)
+**Current Build**: All 4 phases COMPLETE
 **Build Started**: 2026-05-10
-**Phase Number**: 2 of 4 (labelled 0,1,2,3); next phase = Phase 3 (system E2E spec covering AC-INTEGRATION-1: GM reply → CC promotion → identity step → cascade gating activates)
+**Build Completed**: 2026-05-11
+**Phase Number**: 4 of 4 (all complete: 0, 1, 2, 3)
 **Is Multi-Phase**: YES
-**Current Phase**: BUILD
-**Current Step**: Phase 2 complete; STOPPED for human review before Phase 3
-**Step Started**: 2026-05-10
-**Can Resume**: YES
+**Current Phase**: BUILD_COMPLETE
+**Current Step**: Phases 0–3 all complete; ready for /rai-reflect TASK-009
+**Step Started**: 2026-05-11
+**Can Resume**: NO
 
 ### Active Sub-Agents
 (none — lighter route, direct execution)
@@ -180,3 +181,4 @@ None — all five resolved in TASK-008's `/rai-creative` (preserved in the three
 - 2026-05-10: Phase 0 — refactored `Contacts::PhoneNormalizer.call` to return `Result = Struct.new(:normalized, :valid?, keyword_init: true)` per architecture doc. Spec rewritten to assert on `.normalized` and `.valid?` (13 examples, was 10 — split the single blank-input it-block into three separate specs for nil/empty/whitespace + added a struct-type assertion). Full suite 424/424 green. `rubyfmt --check` exits 0 globally.
 - 2026-05-10: Phase 1 — implemented identity step. New `identity.html.erb` (UI/UX Sub-Decision 2 verbatim), controller `template_for_step` identity branch + `handle_identity_update` in `update`, three ancillary view edits (summary/method_picker step counters, done first-name greeting, summary empty-responsibility else-branch refresh + Continue gating). Added `Contact#unverified?` instance predicate (mirrors `verified?`). Updated FEAT-001 full-loop system spec to walk the new identity step. 18 new request specs (33 total in `walkthroughs_spec.rb`, was 15). Full suite **442 / 442** green. `rubyfmt --check` exits 0 globally.
 - 2026-05-10: Phase 2 — updated `OnboardingMailer#invitee_setup_email` subject + both body templates per UI/UX Sub-Decision 1. Subject: `"<Dealership>: set up your details and how you'll send data"` (was `"...: data collection assignment"`). HTML + text bodies replaced verbatim from the UI/UX doc (CTA "Set up your assignment", ~1-minute language, name+phone framing, "no password or account needed" reassurance). Mailer spec extended (+4 assertions: CTA, HTML ~1-minute language, text ~1-minute language, "name and phone" phrase). Two collateral specs that looked up the email by old subject text updated: `onboarding_mailbox_spec` and the FEAT-001 full-loop system spec. Manually eyeballed via `bin/rails runner` — output renders correctly; conductor-reply dev link auto-fills the new subject. Full suite **444 / 444** green. `rubyfmt --check` exits 0 globally.
+- 2026-05-11: Phase 3 — new `spec/system/contact_self_verification_spec.rb` (1 system spec, AC-INTEGRATION-1). Drives a real inbound email through `OnboardingMailbox#handle_assignment` → Alex's Contact created unverified + Responsibility + Source + setup email queued. Synthesizes a parallel `marketing_budget` responsibility naming Alex as a fallback. Pre-verification assertion: `fallback_emails_for` filters Alex out. Reads the setup URL out of the real queued email, visits, fills the identity form via Capybara, redirects to Step 2 of 4. Post-verification assertion: same `fallback_emails_for` call now includes Alex. Plus a FlowEvent audit-trail check for `contact.verified`. Full suite **445 / 445** green. `rubyfmt --check` exits 0 globally. All 4 phases complete — ready for `/rai-reflect`.

@@ -215,4 +215,16 @@ Manually rendered via `bin/rails runner` to eyeball output — text body matches
 
 **Build & Quality**: **444 examples, 0 failures** (2 added in this phase). `rubyfmt --check` exits 0 globally.
 
+## TASK-009 — Phase 3: System E2E spec (AC-INTEGRATION-1, 2026-05-11)
+
+One Capybara-driven system spec stitches the FEAT-006 round-trip together: GM reply → mailbox promotes Alex unverified → Alex completes identity → escalation cascade re-evaluates and stops filtering him. The spec drives a real inbound email through `OnboardingMailbox#handle_assignment` (creating Alex's Contact + Responsibility + Source + queued setup email), synthesizes a parallel `marketing_budget` responsibility that names Alex as a fallback, asserts `EscalationCascade.send(:fallback_emails_for, prompt)` excludes Alex pre-verification, reads the setup URL out of the real queued mailer delivery, drives Capybara through `/setup/<signed_id>` filling first/last/phone, lands on Step 2 of 4, and asserts the same `fallback_emails_for` call now includes Alex. A FlowEvent audit-trail assertion confirms `contact.verified` landed atomically.
+
+Why this design: the FEAT-001 full-loop system spec already exercises mailbox → setup email → identity → method picker → done as the GM's primary-CC path. This spec focuses on the unique value-add of AC-INTEGRATION-1: proving the gating *consequence* — same cascade call, same data, different verification state, different outcome. Synthesizing the parallel `marketing_budget` responsibility was the cleanest way to put Alex in a fallback chain without re-driving an unrelated inbound email; the mailbox-driven primary-CC path is still exercised at the top of the spec so "mailbox creates unverified Contact" stays in the integration surface.
+
+Using `EscalationCascade.send(:fallback_emails_for, ...)` to call the private method is a deliberate test-only peek — the AC explicitly names that method as the assertion target, and driving the cascade all the way to `fallback_fanout` or `gm_nudge` to read the recipient/payload would require seeding multiple FlowEvent rows just to set up cascade rung state. Direct peek is cleaner and the contract being checked is exactly what the AC describes.
+
+**Build & Quality**: **445 examples, 0 failures** (1 added in this phase). `rubyfmt --check` exits 0 globally.
+
+**TASK-009 status: BUILD_COMPLETE. All 4 phases (0, 1, 2, 3) shipped on `feature/FEAT-006-self-verification-fe`. Ready for `/rai-reflect`.**
+
 
