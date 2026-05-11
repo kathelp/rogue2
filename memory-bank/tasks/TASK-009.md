@@ -158,14 +158,15 @@ None — all five resolved in TASK-008's `/rai-creative` (preserved in the three
 
 ## Execution State
 
-**Build Status**: BUILD_COMPLETE (all phases)
-**Current Build**: All 4 phases COMPLETE
+**Build Status**: REFLECT_COMPLETE
+**Current Build**: All 4 phases + reflection COMPLETE
 **Build Started**: 2026-05-10
 **Build Completed**: 2026-05-11
+**Reflection**: memory-bank/reflection/reflection-TASK-009.md
 **Phase Number**: 4 of 4 (all complete: 0, 1, 2, 3)
 **Is Multi-Phase**: YES
-**Current Phase**: BUILD_COMPLETE
-**Current Step**: Phases 0–3 all complete; ready for /rai-reflect TASK-009
+**Current Phase**: REFLECT
+**Current Step**: Reflection written; 4 learnings extracted (1 promoted, 4 created); ready for /rai-archive TASK-009
 **Step Started**: 2026-05-11
 **Can Resume**: NO
 
@@ -182,3 +183,4 @@ None — all five resolved in TASK-008's `/rai-creative` (preserved in the three
 - 2026-05-10: Phase 1 — implemented identity step. New `identity.html.erb` (UI/UX Sub-Decision 2 verbatim), controller `template_for_step` identity branch + `handle_identity_update` in `update`, three ancillary view edits (summary/method_picker step counters, done first-name greeting, summary empty-responsibility else-branch refresh + Continue gating). Added `Contact#unverified?` instance predicate (mirrors `verified?`). Updated FEAT-001 full-loop system spec to walk the new identity step. 18 new request specs (33 total in `walkthroughs_spec.rb`, was 15). Full suite **442 / 442** green. `rubyfmt --check` exits 0 globally.
 - 2026-05-10: Phase 2 — updated `OnboardingMailer#invitee_setup_email` subject + both body templates per UI/UX Sub-Decision 1. Subject: `"<Dealership>: set up your details and how you'll send data"` (was `"...: data collection assignment"`). HTML + text bodies replaced verbatim from the UI/UX doc (CTA "Set up your assignment", ~1-minute language, name+phone framing, "no password or account needed" reassurance). Mailer spec extended (+4 assertions: CTA, HTML ~1-minute language, text ~1-minute language, "name and phone" phrase). Two collateral specs that looked up the email by old subject text updated: `onboarding_mailbox_spec` and the FEAT-001 full-loop system spec. Manually eyeballed via `bin/rails runner` — output renders correctly; conductor-reply dev link auto-fills the new subject. Full suite **444 / 444** green. `rubyfmt --check` exits 0 globally.
 - 2026-05-11: Phase 3 — new `spec/system/contact_self_verification_spec.rb` (1 system spec, AC-INTEGRATION-1). Drives a real inbound email through `OnboardingMailbox#handle_assignment` → Alex's Contact created unverified + Responsibility + Source + setup email queued. Synthesizes a parallel `marketing_budget` responsibility naming Alex as a fallback. Pre-verification assertion: `fallback_emails_for` filters Alex out. Reads the setup URL out of the real queued email, visits, fills the identity form via Capybara, redirects to Step 2 of 4. Post-verification assertion: same `fallback_emails_for` call now includes Alex. Plus a FlowEvent audit-trail check for `contact.verified`. Full suite **445 / 445** green. `rubyfmt --check` exits 0 globally. All 4 phases complete — ready for `/rai-reflect`.
+- 2026-05-11: Reflection — wrote `memory-bank/reflection/reflection-TASK-009.md` (Level 3 format, two-dimensional). Extracted 4 reusable learnings: `forward-debt-resolution` (NEW), `html-entity-agnostic-assertions` (NEW), `predicate-pair-symmetry` (NEW), `lighter-route-eligibility` (NEW). Amended `service-shape` (evidence 2 → 3, **promoted to medium priority**). Learning log updated. Ready for `/rai-archive`.

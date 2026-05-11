@@ -60,3 +60,17 @@ Chronological record of pattern extraction and consolidation events from task re
 
 ### systemPatterns.md Updates
 - None this round — all four learnings are coding/workflow practices, not novel architectural patterns.
+
+---
+
+## 2026-05-11 — TASK-009 Reflection
+
+### Extracted Patterns
+- **service-shape** → amended `agent-rules/_learned/service-shape.md` (evidence count: 2 → 3) and **promoted** to `medium` priority (promotion threshold = 3 met). New evidence: TASK-009 Phase 0 resolved the TASK-008 PhoneNormalizer divergence by refactoring to the architecture-doc-prescribed Result struct shape before any consuming code landed.
+- **forward-debt-resolution** → created `agent-rules/_learned/forward-debt-resolution.md` (evidence count: 1). When archive flags forward debt, the consuming task should resolve it as **Phase 0** before any other code consumes the diverged contract.
+- **html-entity-agnostic-assertions** → created `agent-rules/_learned/html-entity-agnostic-assertions.md` (evidence count: 1). Spec assertions on HTML-rendered error text should check the error element's `id` plus a regex agnostic to entity encoding (`&#39;` for `'`, etc.).
+- **predicate-pair-symmetry** → created `agent-rules/_learned/predicate-pair-symmetry.md` (evidence count: 1). When extending a model with a positive predicate (`verified?`), also add the negation (`unverified?`) if a scope of that name exists or is likely to be added.
+- **lighter-route-eligibility** → created `agent-rules/_learned/lighter-route-eligibility.md` (evidence count: 1). Continuation tasks with resolved design questions and bounded scope can run a lighter workflow (skip `/rai-plan`, skip `/rai-creative`, inline build phases) — opt-in escape hatch declared at task creation, not the default.
+
+### systemPatterns.md Updates
+- None this round — all five learnings are workflow/coding practices, not novel architectural patterns. The lighter-route eligibility pattern is itself meta-architectural (about how we decide between workflow shapes) and lives more naturally in `_learned/` than in `systemPatterns.md`.
