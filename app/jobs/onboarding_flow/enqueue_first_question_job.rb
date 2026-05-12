@@ -1,7 +1,10 @@
 # OnboardingFlow::EnqueueFirstQuestionJob
 #
-# Finds the first pending TenantQuestion for a confirmed tenant and schedules
-# the question email for delivery, respecting the business-hours envelope.
+# Finds the first pending TenantQuestion for a confirmed tenant and dispatches
+# the question email for immediate delivery. The first question is intentionally
+# exempt from both the per-tenant delay and the business-hours envelope so the
+# GM sees momentum the instant they confirm. Subsequent questions go through
+# OnboardingFlow::EnqueueNextQuestionJob and resume both gates.
 #
 # Args: tenant_id (Integer)
 #
@@ -28,22 +31,17 @@ class OnboardingFlow::EnqueueFirstQuestionJob < ApplicationJob
     # Pre-generate a deterministic Message-ID so we can persist it before delivery.
     message_id = generate_message_id(tenant, question)
 
-    # Compute delivery time: first_question_delay_minutes + business-hours envelope.
-    target = Time.current + tenant.first_question_delay_minutes.minutes
-    deliver_at = OnboardingFlow::Scheduling.next_business_window(
-      after: target,
-      time_zone: tenant.time_zone
-    )
+    sent_at = Time.current
 
     OnboardingMailer
       .with(tenant: tenant, tenant_question: question, message_id: message_id)
       .question_email
-      .deliver_later(wait_until: deliver_at)
+      .deliver_later
 
     # Persist tracking state on the question row.
     question.update!(
       status: "sent",
-      sent_at: deliver_at,
+      sent_at: sent_at,
       outbound_message_id: message_id
     )
 
@@ -51,7 +49,7 @@ class OnboardingFlow::EnqueueFirstQuestionJob < ApplicationJob
       event_type: "question.sent",
       tenant: tenant,
       subject: question,
-      payload: {message_id: message_id, deliver_at: deliver_at.iso8601}
+      payload: {message_id: message_id, deliver_at: sent_at.iso8601}
     )
   end
 

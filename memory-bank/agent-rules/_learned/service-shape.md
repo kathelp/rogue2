@@ -2,9 +2,9 @@
 name: "Learned: Service Class Shape"
 globs: ["app/services/**/*.rb"]
 topics: ["service-classes", "testing", "value-objects"]
-priority: low
-evidence_count: 2
-last_updated: 2026-05-09
+priority: medium
+evidence_count: 3
+last_updated: 2026-05-11
 auto_generated: true
 ---
 
@@ -19,3 +19,4 @@ auto_generated: true
 |----------|--------|------|
 | `OnboardingReplyParser` → `ParsedReply` Struct; `Accountability::DigestAssembler` → `Digest`+`Row`; `Setup::Completion` → `Result.success?`. All three made test pyramid cheap and call sites readable. | [reflection-TASK-001.md](../../reflection/reflection-TASK-001.md) | 2026-05-03 |
 | `Contacts::PhoneNormalizer` returned nil-or-String while the architecture doc specified `Result = Struct.new(:normalized, :valid?, ...)` and the deferred controller stub used `phone_result.valid?`. Divergence detected at reflection, not at build — a reconciliation gate would have surfaced it earlier. | [reflection-TASK-008.md](../../reflection/reflection-TASK-008.md) | 2026-05-09 |
+| TASK-009 Phase 0 resolved the TASK-008 PhoneNormalizer divergence by refactoring to the architecture-doc-prescribed Result struct shape before any controller code consumed it. The consumer (`Setup::WalkthroughsController#handle_identity_update`) then landed in one pass with `phone_result.valid?` working directly. Forward-debt resolution as Phase 0 of the consuming task — promoted to medium priority. | [reflection-TASK-009.md](../../reflection/reflection-TASK-009.md) | 2026-05-11 |

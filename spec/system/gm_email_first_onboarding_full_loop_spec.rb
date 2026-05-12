@@ -101,7 +101,7 @@ RSpec.describe "GM email-first onboarding full loop", type: :system do
 
     # Two outbound mails should have been queued: in_thread_ack to Jane + invitee_setup_email to Alex
     setup_mail = ActionMailer::Base.deliveries.find { |m|
-      m.to.include?("alex@smithtoyota.com") && m.subject&.include?("data collection assignment")
+      m.to.include?("alex@smithtoyota.com") && m.subject&.include?("set up your details")
     }
     expect(setup_mail).not_to(be_nil)
 
@@ -114,15 +114,26 @@ RSpec.describe "GM email-first onboarding full loop", type: :system do
     setup_path = URI.parse(setup_url).path
 
     visit(setup_path)
+
+    # Step 1 of 4: identity step (FEAT-006 — unverified contact must self-verify)
+    expect(page).to(have_text("Step 1 of 4"))
+    expect(page).to(have_text("Smith Toyota"))
+    fill_in("First name", with: "Alex")
+    fill_in("Last name", with: "Rivera")
+    fill_in("Mobile phone", with: "(512) 555-1234")
+    click_button("Continue")
+
+    # Step 2 of 4: assignment summary
+    expect(page).to(have_text("Step 2 of 4"))
     expect(page).to(have_text("Smith Toyota"))
     click_link("Continue")
 
-    # Step 2: method picker
+    # Step 3 of 4: method picker
     expect(page).to(have_field("source_submission_method_form"))
     choose("source_submission_method_form")
     perform_enqueued_jobs { click_button("Finish setup") }
 
-    # Step 3: thank-you (submission method captured)
+    # Step 4 of 4: thank-you (submission method captured)
     expect(page).to(have_text(/set up|got it|received/i))
 
     # Source is now configured, Request + SubmissionPrompt provisioned

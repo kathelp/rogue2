@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
   </head>
   <body style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 640px; margin: 40px auto; padding: 0 20px; color: #222;">
-    <h1 style="font-size: 24px;">You're set up.</h1>
+    <h1 style="font-size: 24px;">You're set up<%= @contact&.first_name.present? ? ", #{@contact.first_name}" : "" %>.</h1>
 
     <% next_prompt = SubmissionPrompt
                        .joins(:request)

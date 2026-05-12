@@ -1,10 +1,12 @@
 # OnboardingFlow::Scheduling
 #
 # Business-hours envelope service per user-journey decision J3.
-# Questions only deliver Mon-Fri 9:30am-6pm in the tenant's timezone.
+# Questions (after the first) only deliver Mon-Fri 9:30am-6pm in the tenant's
+# timezone. The first question email post-confirmation is exempt and sends
+# immediately — see OnboardingFlow::EnqueueFirstQuestionJob.
 #
 # Usage:
-#   target    = Time.current + tenant.first_question_delay_minutes.minutes
+#   target    = Time.current + tenant.next_question_delay_hours.hours
 #   deliver_at = OnboardingFlow::Scheduling.next_business_window(
 #                  after: target, time_zone: tenant.time_zone
 #                )

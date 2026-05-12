@@ -169,3 +169,62 @@ Single-file scope. The `gm_nudge` rung of the escalation cascade now CCs every r
 **Archive**: `memory-bank/archive/archive-TASK-007.md`
 
 ---
+
+## TASK-009 — Phase 0: Contacts::PhoneNormalizer::Result struct (FEAT-006 FE pass, Level 3, 2026-05-10)
+
+Resolved forward debt from TASK-008 archive. `Contacts::PhoneNormalizer.call` now returns `Result = Struct.new(:normalized, :valid?, keyword_init: true)` exactly per the FEAT-006 architecture doc — `.normalized` is the E.164 string when valid, nil otherwise; `.valid?` is the predicate the upcoming `Setup::WalkthroughsController#update` identity branch will branch on. No callers exist yet; isolated contract change.
+
+Spec rewritten against the struct (`.normalized` + `.valid?`). Net spec count: was 10, now 13 (split the single blank-input it-block into three separate specs for nil/empty/whitespace + added a struct-type assertion). No production code beyond the normalizer touched. Architecture doc shape matches implementation exactly — no doc edit needed.
+
+**Build & Quality**: 424 examples, 0 failures. `rubyfmt --check` exits 0 globally.
+
+## TASK-009 — Phase 1: Identity step controller + view + ancillary edits (2026-05-10)
+
+The FE surface for FEAT-006 is now live. CC'd contacts arrive at `/setup/<signed_id>` and now land on a Step 1 of 4 identity form (per UI/UX Sub-Decision 2: single-column inline-CSS, three required fields, aria-described errors above each input, phone hint always visible). On successful PATCH the controller writes `Contact.update! + FlowEvent.record!(event_type: "contact.verified")` atomically and redirects to `step=summary`. Failures rerender with 422, per-field error text + `aria-invalid`, and preserve submitted values (first/last from `@contact.assign_attributes`, raw phone from `@phone_attempt` because the `:phone` column is encrypted non-deterministically and can't accept the pre-normalized string).
+
+Implementation:
+- New `app/views/setup/walkthroughs/identity.html.erb` — verbatim per UI/UX Sub-Decision 2.
+- `Setup::WalkthroughsController` extended: `template_for_step` returns `:identity` when `@contact.unverified?` (after the configured-source resume short-circuit); `update` branches on `params.key?(:contact)` into `handle_identity_update` vs the existing `handle_source_update`.
+- `Contact#unverified?` instance predicate added (`!verified?`) to mirror the existing `verified?` and the `:unverified` scope.
+- View renumbering: `summary.html.erb` → "Step 2 of 4"; `method_picker.html.erb` → "Step 3 of 4".
+- `done.html.erb` greets by first name: `You're set up, <FirstName>.`
+- `summary.html.erb` empty-responsibility else-branch refreshed with "Your details are saved, X" acknowledgment; Continue link wrapped in `<% if @responsibility %>` so post-identity contacts without an active assignment don't see a button that leads to a dead end.
+
+Spec changes:
+- `walkthroughs_spec.rb`: 18 new request specs (33 total, was 15). The existing top-level `let(:contact)` switched to `:verified` trait so the pre-identity tests still exercise the post-identity flow; a new `describe "Identity step (FEAT-006 FE pass)"` block creates an unverified contact for the new flow coverage.
+- Existing FEAT-001 full-loop system spec (`gm_email_first_onboarding_full_loop_spec.rb`) updated to walk the identity step (Alex fills in name + phone before reaching the assignment summary).
+
+Surprises:
+- Rails HTML-escapes the apostrophe in `"can't be blank"` to `&#39;`. First test pass failed on three blank-field assertions matching the un-escaped string. Tightened those assertions to check the `id="<field>-error"` element plus a regex `/Field name.{0,20}blank/` that's agnostic to the entity encoding. Cleaner than escaping the test strings.
+- `Contact` had a `verified?` instance predicate + `:verified`/`:unverified` scopes from TASK-008, but no `unverified?` instance predicate. Added it (one-liner) rather than uglying up the controller with `!@contact.verified?`.
+
+**Build & Quality**: **442 examples, 0 failures** (18 added in this phase). `rubyfmt --check` exits 0 globally.
+
+## TASK-009 — Phase 2: OnboardingMailer#invitee_setup_email edits (2026-05-10)
+
+Setup-invitation email subject and both body templates rewritten per UI/UX Sub-Decision 1. Subject changed from `"<Dealership>: data collection assignment"` to `"<Dealership>: set up your details and how you'll send data"` — honest about the three-step ask (name + phone + method) and consistent with the existing colon-separator subject pattern. Both `invitee_setup_email.html.erb` and `.text.erb` replaced verbatim from the doc:
+- Heading unchanged: `You've been added to <Dealership>'s data setup`.
+- Body softened from "named you as the person to handle this" → "asked you to handle this" (less formal, more recognizable to a busy person).
+- Expectation-setting sentence: "It takes about a minute. You'll confirm your name and phone number, then pick how you want to send data." (was: "To finish setup (about a minute), click below").
+- CTA: "Set up your assignment" (was: "Set up data collection") — matches the in-app step label.
+- Reassurance footer: "No password or account needed — just your name, phone, and a submission preference."
+
+Two parallel specs (mailbox + system) updated because they look the email up by subject substring. The mailer spec gained four assertions (CTA copy, ~1-minute language in HTML and text, "name and phone" framing in both parts).
+
+Manually rendered via `bin/rails runner` to eyeball output — text body matches the doc verbatim, and the dev-only conductor reply link (from TASK-006) auto-fills the new subject correctly into the action_mailbox conductor URL.
+
+**Build & Quality**: **444 examples, 0 failures** (2 added in this phase). `rubyfmt --check` exits 0 globally.
+
+## TASK-009 — Phase 3: System E2E spec (AC-INTEGRATION-1, 2026-05-11)
+
+One Capybara-driven system spec stitches the FEAT-006 round-trip together: GM reply → mailbox promotes Alex unverified → Alex completes identity → escalation cascade re-evaluates and stops filtering him. The spec drives a real inbound email through `OnboardingMailbox#handle_assignment` (creating Alex's Contact + Responsibility + Source + queued setup email), synthesizes a parallel `marketing_budget` responsibility that names Alex as a fallback, asserts `EscalationCascade.send(:fallback_emails_for, prompt)` excludes Alex pre-verification, reads the setup URL out of the real queued mailer delivery, drives Capybara through `/setup/<signed_id>` filling first/last/phone, lands on Step 2 of 4, and asserts the same `fallback_emails_for` call now includes Alex. A FlowEvent audit-trail assertion confirms `contact.verified` landed atomically.
+
+Why this design: the FEAT-001 full-loop system spec already exercises mailbox → setup email → identity → method picker → done as the GM's primary-CC path. This spec focuses on the unique value-add of AC-INTEGRATION-1: proving the gating *consequence* — same cascade call, same data, different verification state, different outcome. Synthesizing the parallel `marketing_budget` responsibility was the cleanest way to put Alex in a fallback chain without re-driving an unrelated inbound email; the mailbox-driven primary-CC path is still exercised at the top of the spec so "mailbox creates unverified Contact" stays in the integration surface.
+
+Using `EscalationCascade.send(:fallback_emails_for, ...)` to call the private method is a deliberate test-only peek — the AC explicitly names that method as the assertion target, and driving the cascade all the way to `fallback_fanout` or `gm_nudge` to read the recipient/payload would require seeding multiple FlowEvent rows just to set up cascade rung state. Direct peek is cleaner and the contract being checked is exactly what the AC describes.
+
+**Build & Quality**: **445 examples, 0 failures** (1 added in this phase). `rubyfmt --check` exits 0 globally.
+
+**TASK-009 status: BUILD_COMPLETE. All 4 phases (0, 1, 2, 3) shipped on `feature/FEAT-006-self-verification-fe`. Ready for `/rai-reflect`.**
+
+

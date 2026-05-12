@@ -14,14 +14,17 @@
                 <p>
                   <strong><%= @tenant.gm_name %></strong> at
                   <strong><%= @tenant.dealership_name %></strong>
-                  named you as the person to handle this:
+                  asked you to handle this:
                 </p>
 
                 <p style="border-left: 3px solid #ccc; padding: 8px 14px; margin: 12px 0;">
                   <em><%= @question.prompt %></em>
                 </p>
 
-                <p>To finish setup (about a minute), click below:</p>
+                <p>
+                  It takes about a minute. You'll confirm your name and phone number,
+                  then pick how you want to send data.
+                </p>
               </td>
             </tr>
             <tr>
@@ -31,7 +34,7 @@
                     <td style="background-color: #000; border-radius: 4px;">
                       <a href="<%= @setup_url %>"
                          style="display: inline-block; padding: 14px 28px; color: #fff; font-weight: bold; text-decoration: none; font-size: 16px;">
-                        Set up data collection
+                        Set up your assignment
                       </a>
                     </td>
                   </tr>
@@ -40,7 +43,9 @@
             </tr>
             <tr>
               <td style="padding: 0 20px 20px;">
-                <p>You'll pick how you want to send the data (web form, CSV, or API), and we'll let you know when your first submission is due.</p>
+                <p style="color: #666; font-size: 13px;">
+                  No password or account needed — just your name, phone, and a submission preference.
+                </p>
 
                 <p>— The Rogue team</p>
 

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Set up — <%= @contact&.tenant&.dealership_name %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+  </head>
+  <body style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 640px; margin: 40px auto; padding: 0 20px; color: #222;">
+
+    <h1 style="font-size: 24px;">Step 1 of 4 — Your details</h1>
+
+    <p style="color: #555; margin-top: 0;">
+      No password, no account. Just three details so
+      <strong><%= @contact.tenant.dealership_name %></strong> knows it's you.
+    </p>
+
+    <%= form_with url: setup_walkthrough_path(signed_id: params[:signed_id]),
+                  method: :patch,
+                  local: true,
+                  scope: :contact do |f| %>
+
+      <div style="margin: 20px 0;">
+        <% if @errors&.key?(:first_name) %>
+          <p id="first-name-error"
+             role="alert"
+             style="color: #800; font-size: 14px; margin: 0 0 4px;">
+            <%= @errors[:first_name] %>
+          </p>
+        <% end %>
+        <%= f.label :first_name, "First name",
+                    style: "display: block; font-weight: bold; margin-bottom: 6px;",
+                    for: "contact_first_name" %>
+        <%= f.text_field :first_name,
+                         id: "contact_first_name",
+                         value: @contact.first_name,
+                         autocomplete: "given-name",
+                         required: true,
+                         "aria-describedby": (@errors&.key?(:first_name) ? "first-name-error" : nil),
+                         "aria-invalid": (@errors&.key?(:first_name) ? "true" : nil),
+                         style: [
+                           "width: 100%; padding: 10px; border-radius: 4px; font-size: 16px; box-sizing: border-box;",
+                           @errors&.key?(:first_name) ? "border: 1px solid #c00;" : "border: 1px solid #ccc;"
+                         ].join(" ") %>
+      </div>
+
+      <div style="margin: 20px 0;">
+        <% if @errors&.key?(:last_name) %>
+          <p id="last-name-error"
+             role="alert"
+             style="color: #800; font-size: 14px; margin: 0 0 4px;">
+            <%= @errors[:last_name] %>
+          </p>
+        <% end %>
+        <%= f.label :last_name, "Last name",
+                    style: "display: block; font-weight: bold; margin-bottom: 6px;",
+                    for: "contact_last_name" %>
+        <%= f.text_field :last_name,
+                         id: "contact_last_name",
+                         value: @contact.last_name,
+                         autocomplete: "family-name",
+                         required: true,
+                         "aria-describedby": (@errors&.key?(:last_name) ? "last-name-error" : nil),
+                         "aria-invalid": (@errors&.key?(:last_name) ? "true" : nil),
+                         style: [
+                           "width: 100%; padding: 10px; border-radius: 4px; font-size: 16px; box-sizing: border-box;",
+                           @errors&.key?(:last_name) ? "border: 1px solid #c00;" : "border: 1px solid #ccc;"
+                         ].join(" ") %>
+      </div>
+
+      <div style="margin: 20px 0;">
+        <% if @errors&.key?(:phone) %>
+          <p id="phone-error"
+             role="alert"
+             style="color: #800; font-size: 14px; margin: 0 0 4px;">
+            <%= @errors[:phone] %>
+          </p>
+        <% end %>
+        <%= f.label :phone, "Mobile phone",
+                    style: "display: block; font-weight: bold; margin-bottom: 6px;",
+                    for: "contact_phone" %>
+        <%= f.telephone_field :phone,
+                              id: "contact_phone",
+                              value: @phone_attempt || @contact.phone,
+                              autocomplete: "tel",
+                              inputmode: "tel",
+                              placeholder: "(555) 010-1234",
+                              "aria-describedby": [
+                                (@errors&.key?(:phone) ? "phone-error" : nil),
+                                "phone-hint"
+                              ].compact.join(" ").presence,
+                              "aria-invalid": (@errors&.key?(:phone) ? "true" : nil),
+                              style: [
+                                "width: 100%; padding: 10px; border-radius: 4px; font-size: 16px; box-sizing: border-box;",
+                                @errors&.key?(:phone) ? "border: 1px solid #c00;" : "border: 1px solid #ccc;"
+                              ].join(" ") %>
+        <p id="phone-hint" style="color: #555; font-size: 13px; margin: 4px 0 0;">
+          US numbers only. We plan to send submission links by text — you'll never get a marketing message.
+        </p>
+      </div>
+
+      <p style="margin-top: 28px;">
+        <%= f.submit "Continue",
+                     style: "padding: 12px 24px; background: #000; color: #fff; border: 0; border-radius: 4px; cursor: pointer; font-size: 16px;" %>
+      </p>
+
+    <% end %>
+  </body>
+</html>

@@ -1,12 +1,15 @@
 # Setup::WalkthroughsController
 #
-# 3-step invitee setup walkthrough at /setup/:signed_id.
-# - Step 1 ("summary")  : assignment context (default).
-# - Step 2 ("method")   : submission method picker (form / csv / api_post).
-# - Step 3 ("done")     : confirmation + next due date.
+# 4-step invitee setup walkthrough at /setup/:signed_id.
+# - Step 1 ("identity") : the contact fills in first/last/phone (unverified
+#                         contacts only — see Contact#verified?). Verified
+#                         contacts skip this step.
+# - Step 2 ("summary")  : assignment context (default landing for verified).
+# - Step 3 ("method")   : submission method picker (form / csv / api_post).
+# - Step 4 ("done")     : confirmation + next due date.
 #
 # Resumable: the same signed_id returns to the current step until expiry
-# (Contact#signed_id with purpose: :invitee_setup, 7-day expiry).
+# (Contact#invitee_setup_signed_id with purpose: :invitee_setup, 7-day expiry).
 class Setup::WalkthroughsController < ApplicationController
   before_action :load_contact
 
@@ -31,19 +34,10 @@ class Setup::WalkthroughsController < ApplicationController
     @responsibility = current_responsibility
     @source = current_source
 
-    method = params.dig(:source, :submission_method).to_s
-
-    result = Setup::Completion.call(
-      source: @source,
-      contact: @contact,
-      submission_method: method
-    )
-
-    if result.success?
-      redirect_to(setup_walkthrough_path(signed_id: params[:signed_id], step: "done"))
+    if params.key?(:contact)
+      handle_identity_update
     else
-      flash.now[:alert] = "Please pick a submission method."
-      render(:method_picker, status: :unprocessable_entity)
+      handle_source_update
     end
   end
 
@@ -73,6 +67,7 @@ class Setup::WalkthroughsController < ApplicationController
 
   def template_for_step(step_param)
     return :done if @source && @source.submission_method.present?
+    return :identity if @contact.unverified?
 
     case step_param
     when "method"
@@ -82,5 +77,72 @@ class Setup::WalkthroughsController < ApplicationController
     else
       :summary
     end
+  end
+
+  def handle_source_update
+    method = params.dig(:source, :submission_method).to_s
+
+    result = Setup::Completion.call(
+      source: @source,
+      contact: @contact,
+      submission_method: method
+    )
+
+    if result.success?
+      redirect_to(setup_walkthrough_path(signed_id: params[:signed_id], step: "done"))
+    else
+      flash.now[:alert] = "Please pick a submission method."
+      render(:method_picker, status: :unprocessable_entity)
+    end
+  end
+
+  def handle_identity_update
+    permitted = params.require(:contact).permit(:first_name, :last_name, :phone)
+    phone_result = Contacts::PhoneNormalizer.call(permitted[:phone])
+
+    @errors = identity_errors_for(permitted, phone_result)
+
+    if @errors.any?
+      # Repopulate first/last from the submitted values; phone is preserved
+      # separately in @phone_attempt because the column is encrypted and
+      # cannot accept the raw unparsed string.
+      @contact.assign_attributes(
+        first_name: permitted[:first_name],
+        last_name: permitted[:last_name]
+      )
+      @phone_attempt = permitted[:phone]
+      render(:identity, status: :unprocessable_entity)
+      return
+    end
+
+    ActiveRecord::Base.transaction do
+      @contact.update!(
+        first_name: permitted[:first_name],
+        last_name: permitted[:last_name],
+        phone: phone_result.normalized
+      )
+      FlowEvent.record!(
+        event_type: "contact.verified",
+        tenant: @contact.tenant,
+        subject: @contact,
+        actor: @contact
+      )
+    end
+
+    redirect_to(setup_walkthrough_path(signed_id: params[:signed_id], step: "summary"))
+  end
+
+  def identity_errors_for(permitted, phone_result)
+    errors = {}
+    errors[:first_name] = "First name can't be blank" if permitted[:first_name].blank?
+    errors[:last_name] = "Last name can't be blank" if permitted[:last_name].blank?
+
+    if permitted[:phone].blank?
+      errors[:phone] = "Mobile phone can't be blank"
+    elsif !phone_result.valid?
+      errors[:phone] = "Please enter a valid US mobile number (10 digits)"
+    end
+
+    errors
   end
 end
