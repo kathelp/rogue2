@@ -2,7 +2,7 @@
 
 ## Summary
 
-- **Total Features**: 6
+- **Total Features**: 7
 - **Released Versions**: 0
 - **Active Version**: none — `next` is the only version
 
@@ -18,6 +18,7 @@
   - FEAT-004: Escalation Cascade (complete, archived 2026-05-03) [Level 3]
   - FEAT-005: Escalation Refinements (complete, archived 2026-05-08) [Level 2]
   - FEAT-006: Cc'd Contact Self-Verification (backend complete, archived 2026-05-09; FE pass deferred) [Level 3]
+  - FEAT-007: Separate deliverable from question prompt in QUESTIONS catalog (complete, archived 2026-05-12) [Level 2]
   - FEAT-Ops-Cutover: Production email ingress, outbound provider, raw-payload archive (planned) [Level 2]
 
 ## Features
@@ -90,6 +91,19 @@
   - TASK-009: Cc'd Contact Self-Verification — FE pass (planned 2026-05-10; executes the deferred views, controller branch, mailer copy, and system spec against the TASK-008 creative docs)
 - **Branch**: feature/FEAT-006-ccd-contact-self-verification (backend; merged 2026-05-09) + feature/FEAT-006-self-verification-fe (FE pass; to be created)
 - **Created**: 2026-05-09
+
+### FEAT-007: Separate deliverable from question prompt in QUESTIONS catalog
+
+- **Version**: next
+- **Status**: complete (archived 2026-05-12)
+- **Archive**: memory-bank/archive/archive-TASK-010.md
+- **Priority**: medium
+- **Complexity**: Level 2
+- **Description**: Today, each entry in the onboarding `QUESTIONS` catalog (`lib/rogue/question_catalog/marketing/v1.rb`) has a single `prompt` field that does double duty: it is the question text emailed to the GM (e.g., "Who controls your marketing strategy?") *and* it is reverse-engineered into the responsibility/assignment label everywhere else by lowercasing it and stripping the trailing `?`. That label appears in `accountability_mailer/weekly_digest.{html,text}`, `dashboards/show`, `setup/walkthroughs/{summary,done}`, `onboarding_mailer/in_thread_ack.{html,text}`, and the canonical email subject from `mailers/concerns/threadable.rb`. The string-mangling is fragile and produces awkward labels ("who controls your marketing strategy"). This feature decouples the two by adding an explicit `deliverable` field to each `QUESTIONS` entry and a mirrored `deliverable` column on `tenant_questions` (same pattern as the existing `prompt` column). Consumers that currently mangle `prompt` switch to reading `deliverable`. The question email continues to use `prompt`. Example: prompt = "Who controls your marketing strategy at <%= dealership_name %>?" → deliverable = "Marketing strategy oversight" (or similar — exact copy decided in `/rai-plan`). Includes migration with backfill for existing `tenant_questions` rows, model validation, materializer update to write both fields, catalog spec coverage for the new field, and consumer updates across all six+ views/mailers.
+- **Linked Tasks**:
+  - TASK-010: Separate deliverable from question prompt in QUESTIONS catalog (complete, archived 2026-05-12)
+- **Branch**: feature/FEAT-007-separate-deliverable-from-prompt (merged 2026-05-12; deleted)
+- **Created**: 2026-05-12
 
 ### FEAT-Ops-Cutover: Production email ingress, outbound provider, raw-payload archive
 

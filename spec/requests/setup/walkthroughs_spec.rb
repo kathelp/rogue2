@@ -61,10 +61,11 @@ RSpec.describe "Setup::Walkthroughs", type: :request do
         expect(response).to(have_http_status(:ok))
       end
 
-      it "renders Step 1 — the assignment summary" do
+      it "renders Step 1 — the assignment summary using the question's deliverable, not the mangled prompt" do
         get(setup_walkthrough_path(signed_id: signed_id))
         expect(response.body).to(include("Smith Toyota"))
-        expect(response.body).to(include("marketing strategy"))
+        expect(response.body).to(include("marketing strategy report"))
+        expect(response.body).not_to(include("who controls"))
       end
 
       it "links to Step 2 — the method picker" do
@@ -419,6 +420,32 @@ RSpec.describe "Setup::Walkthroughs", type: :request do
       get(setup_walkthrough_path(signed_id: signed_id))
 
       expect(response.body).to(match(/You're set up, #{contact.first_name}\./))
+    end
+
+    it "done renders the next-prompt sentence using the question's deliverable, not the mangled prompt" do
+      source.update!(
+        submission_method: "form",
+        configured_at: Time.current,
+        configured_by_contact_id: contact.id
+      )
+      request_record = create(
+        :request,
+        tenant: tenant,
+        source: source,
+        metric_key: "strategy_summary",
+        cadence: "monthly"
+      )
+      create(
+        :submission_prompt,
+        tenant: tenant,
+        request: request_record,
+        scheduled_for: Time.zone.parse("2026-06-01")
+      )
+
+      get(setup_walkthrough_path(signed_id: signed_id))
+
+      expect(response.body).to(include("marketing strategy report"))
+      expect(response.body).not_to(include("who controls"))
     end
 
     context("when the contact is verified but has no active responsibility") do

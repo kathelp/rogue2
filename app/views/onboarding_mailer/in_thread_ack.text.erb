@@ -10,7 +10,7 @@ You can come back to this responsibility anytime by replying to this thread with
 <% elsif @parsed.intent == :self_assign %>
 Got it — you're taking this one yourself (<%= @tenant.gm_email_normalized %>). We'll send you setup instructions shortly.
 <% elsif @parsed.intent == :assign %>
-Got it — <%= @parsed.primary_email %> is on the hook for <%= @parsed.question&.prompt&.downcase&.sub(/\?$/, "") || "this responsibility" %>.
+Got it — <%= @parsed.primary_email %> is on the hook for <%= @parsed.question&.deliverable.presence || "this responsibility" %>.
 <% if @parsed.fallback_emails.any? %>
 Fallbacks (in order): <%= @parsed.fallback_emails.join(", ") %>.
 <% end %>

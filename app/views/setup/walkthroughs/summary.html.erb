@@ -10,7 +10,7 @@
       <p>
         <strong><%= @responsibility.tenant.dealership_name %></strong>
         asked you to provide
-        <strong><%= @responsibility.tenant_question.prompt.downcase.sub(/\?$/, "") %></strong>
+        <strong><%= @responsibility.tenant_question.deliverable %></strong>
         on a <strong><%= @responsibility.tenant_question.default_cadence %></strong> cadence.
       </p>
       <p>You'll be reminded by email when each submission is due. Nothing to remember.</p>

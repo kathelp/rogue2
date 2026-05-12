@@ -15,6 +15,7 @@ RSpec.describe TenantQuestion, type: :model do
   # --------------------------------------------------------------------------
   it { is_expected.to(validate_presence_of(:key)) }
   it { is_expected.to(validate_presence_of(:prompt)) }
+  it { is_expected.to(validate_presence_of(:deliverable)) }
   it { is_expected.to(validate_presence_of(:default_cadence)) }
   it { is_expected.to(validate_presence_of(:catalog_version)) }
 

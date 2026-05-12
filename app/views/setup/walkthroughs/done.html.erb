@@ -16,8 +16,8 @@
     <% if next_prompt && @responsibility %>
       <p>
         We'll prompt you to submit your first
-        <strong><%= @responsibility.tenant_question.prompt.downcase.sub(/\?$/, "") %></strong>
-        report on <strong><%= next_prompt.scheduled_for.in_time_zone(@responsibility.tenant.time_zone).strftime("%B %-d, %Y") %></strong>.
+        <strong><%= @responsibility.tenant_question.deliverable %></strong>
+        on <strong><%= next_prompt.scheduled_for.in_time_zone(@responsibility.tenant.time_zone).strftime("%B %-d, %Y") %></strong>.
       </p>
     <% else %>
       <p>You're set up. We'll be in touch when it's time for your first submission.</p>

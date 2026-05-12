@@ -38,7 +38,7 @@
                     <tbody>
                       <% @digest.rows.each do |row| %>
                         <tr style="border-top: 1px solid #eee;">
-                          <td><%= row.responsibility.tenant_question.prompt.downcase.sub(/\?$/, "").capitalize %></td>
+                          <td><%= row.responsibility.tenant_question.deliverable.capitalize %></td>
                           <td><%= row.primary_email %></td>
                           <td><%= status_badge(row.status) %></td>
                           <td>

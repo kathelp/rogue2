@@ -69,15 +69,17 @@ RSpec.describe AccountabilityMailer, type: :mailer do
         expect(mail.text_part).not_to(be_nil)
       end
 
-      it "lists the responsibility row in the HTML body" do
+      it "lists the responsibility row in the HTML body using the deliverable (capitalized), not the mangled prompt" do
         body = mail.html_part.body.decoded
-        expect(body).to(include("marketing strategy"))
+        expect(body).to(include("Marketing strategy report"))
+        expect(body).not_to(include("Who controls"))
         expect(body).to(include("alex@smithtoyota.com"))
       end
 
-      it "lists the responsibility row in the text body" do
+      it "lists the responsibility row in the text body using the deliverable (capitalized), not the mangled prompt" do
         body = mail.text_part.body.decoded
-        expect(body).to(include("marketing strategy"))
+        expect(body).to(include("Marketing strategy report"))
+        expect(body).not_to(include("Who controls"))
         expect(body).to(include("alex@smithtoyota.com"))
       end
 

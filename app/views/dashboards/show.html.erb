@@ -27,7 +27,7 @@
         <tbody>
           <% @digest.rows.each do |row| %>
             <%
-              responsibility_label = row.responsibility.tenant_question.prompt.downcase.sub(/\?$/, "").capitalize
+              responsibility_label = row.responsibility.tenant_question.deliverable.capitalize
               next_due_label = row.next_due_at ? row.next_due_at.in_time_zone(@tenant.time_zone).strftime("%b %-d, %Y") : "—"
             %>
             <tr>

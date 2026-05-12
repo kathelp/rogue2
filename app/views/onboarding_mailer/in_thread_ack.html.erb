@@ -12,7 +12,7 @@
     <% elsif @parsed.intent == :assign %>
       <% primary = @parsed.primary_email %>
       <% fallbacks = @parsed.fallback_emails %>
-      <p>Got it — <strong><%= primary %></strong> is on the hook for <%= @parsed.question&.prompt&.downcase&.sub(/\?$/, "") || "this responsibility" %>.</p>
+      <p>Got it — <strong><%= primary %></strong> is on the hook for <%= @parsed.question&.deliverable.presence || "this responsibility" %>.</p>
       <% if fallbacks.any? %>
         <p>Fallbacks (in order): <%= fallbacks.join(", ") %>.</p>
       <% end %>

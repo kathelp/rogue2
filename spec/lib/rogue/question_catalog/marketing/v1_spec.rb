@@ -10,7 +10,14 @@ RSpec.describe Rogue::QuestionCatalog::Marketing::V1 do
 
     it "each question has required keys" do
       described_class::QUESTIONS.each do |q|
-        expect(q).to(include(:key, :position, :prompt, :default_cadence, :metrics))
+        expect(q).to(include(:key, :position, :prompt, :deliverable, :default_cadence, :metrics))
+      end
+    end
+
+    it "each question has a non-empty deliverable string" do
+      described_class::QUESTIONS.each do |q|
+        expect(q[:deliverable]).to(be_a(String))
+        expect(q[:deliverable]).not_to(be_empty)
       end
     end
 
@@ -42,6 +49,19 @@ RSpec.describe Rogue::QuestionCatalog::Marketing::V1 do
       described_class.materialize_for(tenant: tenant)
       questions_with_name = tenant.tenant_questions.select { |q| q.prompt.include?("Smith Toyota") }
       expect(questions_with_name).not_to(be_empty)
+    end
+
+    it "persists the deliverable verbatim from the catalog entry" do
+      described_class.materialize_for(tenant: tenant)
+      catalog_by_key = described_class::QUESTIONS.index_by { |q| q[:key] }
+      tenant.tenant_questions.each do |tq|
+        expect(tq.deliverable).to(eq(catalog_by_key.fetch(tq.key)[:deliverable]))
+      end
+    end
+
+    it "does not substitute dealership_name in deliverable (static copy)" do
+      described_class.materialize_for(tenant: tenant)
+      expect(tenant.tenant_questions.none? { |q| q.deliverable.include?("Smith Toyota") }).to(be(true))
     end
 
     it "is idempotent — re-calling does not create duplicate rows" do
