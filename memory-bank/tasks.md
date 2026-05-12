@@ -10,3 +10,4 @@
 | TASK-007 | gm_nudge CCs responsibility chain | ARCHIVE | COMPLETE | N/A |
 | TASK-008 | Cc'd Contact Self-Verification | ARCHIVE | COMPLETE (backend; FE deferred) | FEAT-006 |
 | TASK-009 | Cc'd Contact Self-Verification — FE pass | REFLECT | REFLECT_COMPLETE | FEAT-006 |
+| TASK-010 | Separate deliverable from question prompt in QUESTIONS catalog | BUILD | Phase 1/2 | FEAT-007 |

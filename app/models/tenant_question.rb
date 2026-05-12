@@ -39,6 +39,7 @@ class TenantQuestion < ApplicationRecord
   validates :key, presence: true
   validates :position, presence: true, numericality: {only_integer: true, greater_than: 0}
   validates :prompt, presence: true
+  validates :deliverable, presence: true
   validates :default_cadence, presence: true
   validates :status, presence: true
   validates :key, uniqueness: {scope: %i[tenant_id catalog_version]}

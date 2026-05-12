@@ -6,6 +6,7 @@ FactoryBot.define do
     sequence(:key) { |n| "marketing_question_#{n}" }
     sequence(:position) { |n| n }
     prompt { "Who controls your marketing strategy at Smith Toyota?" }
+    deliverable { "marketing strategy report" }
     default_cadence { "monthly" }
     status { "pending" }
 
