@@ -1,10 +1,12 @@
 # TASK-010: Separate deliverable from question prompt in QUESTIONS catalog
 
 **Complexity**: Level 2 (inherited from FEAT-007)
-**Status**: REFLECTION_COMPLETE
+**Status**: COMPLETE
 **Reflection**: memory-bank/reflection/reflection-TASK-010.md
+**Archive**: memory-bank/archive/archive-TASK-010.md
+**Completed**: 2026-05-12
 **Roadmap**: FEAT-007
-**Branch**: feature/FEAT-007-separate-deliverable-from-prompt
+**Branch**: feature/FEAT-007-separate-deliverable-from-prompt (merged to main 2026-05-12; deleted)
 **Worktree**: N/A
 **Docs Opt-In**: no
 **Docs Opt-In Reason**: no Docusaurus tree at docs/
@@ -226,9 +228,9 @@ Sites unchanged:
 
 ## Execution State
 
-**Build Status**: REFLECTION_COMPLETE
-**Current Phase**: REFLECT → ARCHIVE
-**Last Completed**: REFLECT (memory-bank/reflection/reflection-TASK-010.md)
+**Build Status**: IDLE
+**Current Phase**: COMPLETE
+**Last Completed**: ARCHIVE (memory-bank/archive/archive-TASK-010.md)
 **Can Resume**: NO
 
 ### Active Sub-Agents

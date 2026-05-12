@@ -87,3 +87,15 @@ Chronological record of pattern extraction and consolidation events from task re
 
 ### systemPatterns.md Updates
 - None this round — both extracted/captured learnings are testing/copy practices, not novel architectural patterns.
+
+---
+
+## 2026-05-12 — Consolidation (during TASK-010 archive)
+
+- Files before: 12, Files after: 12
+- Merged: 0 (no pair has >50% topic/glob overlap — `build-orchestration`-tagged files [forward-debt-resolution, lighter-route-eligibility, scope-cut-resilience] each describe distinct concerns; `planning`-tagged files [schema-validation, scope-cut-resilience] address different planning steps)
+- Expired: 0 (all bullets created May 3 – May 12 2026; well under the 90-day expiry threshold)
+- Promoted: 0 (only `service-shape.md` was at the 3-evidence promotion threshold and was already promoted in the May 11 cycle; html-entity-agnostic-assertions.md is at 2-evidence after TASK-010 — one more reinforcement to promote)
+- Pruned: 0 (all files are well under the 15-bullet cap)
+
+Note: `_learned/` is 2 files over the configured cap of 10. The cap is enforced at extraction time (prefer amend over create when >= 10), which is why TASK-010's two learnings produced 1 amendment + 1 not-extracted rather than 2 new files. The cap is not retroactively pruned — the 12 existing files were created over the May 3 – May 11 window when the cap was being approached but not yet exceeded.

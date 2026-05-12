@@ -228,3 +228,14 @@ Using `EscalationCascade.send(:fallback_emails_for, ...)` to call the private me
 **TASK-009 status: BUILD_COMPLETE. All 4 phases (0, 1, 2, 3) shipped on `feature/FEAT-006-self-verification-fe`. Ready for `/rai-reflect`.**
 
 
+
+---
+
+## Task Archive: TASK-010
+
+**Task**: Separate deliverable from question prompt in QUESTIONS catalog
+**Status**: ARCHIVED
+**Date**: 2026-05-12
+**Archive**: `memory-bank/archive/archive-TASK-010.md`
+
+---
