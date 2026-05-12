@@ -74,3 +74,16 @@ Chronological record of pattern extraction and consolidation events from task re
 
 ### systemPatterns.md Updates
 - None this round — all five learnings are workflow/coding practices, not novel architectural patterns. The lighter-route eligibility pattern is itself meta-architectural (about how we decide between workflow shapes) and lives more naturally in `_learned/` than in `systemPatterns.md`.
+
+---
+
+## 2026-05-12 — TASK-010 Reflection
+
+### Extracted Patterns
+- **html-entity-agnostic-assertions** → amended (evidence count: 1 → 2) and renamed in frontmatter to "Rendered-output spec assertion patterns" — widened scope to cover both the original HTML-entity-agnostic pattern AND a new positive+negative assertion-pair pattern for field-swap regressions. New evidence: TASK-010 Phase 2 tightened five existing spec assertions from `include("marketing strategy")` (passes against both old and new behavior) to `include("Marketing strategy report") + not_to include("Who controls")` (fails old, passes new — the negative assertion is the regression guard).
+
+### Learnings Not Extracted
+- **"Audit adjacent template prose when introducing a named data field"** — TASK-010 hit "report report" doubling when deliverable "marketing strategy report" met template prose "submit your first X report". Caught at end-of-build human eyeball, not by any spec. Single-task evidence and `_learned/` is at-or-over the 10-file cap; preserved in the reflection's Extractable Learnings section for promotion if a future task reinforces. The lesson generalizes as: when a refactor replaces inline string-mangling with an explicit data field, the words around it in templates may need pruning.
+
+### systemPatterns.md Updates
+- None this round — both extracted/captured learnings are testing/copy practices, not novel architectural patterns.

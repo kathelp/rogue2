@@ -1,9 +1,10 @@
 # TASK-010: Separate deliverable from question prompt in QUESTIONS catalog
 
 **Complexity**: Level 2 (inherited from FEAT-007)
-**Status**: PLANNING_COMPLETE
+**Status**: REFLECTION_COMPLETE
+**Reflection**: memory-bank/reflection/reflection-TASK-010.md
 **Roadmap**: FEAT-007
-**Branch**: feature/FEAT-007-separate-deliverable-from-prompt (to be created from main)
+**Branch**: feature/FEAT-007-separate-deliverable-from-prompt
 **Worktree**: N/A
 **Docs Opt-In**: no
 **Docs Opt-In Reason**: no Docusaurus tree at docs/
@@ -225,9 +226,9 @@ Sites unchanged:
 
 ## Execution State
 
-**Build Status**: BUILD_COMPLETE
-**Current Phase**: BUILD (all phases complete; ready for /rai-reflect or /rai-archive)
-**Last Completed**: Phase 2 (Consumer site swap)
+**Build Status**: REFLECTION_COMPLETE
+**Current Phase**: REFLECT → ARCHIVE
+**Last Completed**: REFLECT (memory-bank/reflection/reflection-TASK-010.md)
 **Can Resume**: NO
 
 ### Active Sub-Agents
@@ -237,3 +238,5 @@ Sites unchanged:
 - PLAN: Specification written; locked decisions (backfill from prompt, no ERB on deliverable, NOT NULL with in-migration backfill, 7 consumer sites swap, 4 sites unchanged). Catalog deliverable strings drafted. Two-phase implementation roadmap.
 - BUILD Phase 1 (2026-05-12): Migration `20260512120000_add_deliverable_to_tenant_questions.rb` adds text NOT NULL `deliverable` column with in-migration backfill from `prompt`. `TenantQuestion` model validates presence. `QUESTIONS` catalog entries (all 6) gained `:deliverable` per locked copy table. Materializer writes deliverable verbatim (no ERB substitution). Factory default added. Catalog spec extended (+3 examples); model spec extended (+1 validation). 28 phase-1 specs green; 450/0 full suite green. Migrate + rollback + migrate cycle verified locally.
 - BUILD Phase 2 (2026-05-12): Seven consumer view/mailer-view files swapped from `prompt.downcase.sub(/\?$/, "")` (and `.capitalize` variant) to `deliverable` (and `deliverable.capitalize`): `setup/walkthroughs/summary.html.erb`, `setup/walkthroughs/done.html.erb`, `onboarding_mailer/in_thread_ack.{html,text}.erb` (with `.presence ||` fallback preserved), `accountability_mailer/weekly_digest.{html,text}.erb`, `dashboards/show.html.erb`. Spec coverage: +3 new examples (in_thread_ack HTML/text deliverable assertions; done deliverable assertion) with tight positive+negative assertions ("deliverable string appears" AND "mangled-prompt fragment does not"). Existing summary/dashboard/digest specs tightened to assert against the new format. Regression guards added for `question_email` and `invitee_setup_email` to confirm they still render the full prompt (AC-VIEWS-2). 453/0 full suite green.
+- BUILD hotfix (2026-05-12): Dropped literal "report" from `setup/walkthroughs/done.html.erb` template prose to avoid "submit your first marketing strategy report report" doubling, since most catalog deliverables now end in "report". One-line fix; no spec change needed (existing assertions still pass).
+- REFLECT (2026-05-12): Reflection document at `memory-bank/reflection/reflection-TASK-010.md`. 2 learnings extracted: positive+negative assertion pair pattern for field-swap regressions (amended `_learned/html-entity-agnostic-assertions.md`, evidence count 1 → 2, scope widened); "audit adjacent template prose" captured in the reflection's Extractable Learnings but not extracted to `_learned/` (cap exceeded at 12 files, single-task evidence).

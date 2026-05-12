@@ -17,6 +17,7 @@
 | TASK-002 | 2026-05-03 | 3 | 2 | 1 |
 | TASK-003 | 2026-05-03 | 2 | 2 | 0 |
 | TASK-008 | 2026-05-09 | 4 | 1 | 3 |
+| TASK-010 | 2026-05-12 | 2 | 1 | 0 |
 
 ## Rule Effectiveness
 
@@ -30,6 +31,7 @@
 | schema-validation.md | planning, schema, spec-writing | 1 | low | 2026-05-09 |
 | scope-cut-resilience.md | planning, build-orchestration | 1 | low | 2026-05-09 |
 | gating-filter-passthrough.md | filtering, data-modeling, gating | 1 | low | 2026-05-09 |
+| html-entity-agnostic-assertions.md | testing, assertion-patterns, field-swap | 2 | low | 2026-05-12 |
 
 ## Consolidation History
 
