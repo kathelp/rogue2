@@ -16,7 +16,7 @@ RSpec.describe "Dashboards", type: :request do
         expect(response.body).to(include("Smith Toyota"))
       end
 
-      it "lists each active responsibility" do
+      it "lists each active responsibility, using the deliverable (capitalized) for the row label" do
         question = create(
           :tenant_question,
           tenant: tenant,
@@ -33,6 +33,8 @@ RSpec.describe "Dashboards", type: :request do
 
         get(dashboard_path(signed_id: signed_id))
         expect(response.body).to(include("alex@smithtoyota.com"))
+        expect(response.body).to(include("Marketing strategy report"))
+        expect(response.body).not_to(include("Who controls"))
       end
 
       # FEAT-005 — status badges (web rendering uses CSS classes; emails keep inline styles)

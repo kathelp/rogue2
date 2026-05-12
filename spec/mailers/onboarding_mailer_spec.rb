@@ -125,11 +125,11 @@ RSpec.describe OnboardingMailer, type: :mailer do
       expect(mail.message_id).to(eq("onboarding-q-1-1-abc123@inbound.rogue.example"))
     end
 
-    it "HTML body mentions the question prompt" do
+    it "HTML body mentions the question prompt (regression guard: question_email keeps prompt, not deliverable)" do
       expect(mail.html_part.body.decoded).to(include("Who controls your marketing strategy at Smith Toyota?"))
     end
 
-    it "text body mentions the question prompt" do
+    it "text body mentions the question prompt (regression guard: question_email keeps prompt, not deliverable)" do
       expect(mail.text_part.body.decoded).to(include("Who controls your marketing strategy at Smith Toyota?"))
     end
 
@@ -224,6 +224,18 @@ RSpec.describe OnboardingMailer, type: :mailer do
     it "has a plain-text alternative" do
       expect(mail.text_part).not_to(be_nil)
       expect(mail.text_part.body.decoded).to(include("alex@smithtoyota.com"))
+    end
+
+    it "uses the question's deliverable in the 'on the hook for' phrase (HTML)" do
+      body = mail.html_part.body.decoded
+      expect(body).to(include("on the hook for marketing strategy report"))
+      expect(body).not_to(include("on the hook for who controls"))
+    end
+
+    it "uses the question's deliverable in the 'on the hook for' phrase (text)" do
+      body = mail.text_part.body.decoded
+      expect(body).to(include("on the hook for marketing strategy report"))
+      expect(body).not_to(include("on the hook for who controls"))
     end
 
     context("with next_question_at set") do
@@ -371,7 +383,7 @@ RSpec.describe OnboardingMailer, type: :mailer do
       expect(mail.text_part.body.decoded).to(match(%r{/setup/[A-Za-z0-9._\-]+}))
     end
 
-    it "names the question prompt in the body" do
+    it "names the question prompt in the body (regression guard: invitee_setup_email keeps prompt, not deliverable)" do
       expect(mail.html_part.body.decoded).to(include("Who controls your marketing strategy"))
     end
   end

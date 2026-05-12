@@ -8,7 +8,7 @@ No submissions yet — we'll keep this digest going every week so nothing slips.
 Here's where each responsibility stands:
 
 <% @digest.rows.each do |row| %>
-- <%= row.responsibility.tenant_question.prompt.downcase.sub(/\?$/, "").capitalize %>
+- <%= row.responsibility.tenant_question.deliverable.capitalize %>
   Owner:    <%= row.primary_email %>
   Status:   <%= case row.status
               when :pending_setup            then "Awaiting setup"
